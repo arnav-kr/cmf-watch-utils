@@ -52,7 +52,7 @@ Exact argument order depends on the script; the Java file header lists its param
 
 - Addresses in this documentation are virtual addresses (`0x10...`), not file offsets.
 - `0x101F4D70` is the BLE/AT group dispatcher; `0x10054CF4` is `system_app_launch`.
-- The ACTH fields are referenced in [app.bin internals](/watch-utils/devices/cmf-watch-pro-2/internals/appbin/).
+- The ACTH fields are referenced in [app.bin internals](/devices/cmf-watch-pro-2/internals/appbin/).
 - Decompiler output is a hypothesis, confirmed by a live reply or a byte-level round-trip.
 
 ## Reproducibility

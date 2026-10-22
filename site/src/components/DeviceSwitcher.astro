@@ -6,53 +6,75 @@ const devices = [
   { slug: 'cmf-watch', label: 'CMF Watch', state: 'planned' },
 ];
 
-const current = Astro.url.pathname.match(/\/devices\/([^/]+)\//)?.[1] ?? '';
+const path = Astro.url.pathname;
+const current = devices.find((device) => path.includes(`/devices/${device.slug}/`)) ?? devices[0];
 const base = import.meta.env.BASE_URL;
 ---
 
 <div class="device-switcher">
-  {
-    devices.map((device) => (
-      <details class="device-menu">
-        <summary class:list={['device-button', device.slug === current && 'is-current']}>
-          <span class="device-label">{device.label}</span>
-          <span class="device-state">{device.state === 'supported' ? 'supported' : 'planned'}</span>
-        </summary>
-        <ul class="device-list">
-          {
-            devices.map((entry) =>
-              entry.state === 'supported' ? (
-                <li>
-                  <a
-                    href={`${base}devices/${entry.slug}/`}
-                    class:list={['device-link', entry.slug === current && 'is-current']}
-                    aria-current={entry.slug === current ? 'page' : undefined}
-                  >
-                    <span>{entry.label}</span>
-                    <span class="device-badge">{entry.state}</span>
-                  </a>
-                </li>
-              ) : (
-                <li>
-                  <span class="device-link is-planned" aria-disabled="true">
-                    <span>{entry.label}</span>
-                    <span class="device-badge">{entry.state}</span>
-                  </span>
-                </li>
-              )
+  <details class="device-menu" id="device-menu">
+    <summary class="device-button">
+      <span class="device-label">{current.label}</span>
+      <span class="device-caret" aria-hidden="true">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="m6 9 6 6 6-6" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </span>
+    </summary>
+    <div class="device-panel">
+      <p class="device-panel-title">Device</p>
+      <ul class="device-list">
+        {
+          devices.map((device) =>
+            device.state === 'supported' ? (
+              <li>
+                <a
+                  href={`${base}devices/${device.slug}/`}
+                  class:list={['device-link', device.slug === current.slug && 'is-current']}
+                  aria-current={device.slug === current.slug ? 'page' : undefined}
+                >
+                  <span>{device.label}</span>
+                  {device.slug === current.slug && (
+                    <span class="device-check" aria-hidden="true">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <path d="m5 13 4 4 10-10" stroke-linecap="round" stroke-linejoin="round"></path>
+                      </svg>
+                    </span>
+                  )}
+                </a>
+              </li>
+            ) : (
+              <li>
+                <span class="device-link is-planned" aria-disabled="true">
+                  <span>{device.label}</span>
+                  <span class="device-badge">planned</span>
+                </span>
+              </li>
             )
-          }
-        </ul>
-      </details>
-    ))
-  }
+          )
+        }
+      </ul>
+    </div>
+  </details>
 </div>
+
+<script>
+  const menu = document.getElementById('device-menu');
+  if (menu) {
+    document.addEventListener('click', (event) => {
+      if (menu.open && !menu.contains(event.target)) menu.open = false;
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') menu.open = false;
+    });
+  }
+</script>
 
 <style>
   .device-switcher {
+    position: relative;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
   }
 
   .device-menu {
@@ -61,15 +83,17 @@ const base = import.meta.env.BASE_URL;
 
   .device-button {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.1rem;
-    padding: 0.15rem 0.5rem;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.5rem;
     border: 1px solid var(--sl-color-gray-5);
-    border-radius: 0.25rem;
+    border-radius: 0.3rem;
     cursor: pointer;
     list-style: none;
-    line-height: 1.2;
+    font-size: var(--sl-text-sm);
+    line-height: 1.4;
+    white-space: nowrap;
+    color: var(--sl-color-text);
   }
 
   .device-button::-webkit-details-marker {
@@ -78,35 +102,45 @@ const base = import.meta.env.BASE_URL;
 
   .device-button:hover {
     border-color: var(--sl-color-gray-4);
+    background: var(--sl-color-gray-6);
   }
 
   .device-label {
-    font-size: var(--sl-text-sm);
     font-weight: 600;
-    color: var(--sl-color-text-accent);
-    white-space: nowrap;
   }
 
-  .device-state {
-    font-size: var(--sl-text-2xs);
+  .device-caret {
+    display: inline-flex;
+    align-items: center;
     color: var(--sl-color-gray-3);
+  }
+
+  .device-panel {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 0.4rem);
+    z-index: 20;
+    min-width: 14rem;
+    padding: 0.5rem;
+    background: var(--sl-color-bg);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.4rem;
+    box-shadow: var(--sl-shadow-md);
+  }
+
+  .device-panel-title {
+    margin: 0 0 0.35rem;
+    padding: 0 0.5rem;
+    font-size: var(--sl-text-2xs);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.06em;
+    color: var(--sl-color-gray-3);
   }
 
   .device-list {
-    position: absolute;
-    right: 0;
-    top: calc(100% + 0.35rem);
-    z-index: 10;
-    min-width: 13rem;
     margin: 0;
-    padding: 0.25rem;
+    padding: 0;
     list-style: none;
-    background: var(--sl-color-bg);
-    border: 1px solid var(--sl-color-gray-5);
-    border-radius: 0.35rem;
-    box-shadow: var(--sl-shadow-md);
   }
 
   .device-link {
@@ -121,7 +155,7 @@ const base = import.meta.env.BASE_URL;
     text-decoration: none;
   }
 
-  .device-link:hover {
+  a.device-link:hover {
     background: var(--sl-color-gray-6);
     text-decoration: none;
   }
@@ -136,10 +170,15 @@ const base = import.meta.env.BASE_URL;
     cursor: default;
   }
 
+  .device-check {
+    display: inline-flex;
+    color: var(--sl-color-text-accent);
+  }
+
   .device-badge {
     font-size: var(--sl-text-2xs);
-    color: var(--sl-color-gray-3);
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    color: var(--sl-color-gray-3);
   }
 </style>

@@ -39,7 +39,7 @@ byte-identical for the shipped files.
 
 The app table at `0x101ED708` has 19 16-byte records: `[sport_type, seconds, category, ajs_index]`.
 All 19 `.ajs` files are warm-up animations. `9.ajs` is sport type **22**, an **8-second** warm-up.
-See [Watch faces & animations](/watch-utils/devices/cmf-watch-pro-2/formats/watchface/) for the full table.
+See [Watch faces & animations](/devices/cmf-watch-pro-2/formats/watchface/) for the full table.
 
 ## Capacity
 

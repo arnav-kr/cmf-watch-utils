@@ -33,43 +33,43 @@ service, a watch-face upload channel and an AOTA firmware update path.
 | Full AOTA firmware OTA | Image transferred, committed and booted on the watch |
 
 The detailed result table, with the evidence behind each entry, is on the
-[status page](/watch-utils/devices/cmf-watch-pro-2/status/).
+[status page](/devices/cmf-watch-pro-2/status/).
 
 ## Page map
 
 **Protocol**
 
-- [BLE protocol](/watch-utils/devices/cmf-watch-pro-2/protocol/ble/) — frames, keys, characteristic layout, notification streams
-- [AOTA OTA flow](/watch-utils/devices/cmf-watch-pro-2/protocol/ota/) — the verified update sequence
-- [Shell / AT channel](/watch-utils/devices/cmf-watch-pro-2/protocol/shell/) — command family and pairing secret retrieval
+- [BLE protocol](/devices/cmf-watch-pro-2/protocol/ble/) — frames, keys, characteristic layout, notification streams
+- [AOTA OTA flow](/devices/cmf-watch-pro-2/protocol/ota/) — the verified update sequence
+- [Shell / AT channel](/devices/cmf-watch-pro-2/protocol/shell/) — command family and pairing secret retrieval
 
 **Formats**
 
-- [AOTA container](/watch-utils/devices/cmf-watch-pro-2/formats/aota/)
-- [SDFS filesystem](/watch-utils/devices/cmf-watch-pro-2/formats/sdfs/)
-- [Watch faces & WFDL](/watch-utils/devices/cmf-watch-pro-2/formats/watchface/)
-- [UI style bundles](/watch-utils/devices/cmf-watch-pro-2/formats/style/)
-- [Picture codecs](/watch-utils/devices/cmf-watch-pro-2/formats/pictures/)
-- [AJS animations](/watch-utils/devices/cmf-watch-pro-2/formats/ajs/)
+- [AOTA container](/devices/cmf-watch-pro-2/formats/aota/)
+- [SDFS filesystem](/devices/cmf-watch-pro-2/formats/sdfs/)
+- [Watch faces & WFDL](/devices/cmf-watch-pro-2/formats/watchface/)
+- [UI style bundles](/devices/cmf-watch-pro-2/formats/style/)
+- [Picture codecs](/devices/cmf-watch-pro-2/formats/pictures/)
+- [AJS animations](/devices/cmf-watch-pro-2/formats/ajs/)
 
 **Internals**
 
-- [Hardware](/watch-utils/devices/cmf-watch-pro-2/internals/hardware/)
-- [app.bin internals](/watch-utils/devices/cmf-watch-pro-2/internals/appbin/)
-- [Recovery & boot modes](/watch-utils/devices/cmf-watch-pro-2/internals/recovery/)
+- [Hardware](/devices/cmf-watch-pro-2/internals/hardware/)
+- [app.bin internals](/devices/cmf-watch-pro-2/internals/appbin/)
+- [Recovery & boot modes](/devices/cmf-watch-pro-2/internals/recovery/)
 
 **Guides**
 
-- [Firmware OTA flash](/watch-utils/devices/cmf-watch-pro-2/guides/ota-flash/)
-- [Dial editing & upload](/watch-utils/devices/cmf-watch-pro-2/guides/dial-editing/)
-- [Bad Apple case study](/watch-utils/devices/cmf-watch-pro-2/guides/bad-apple/)
-- [Ghidra workflow](/watch-utils/devices/cmf-watch-pro-2/guides/ghidra/)
+- [Firmware OTA flash](/devices/cmf-watch-pro-2/guides/ota-flash/)
+- [Dial editing & upload](/devices/cmf-watch-pro-2/guides/dial-editing/)
+- [Bad Apple case study](/devices/cmf-watch-pro-2/guides/bad-apple/)
+- [Ghidra workflow](/devices/cmf-watch-pro-2/guides/ghidra/)
 
 ## Boundaries
 
 The constants, offsets and BLE behaviour documented here belong to this firmware build.
 Other models and other builds are covered by separate sections; see the
-[roadmap](/watch-utils/about/roadmap/).
+[roadmap](/about/roadmap/).
 
 Risks specific to this device — flashing, storage ceilings, unresolved formats — are on the
-[limitations page](/watch-utils/devices/cmf-watch-pro-2/limitations/).
+[limitations page](/devices/cmf-watch-pro-2/limitations/).

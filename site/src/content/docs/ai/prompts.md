@@ -11,7 +11,7 @@ covers.
 
 Scope, device-write approval and data handling:
 
-> You are working in `cmf-watch-utils`, an unofficial CMF Watch Pro 2 research repo. Read
+> You are working in `watch-utils`, an unofficial CMF Watch research repo. Read
 > `AGENTS.md` and `site/src/content/docs/ai/context.md` first. Never flash, upload, delete or
 > change device settings without explicit approval. Never commit firmware, vendor assets,
 > animation/watch-face media, MAC/serial/secret/authkey data, or personal logs. Prove format
@@ -50,7 +50,7 @@ BLE investigation, read-only until a write is approved:
 Documentation edits under the Astro content tree:
 
 > Edit the Astro content under `site/src/content/docs/`. Keep frontmatter `title` and
-> `description`. Use relative links for internal pages and include the `/watch-utils/`
+> `description`. Use relative links for internal pages and include the `/`
 > base only for splash/absolute links. Do not include real device identifiers. Run
 > `pnpm build` in `site/` and fix broken links.
 

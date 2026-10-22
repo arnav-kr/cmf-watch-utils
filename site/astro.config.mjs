@@ -3,8 +3,8 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 
 export default defineConfig({
-  site: 'https://arnav.is-a.dev',
-  base: '/watch-utils',
+  site: 'https://cmf.arnv.dev',
+  base: '',
   integrations: [
     starlight({
       title: 'Watch Utils',
@@ -21,7 +21,7 @@ export default defineConfig({
         baseUrl: 'https://github.com/arnav-kr/watch-utils/edit/main/site/',
       },
       components: {
-        Header: './src/components/Header.astro',
+        SocialIcons: './src/components/SocialIcons.astro',
       },
       sidebar: [
         {
@@ -48,26 +48,46 @@ export default defineConfig({
           ],
         },
         {
-          label: 'Devices',
+          label: 'CMF Watch Pro 2',
           items: [
             {
-              label: 'CMF Watch Pro 2',
+              label: 'Overview',
               items: [
                 { label: 'Device profile', slug: 'devices/cmf-watch-pro-2' },
                 { label: 'Verified status', slug: 'devices/cmf-watch-pro-2/status' },
                 { label: 'Limitations & risks', slug: 'devices/cmf-watch-pro-2/limitations' },
-                { label: 'Protocol', slug: 'devices/cmf-watch-pro-2/protocol/ble' },
+              ],
+            },
+            {
+              label: 'Protocol',
+              items: [
+                { label: 'BLE protocol', slug: 'devices/cmf-watch-pro-2/protocol/ble' },
                 { label: 'AOTA OTA flow', slug: 'devices/cmf-watch-pro-2/protocol/ota' },
                 { label: 'Shell / AT channel', slug: 'devices/cmf-watch-pro-2/protocol/shell' },
+              ],
+            },
+            {
+              label: 'Formats',
+              items: [
                 { label: 'AOTA container', slug: 'devices/cmf-watch-pro-2/formats/aota' },
                 { label: 'SDFS filesystem', slug: 'devices/cmf-watch-pro-2/formats/sdfs' },
                 { label: 'Watch faces & WFDL', slug: 'devices/cmf-watch-pro-2/formats/watchface' },
                 { label: 'UI style bundles', slug: 'devices/cmf-watch-pro-2/formats/style' },
                 { label: 'Picture codecs', slug: 'devices/cmf-watch-pro-2/formats/pictures' },
                 { label: 'AJS animations', slug: 'devices/cmf-watch-pro-2/formats/ajs' },
+              ],
+            },
+            {
+              label: 'Internals',
+              items: [
                 { label: 'Hardware', slug: 'devices/cmf-watch-pro-2/internals/hardware' },
                 { label: 'app.bin internals', slug: 'devices/cmf-watch-pro-2/internals/appbin' },
                 { label: 'Recovery & boot modes', slug: 'devices/cmf-watch-pro-2/internals/recovery' },
+              ],
+            },
+            {
+              label: 'Guides',
+              items: [
                 { label: 'Firmware OTA flash', slug: 'devices/cmf-watch-pro-2/guides/ota-flash' },
                 { label: 'Dial editing & upload', slug: 'devices/cmf-watch-pro-2/guides/dial-editing' },
                 { label: 'Bad Apple case study', slug: 'devices/cmf-watch-pro-2/guides/bad-apple' },

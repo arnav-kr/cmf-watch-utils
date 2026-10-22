@@ -387,7 +387,7 @@ them — zero-copy host access does not exist.
   cannot be pulled over SPP — it has to be read from a NAND dump.
 - BLE `INIT2` (`0x9040`) must be written to the OTA characteristic
   `ff01`. Sending it on `CMD_W` with a valid session reboots the watch
-  and drops the link. See [AOTA OTA flow](/watch-utils/devices/cmf-watch-pro-2/protocol/ota/).
+  and drops the link. See [AOTA OTA flow](/devices/cmf-watch-pro-2/protocol/ota/).
 - The end of the data phase needs `0x9041` with payload `A5` when the
   watch reports `A041`; skipping it leaves the update staged, not
   committed.

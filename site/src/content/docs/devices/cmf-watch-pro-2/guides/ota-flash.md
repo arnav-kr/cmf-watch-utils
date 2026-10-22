@@ -4,8 +4,8 @@ description: A careful, checkpointed procedure for a full firmware update over B
 ---
 
 This is the procedure that worked on a `1.0.0.73` / `JX402` unit. The prerequisites are
-[AOTA OTA flow](/watch-utils/devices/cmf-watch-pro-2/protocol/ota/) and
-[Limitations & risks](/watch-utils/devices/cmf-watch-pro-2/limitations/).
+[AOTA OTA flow](/devices/cmf-watch-pro-2/protocol/ota/) and
+[Limitations & risks](/devices/cmf-watch-pro-2/limitations/).
 
 ## 0. Rollback preparation
 
@@ -85,7 +85,7 @@ uv run python tools/cmf_watch.py ota-state --duration 5
 
 The changed item (animation, scene, string, picture) is then checked. A watch that does not
 come back is not reflashed; see
-[Recovery](/watch-utils/devices/cmf-watch-pro-2/internals/recovery/).
+[Recovery](/devices/cmf-watch-pro-2/internals/recovery/).
 
 ## Interpreting the summary
 

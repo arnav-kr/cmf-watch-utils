@@ -43,5 +43,5 @@ Both paths are gitignored.
 
 - Testing the watch in use requires permission.
 - Write and flash commands are limited to hardware that is owned or explicitly authorised.
-- The [Limitations & risks](/watch-utils/devices/cmf-watch-pro-2/limitations/) page covers the
+- The [Limitations & risks](/devices/cmf-watch-pro-2/limitations/) page covers the
   risks that apply before the first write.

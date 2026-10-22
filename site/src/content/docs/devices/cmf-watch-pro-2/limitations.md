@@ -17,7 +17,7 @@ description: Hard boundaries, unresolved formats, recovery uncertainty and safe 
    guaranteed.
 5. **Factory menus can clear app data.** Entering a shutdown/reset option from the factory test
    menu cleared pairing state on the reference unit. A stale authkey still produced an `A052`
-   reply but no `A040`; re-pairing fixed it. See [Shell / AT channel](/watch-utils/devices/cmf-watch-pro-2/protocol/shell/).
+   reply but no `A040`; re-pairing fixed it. See [Shell / AT channel](/devices/cmf-watch-pro-2/protocol/shell/).
 
 ## Storage ceiling
 
@@ -65,4 +65,4 @@ description: Hard boundaries, unresolved formats, recovery uncertainty and safe 
 - Stock firmware, vendor resources or copyrighted animation frames are not redistributed
   without the corresponding rights.
 - The code is AGPL-3.0 because part of the BLE/watcher behaviour is a port of the AGPL-3.0
-  `freethinkel/fmc` project. See [Legal & attribution](/watch-utils/about/legal/).
+  `freethinkel/fmc` project. See [Legal & attribution](/about/legal/).

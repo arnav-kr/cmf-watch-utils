@@ -1,0 +1,17 @@
+---
+import SocialIcons from '@astrojs/starlight/components/SocialIcons.astro';
+
+import DeviceSwitcher from './DeviceSwitcher.astro';
+---
+
+<div class="sl-flex header-extras">
+  <DeviceSwitcher />
+  <SocialIcons />
+</div>
+
+<style>
+  .header-extras {
+    align-items: center;
+    gap: 0.75rem;
+  }
+</style>

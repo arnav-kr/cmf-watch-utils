@@ -51,7 +51,7 @@ paths are the safest starting point.
   `res_e.bin`, wrapped in a valid AOTA image, flashed over BLE, and **confirmed playing on the
   watch UI**.
 - Full Bad Apple is ~5,250 frames / ~18.75 MiB, which does **not** fit in the free space left
-  by replacing only `9.ajs`. See [Limitations](/watch-utils/devices/cmf-watch-pro-2/limitations/).
+  by replacing only `9.ajs`. See [Limitations](/devices/cmf-watch-pro-2/limitations/).
 
 ## BLE and OTA
 

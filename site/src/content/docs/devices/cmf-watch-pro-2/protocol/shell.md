@@ -27,8 +27,8 @@ sensitivity of a password. This repository does not include any real value.
 
 The shell also exposes factory and debug entry points (`ENTERFATEMODE`, `SETKNOBDUMP`,
 `GETFLASH`, motor/sensor setters, etc.). The full registry and app addresses are in
-[BLE protocol](/watch-utils/devices/cmf-watch-pro-2/protocol/ble/) and
-[app.bin internals](/watch-utils/devices/cmf-watch-pro-2/internals/appbin/).
+[BLE protocol](/devices/cmf-watch-pro-2/protocol/ble/) and
+[app.bin internals](/devices/cmf-watch-pro-2/internals/appbin/).
 
 Some factory-menu options are destructive to app state. In particular, a shutdown/reset option
 cleared pairing data on the reference unit, which invalidated the stored authkey. Re-pairing is

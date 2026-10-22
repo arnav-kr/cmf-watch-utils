@@ -97,7 +97,7 @@ are re-derived rather than assumed, and are documented in their own section.
 3. The `fwkit` CLI output stays stable; the existing `cmd_*` plus argparse pattern is
    followed.
 4. Documentation pages carry `title` and `description` frontmatter, and internal links use
-   `/watch-utils/<page>/`. `pnpm build` in `site/` must pass with no broken links.
+   `/<page>/`. `pnpm build` in `site/` must pass with no broken links.
 5. A new device gets its own section under `docs/devices/<model>/`, its own sidebar group and
    its own entry in the device matrix and the header switcher. Shared tooling stays
    device-agnostic.

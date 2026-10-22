@@ -37,12 +37,12 @@ uv run python tools/cmf_watch.py wf-flash --file work/wf1_new.bin --dry-run
 ```
 
 The `--dry-run` flag is removed only after the validation passes. See
-[Dial editing](/watch-utils/devices/cmf-watch-pro-2/guides/dial-editing/).
+[Dial editing](/devices/cmf-watch-pro-2/guides/dial-editing/).
 
 ## Firmware OTA
 
-This stage comes last, after the [step-by-step OTA guide](/watch-utils/devices/cmf-watch-pro-2/guides/ota-flash/) and
-the [AOTA OTA flow](/watch-utils/devices/cmf-watch-pro-2/protocol/ota/) have been reviewed. The dry
+This stage comes last, after the [step-by-step OTA guide](/devices/cmf-watch-pro-2/guides/ota-flash/) and
+the [AOTA OTA flow](/devices/cmf-watch-pro-2/protocol/ota/) have been reviewed. The dry
 run stops at the acknowledgement stage:
 
 ```bash

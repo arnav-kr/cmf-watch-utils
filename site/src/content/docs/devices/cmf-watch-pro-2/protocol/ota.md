@@ -26,7 +26,7 @@ with `0x9042` frames on the OTA characteristic.
    produce `A052`, but `A040` will never arrive.
 3. The AOTA image passes `fwkit verify`.
 4. The relevant risks are documented on the
-   [Limitations & risks](/watch-utils/devices/cmf-watch-pro-2/limitations/) page.
+   [Limitations & risks](/devices/cmf-watch-pro-2/limitations/) page.
 
 ## Sequence
 

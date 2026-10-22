@@ -24,7 +24,7 @@ Conventions:
 
 - Base address: `0x10000000`; file offset = `addr - 0x10000000`.
 - Function boundaries and the ACTH header are documented in
-  [app.bin internals](/watch-utils/devices/cmf-watch-pro-2/internals/appbin/).
+  [app.bin internals](/devices/cmf-watch-pro-2/internals/appbin/).
 - The BLE dispatcher, OTA state machine and UI message queue were traced by cross-referencing
   command constants (`0x9052`, `0x9040`, `0xA042`, ...) and queue calls.
 
@@ -63,5 +63,5 @@ AGPL-3.0.
   `fwkit info/verify`.
 - BLE read-only: `ota-state`, `info` or shell commands.
 - BLE write: a dry run precedes the write, and the old partition/image is retained.
-- Firmware OTA: the [AOTA OTA flow](/watch-utils/devices/cmf-watch-pro-2/protocol/ota/) is followed exactly; INIT2
+- Firmware OTA: the [AOTA OTA flow](/devices/cmf-watch-pro-2/protocol/ota/) is followed exactly; INIT2
   is not reordered and the end acknowledgement is not skipped.

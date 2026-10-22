@@ -31,7 +31,7 @@ The PoC is silent, 240×240, baseline JPEG, and fits in a single-tile-per-frame 
 6. Replace `9.ajs` in `res_e.bin` with `fwkit edit-sdfs` (or rebuild SDFS and
    `pad_to` the original 58,777,088-byte partition).
 7. Rebuild the AOTA image with `fwkit pack`; `fwkit verify` must pass.
-8. Flash over BLE using the [OTA guide](/watch-utils/devices/cmf-watch-pro-2/guides/ota-flash/).
+8. Flash over BLE using the [OTA guide](/devices/cmf-watch-pro-2/guides/ota-flash/).
 
 ## Flash result
 
