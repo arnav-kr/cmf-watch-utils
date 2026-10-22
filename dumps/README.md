@@ -25,7 +25,7 @@ The binaries are stored with **Git LFS**. Cloning requires LFS to be installed:
 
 ```bash
 git lfs install
-git clone https://github.com/arnav-kr/watch-utils.git
+git clone https://github.com/arnav-kr/cmf-cmf-watch-utils.git
 ```
 
 Fetching a single artifact without the full history:

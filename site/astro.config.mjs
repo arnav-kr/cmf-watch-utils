@@ -7,21 +7,28 @@ export default defineConfig({
   base: '',
   integrations: [
     starlight({
-      title: 'Watch Utils',
+      title: 'CMF Watch Utils',
       description:
-        'Tooling and documentation for CMF Watch and other smartwatches: firmware containers, BLE tooling and per-device research notes.',
+        'CMF Watch Utils ? tooling and documentation for CMF Watch and other smartwatches: AOTA/SDFS/WFDL/AJS firmware containers, BLE tooling and per-device research notes.',
+      favicon: '/favicon.svg',
       social: [
         {
           icon: 'github',
           label: 'GitHub',
-          href: 'https://github.com/arnav-kr/watch-utils',
+          href: 'https://github.com/arnav-kr/cmf-watch-utils',
+        },
+        {
+          icon: 'external',
+          label: 'arnav.dev',
+          href: 'https://arnv.dev',
         },
       ],
       editLink: {
-        baseUrl: 'https://github.com/arnav-kr/watch-utils/edit/main/site/',
+        baseUrl: 'https://github.com/arnav-kr/cmf-watch-utils/edit/main/site/',
       },
       components: {
         SocialIcons: './src/components/SocialIcons.astro',
+        Head: './src/components/Head.astro',
       },
       sidebar: [
         {

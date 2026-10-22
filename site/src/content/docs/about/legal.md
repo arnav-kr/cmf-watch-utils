@@ -6,7 +6,7 @@ description: Licensing, third-party notices and the terms for the published arti
 ## License
 
 This repository is licensed under the **GNU Affero General Public License v3.0 (AGPL-3.0)**.
-See [`LICENSE`](https://github.com/arnav-kr/watch-utils/blob/main/LICENSE).
+See [`LICENSE`](https://github.com/arnav-kr/cmf-watch-utils/blob/main/LICENSE).
 
 Rationale: the BLE/frame behaviour and watch-face upload flow were informed by, and in part
 ported from, the AGPL-3.0 licensed [`freethinkel/fmc`](https://github.com/freethinkel/fmc)

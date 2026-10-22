@@ -1,7 +1,7 @@
 [project]
 name = "cmf-watch-utils"
 version = "0.1.0"
-description = "Reverse-engineered tooling and documentation for the CMF Watch Pro 2"
+description = "CMF Watch Utils: tooling and documentation for CMF Watch and other smartwatches"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
