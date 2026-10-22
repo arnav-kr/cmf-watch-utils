@@ -27,9 +27,10 @@ Windows notes:
 
 ## Externally supplied files
 
-This repository does **not** include firmware images, vendor resources, watch-face packages or
-copyrighted animation frames. They are obtained legally for the device in use and placed
-locally:
+The published dumps under `dumps/binaries/` contain the stock firmware image for this
+device and the proof-of-concept image built from it. Vendor resources, watch-face packages and
+copyrighted animation frames are not published separately; they are obtained legally for the
+device in use and placed locally:
 
 ```text
 firmware/JX402_V1.0.0.73.bin

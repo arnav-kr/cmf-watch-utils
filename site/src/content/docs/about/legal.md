@@ -1,6 +1,6 @@
 ---
 title: Legal & attribution
-description: Licensing, third-party notices and what is deliberately not redistributed.
+description: Licensing, third-party notices and the terms for the published artifacts.
 ---
 
 ## License
@@ -19,20 +19,33 @@ project. Keeping the combined work under AGPL-3.0 is the simplest way to respect
   layout and the upload handshake.
 - Nothing/CMF and the CMF Watch Pro 2 name are trademarks of their respective owners. This is
   an unofficial interoperability project and is not affiliated with or endorsed by Nothing.
-- Bad Apple is a copyrighted work. This repository does **not** include Bad Apple frames or a
-  prebuilt Bad Apple firmware image. The case study describes the process only.
+- Bad Apple is a copyrighted work. The proof-of-concept firmware image published under
+  `dumps/binaries/` contains frames from it, which places redistribution of that image under
+  the rights holder's terms. The case study itself describes the process only.
 
-## Not redistributed
+## Published artifacts
 
-To keep the repository small and to avoid redistributing third-party or proprietary material,
-the following are intentionally excluded:
+The repository is published as a private research repository, and the following material is
+included for reproducibility:
 
-- Stock or modified firmware images (`*.bin`), including `JX402_V1.0.0.73*.bin`.
-- Vendor resources, fonts, pictures, `.ajs` animations and watch-face packages.
+- The stock firmware image and the `app.bin` extracted from it, under `dumps/binaries/`,
+  stored with Git LFS.
+- The rebuilt proof-of-concept image under `dumps/binaries/`, which contains third-party
+  animation frames.
+- Manifests with sizes and hashes, and redacted notes.
+
+The following is intentionally excluded:
+
+- Vendor resources, fonts, pictures, `.ajs` animations and watch-face packages outside the
+  firmware images.
 - Captured personal data: MAC addresses, serial numbers, pairing secrets, authkeys, session
   keys, GPS tracks and notification contents.
 
-A legally obtained image is placed under `firmware/` locally; that path is gitignored.
+Before a public release, `dumps/binaries/` is either removed or the redistribution rights for
+the vendor firmware and for the third-party frames are confirmed. The tooling, documentation
+and manifests carry no such restriction.
+
+Locally obtained images are placed under `firmware/`; that path is gitignored.
 
 ## Safety and acceptable use
 

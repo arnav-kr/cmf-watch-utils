@@ -19,13 +19,21 @@ uv run fwkit --help
 uv run python tools/cmf_watch.py --help
 ```
 
-## 2. Local firmware image
+## 2. Firmware image
+
+The stock image for this device is published under `dumps/binaries/`:
+
+```bash
+git lfs pull --include="dumps/binaries/firmware/JX402_V1.0.0.73.bin"
+```
+
+A local copy is used for editing, and the `firmware/` directory is gitignored:
 
 ```text
 firmware/JX402_V1.0.0.73.bin
 ```
 
-The file is gitignored. The image is parsed and verified before any edit or flash:
+The image is parsed and verified before any edit or flash:
 
 ```bash
 uv run fwkit info firmware/JX402_V1.0.0.73.bin

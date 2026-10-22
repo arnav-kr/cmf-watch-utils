@@ -96,5 +96,5 @@ image keep their original length that way.
 uv run python tooling/tests/selftest.py firmware/JX402_V1.0.0.73.bin
 ```
 
-The selftest requires a firmware image supplied locally; images are not redistributed with
-the project.
+The selftest requires a firmware image supplied locally; the published dumps under
+`dumps/binaries/` work as well.

@@ -47,7 +47,7 @@ For each container:
 5. The outer container CRC, entry CRCs and partition checksums are verified.
 
 The regression suite (`tooling/tests/selftest.py`) encodes this discipline. It requires a
-legitimate firmware image supplied locally; the image is not redistributed here.
+legitimate firmware image supplied locally.
 
 ## Cross-checking
 
