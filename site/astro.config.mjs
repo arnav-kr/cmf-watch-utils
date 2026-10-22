@@ -3,7 +3,7 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 
 export default defineConfig({
-  site: 'https://arnav-kr.github.io',
+  site: 'https://arnav.is-a.dev',
   base: '/watch-utils',
   integrations: [
     starlight({

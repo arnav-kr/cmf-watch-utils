@@ -94,7 +94,7 @@ pnpm install
 pnpm dev
 ```
 
-The rendered site is published at <https://arnav-kr.github.io/watch-utils/>.
+The rendered site is published at <https://arnav.is-a.dev/watch-utils/>.
 
 Key pages:
 
