@@ -1,6 +1,9 @@
 <p align="center">
-  <img src="./og_banner_transparent.svg#gh-light-mode-only" alt="CMF Watch Utils" width="640" />
-  <img src="./og_banner_dark_transparent.svg#gh-dark-mode-only" alt="CMF Watch Utils" width="640" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./og_banner_dark_transparent.svg" />
+    <source media="(prefers-color-scheme: light)" srcset="./og_banner_transparent.svg" />
+    <img src="./og_banner_transparent.svg" alt="CMF Watch Utils" width="640" />
+  </picture>
 </p>
 
 <h1 align="center">CMF Watch Utils</h1>
@@ -186,8 +189,11 @@ cd site && pnpm build
 ## Star History
 
 <a href="https://www.star-history.com/?repos=arnav-kr%2Fcmf-watch-utils&type=date&legend=top-left">
-  <img src="https://api.star-history.com/chart?repos=arnav-kr/cmf-watch-utils&type=date&legend=top-left#gh-light-mode-only" alt="Star History Chart" />
-  <img src="https://api.star-history.com/chart?repos=arnav-kr/cmf-watch-utils&type=date&theme=dark&legend=top-left#gh-dark-mode-only" alt="Star History Chart" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=arnav-kr/cmf-watch-utils&amp;type=date&amp;theme=dark&amp;legend=top-left" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=arnav-kr/cmf-watch-utils&amp;type=date&amp;legend=top-left" />
+    <img src="https://api.star-history.com/chart?repos=arnav-kr/cmf-watch-utils&amp;type=date&amp;legend=top-left" alt="Star History Chart" />
+  </picture>
 </a>
 
 ## Contributors
