@@ -1,0 +1,25 @@
+[13:48:10.815] scanning ...
+[13:48:21.080] connecting AA:BB:CC:DD:EE:FF CMF Watch Pro 2-EEFF ...
+[13:48:22.151] connected=True mtu=23
+[13:48:22.158] notify chars: 10
+[13:48:22.166]   (notify 00002a05-0000-1000-8000-00805f9b34fb failed: Could not start notify on 0002: Access Denied)
+[13:48:22.478]   (notify 0000ffd2-0000-1000-8000-00805f9b34fb failed: (15, 'GATT Protocol Error: Insufficient Encryption'))
+[13:48:22.719] authkey=8fade7d17a0155d6b8e070db5916fa67
+[13:48:22.869]   < cmd2=0x0049 cc=1 ci=1 enc=True 5aaabbccddeeff
+[13:48:22.899]   < cmd2=0x004c cc=1 ci=1 enc=True 3a90b7c9dde50fa12f06c5d6af419c75
+[13:48:22.904] nonce=3a90b7c9dde50fa12f06c5d6af419c75
+[13:48:22.907] sessionKey=4278cdd3055533b8ee0ea0c50b3bb7a3
+[13:48:22.928]   < cmd2=0x0004 cc=1 ci=1 enc=True 5a
+[13:48:22.959] INIT1 0x9052 (OTA begin)
+[13:48:22.991]   < cmd2=0x0001 cc=1 ci=1 enc=True 5a00
+[13:48:22.992]   < cmd2=0xa06b cc=1 ci=1 enc=True 656e000000000000000000000000000000000000000000000000000000000000
+[13:48:22.992]   < cmd2=0xa06a cc=1 ci=1 enc=True 5a
+[13:48:22.993]   < cmd2=0xa055 cc=1 ci=1 enc=True 0101040745010000d03f5171dc9c4d3a41ee2f20
+[13:48:23.288]   < cmd2=0xa052 cc=1 ci=1 enc=True 01
+[13:48:23.296] A052 ok
+[13:48:23.296] INIT2 0x9040 version=0100005a
+[13:48:28.323] !! no A040, retrying INIT2 on OTA char
+[13:48:28.373]   < cmd2=0xa040 cc=1 ci=1 enc=True 01
+[13:48:28.374] A040 ok, entering data phase
+[13:50:28.389] no frames for 120.0s, aborting
+[13:50:28.820] summary: frames=5 bytes=1024 (0.0% of image)

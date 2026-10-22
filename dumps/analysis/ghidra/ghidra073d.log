@@ -1,0 +1,105 @@
+INFO  Using log config file: jar:file:/C:/Users/arnav/scoop/apps/ghidra/12.1.4-20260921/Ghidra/Framework/Generic/lib/Generic.jar!/generic.log4j.xml (LoggingInitialization)  
+INFO  Using log file: C:\Users\arnav\AppData\Roaming\ghidra\ghidra_12.1.4_PUBLIC\application.log (LoggingInitialization)  
+INFO  Loading user preferences: C:\Users\arnav\AppData\Roaming\ghidra\ghidra_12.1.4_PUBLIC\preferences (Preferences)  
+INFO  Searching for classes... (ClassSearcher)  
+INFO  Class search complete (574 ms) (ClassSearcher)  
+INFO  Initializing SSL Context (DefaultSSLContextInitializer)  
+INFO  Initializing Random Number Generator... (SecureRandomFactory)  
+INFO  Random Number Generator initialization complete: SHA1PRNG (SecureRandomFactory)  
+INFO  Trust manager disabled, cacerts have not been set (DefaultTrustManagerFactory)  
+INFO  Headless startup complete (1926 ms) (AnalyzeHeadless)  
+INFO  Class searcher loaded 59 extension points (20 false positives) (ClassSearcher)  
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::staticFieldOffset has been called by org.apache.felix.framework.util.SecureAction (file:/C:/Users/arnav/scoop/apps/ghidra/12.1.4-20260921/Ghidra/Features/Base/lib/org.apache.felix.framework-7.0.5.jar)
+WARNING: Please consider reporting this to the maintainers of class org.apache.felix.framework.util.SecureAction
+WARNING: sun.misc.Unsafe::staticFieldOffset will be removed in a future release
+INFO  HEADLESS Script Paths:
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\Decompiler\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\FileFormats\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Debug\Debugger\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\SwiftDemangler\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\BSim\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\PDB\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\SystemEmulation\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Processors\DATA\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\MicrosoftCodeAnalyzer\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\FunctionID\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\GnuDemangler\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Processors\Atmel\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Processors\PIC\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Processors\8051\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Processors\JVM\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\VersionTracking\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Debug\Debugger-rmi-trace\ghidra_scripts
+    D:\upitest\fwsdk\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\BytePatterns\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\DecompilerDependent\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\WildcardAssembler\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\Base\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\PyGhidra\ghidra_scripts (HeadlessAnalyzer)  
+INFO  HEADLESS: execution starts (HeadlessAnalyzer)  
+INFO  Opening existing project: D:\upitest\fwsdk\proj073\wp2 (HeadlessAnalyzer)  
+INFO  Opening project: D:\upitest\fwsdk\proj073\wp2 (HeadlessProject)  
+INFO  REPORT: Processing project file: /app_073.bin (HeadlessAnalyzer)  
+INFO  REPORT: Execute script: DisasRange.java  (HeadlessAnalyzer)  
+INFO  SCRIPT: D:\upitest\fwsdk\ghidra_scripts\DisasRange.java (HeadlessAnalyzer)  
+INFO  DisasRange.java> WP2_DISAS at 100e90ae (GhidraScript)  
+INFO  DisasRange.java> WP2_DISAS at 100e98ae (GhidraScript)  
+INFO  DisasRange.java> WP2_DISAS at 100ea0ae (GhidraScript)  
+INFO  DisasRange.java> WP2_DISAS at 100ea8ae (GhidraScript)  
+INFO  DisasRange.java> WP2_DISAS done 100e88ae..100eac84 (GhidraScript)  
+INFO  ANALYZING all memory and code: /app_073.bin (HeadlessAnalyzer)  
+WARN  Decompiling 101d6e4c, pcode error at 1017dd00: Unable to resolve constructor at 1017dd00 (DecompileCallback)  
+WARN  Decompiling 1022baf0: Unable to read bytes at ram:00000074 (DecompileCallback)  
+WARN  Decompiling 102011a0: Unable to read bytes at ram:00000004 (DecompileCallback)  
+WARN  Decompiling 10053de4, pcode error at 10052068: Unable to resolve constructor at 10052068 (DecompileCallback)  
+INFO  Packed database cache: C:\Users\arnav\AppData\Local\ghidra\packed-db-cache (PackedDatabaseCache)  
+INFO  Applied data type archive: generic_clib (ApplyDataArchiveAnalyzer)  
+INFO  -----------------------------------------------------
+    ARM Constant Reference Analyzer           13.663 secs
+    ARM Symbol                                 0.045 secs
+    ASCII Strings                              0.428 secs
+    Apply Data Archives                        0.532 secs
+    Call Convention ID                         0.422 secs
+    Call-Fixup Installer                       0.074 secs
+    Create Address Tables                      0.540 secs
+    Create Address Tables - One Time           0.637 secs
+    Create Function                            0.233 secs
+    Data Reference                            11.706 secs
+    Decompiler Switch Analysis                18.092 secs
+    Demangler GNU                              0.148 secs
+    Disassemble                                1.024 secs
+    Disassemble Entry Points                   0.315 secs
+    Embedded Media                             0.028 secs
+    External Entry References                  0.001 secs
+    Function ID                                0.188 secs
+    Function Start Pre Search                  0.098 secs
+    Function Start Search                      1.617 secs
+    Function Start Search After Code           1.571 secs
+    Function Start Search After Data           1.342 secs
+    Function Start Search delayed - One Time   0.231 secs
+    Non-Returning Functions - Discovered       2.769 secs
+    Reference                                 14.467 secs
+    Shared Return Calls                        0.941 secs
+    Stack                                      4.409 secs
+    Subroutine References                      1.376 secs
+    Subroutine References - One Time           0.001 secs
+-----------------------------------------------------
+     Total Time   76 secs
+-----------------------------------------------------
+ (AutoAnalysisManager)  
+INFO  REPORT: Analysis succeeded for file: /app_073.bin (HeadlessAnalyzer)  
+INFO  REPORT: Execute script: DumpApp.java  (HeadlessAnalyzer)  
+INFO  SCRIPT: D:\upitest\fwsdk\ghidra_scripts\DumpApp.java (HeadlessAnalyzer)  
+INFO  DumpApp.java> WP2_DUMP functions=8869 strings=9296 (GhidraScript)  
+INFO  REPORT: Execute script: NameMap.java  (HeadlessAnalyzer)  
+INFO  SCRIPT: D:\upitest\fwsdk\ghidra_scripts\NameMap.java (HeadlessAnalyzer)  
+INFO  NameMap.java> WP2_NAMEMAP strings=9296 (GhidraScript)  
+INFO  NameMap.java> WP2_NAMEMAP funcs_with_strings=2883 (GhidraScript)  
+INFO  NameMap.java> WP2_NAMEMAP renamed=510 rows=8869 (GhidraScript)  
+INFO  REPORT: Execute script: FindStrings.java  (HeadlessAnalyzer)  
+INFO  SCRIPT: D:\upitest\fwsdk\ghidra_scripts\FindStrings.java (HeadlessAnalyzer)  
+INFO  FindStrings.java> WP2_FINDSTR -> D:\upitest\fwsdk\out\string_xrefs.txt (GhidraScript)  
+INFO  ANALYZING changes made by post scripts: /app_073.bin (HeadlessAnalyzer)  
+INFO  REPORT: Post-analysis succeeded for file: /app_073.bin (HeadlessAnalyzer)  
+INFO  REPORT: Save succeeded for processed file: /app_073.bin (HeadlessAnalyzer)  

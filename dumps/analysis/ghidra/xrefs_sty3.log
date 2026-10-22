@@ -1,0 +1,120 @@
+INFO  Using log config file: jar:file:/C:/Users/arnav/scoop/apps/ghidra/12.1.4-20260921/Ghidra/Framework/Generic/lib/Generic.jar!/generic.log4j.xml (LoggingInitialization)  
+INFO  Using log file: C:\Users\arnav\AppData\Roaming\ghidra\ghidra_12.1.4_PUBLIC\application.log (LoggingInitialization)  
+INFO  Loading user preferences: C:\Users\arnav\AppData\Roaming\ghidra\ghidra_12.1.4_PUBLIC\preferences (Preferences)  
+INFO  Searching for classes... (ClassSearcher)  
+INFO  Class search complete (565 ms) (ClassSearcher)  
+INFO  Initializing SSL Context (DefaultSSLContextInitializer)  
+INFO  Initializing Random Number Generator... (SecureRandomFactory)  
+INFO  Random Number Generator initialization complete: SHA1PRNG (SecureRandomFactory)  
+INFO  Trust manager disabled, cacerts have not been set (DefaultTrustManagerFactory)  
+INFO  Headless startup complete (1874 ms) (AnalyzeHeadless)  
+INFO  Class searcher loaded 59 extension points (20 false positives) (ClassSearcher)  
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::staticFieldOffset has been called by org.apache.felix.framework.util.SecureAction (file:/C:/Users/arnav/scoop/apps/ghidra/12.1.4-20260921/Ghidra/Features/Base/lib/org.apache.felix.framework-7.0.5.jar)
+WARNING: Please consider reporting this to the maintainers of class org.apache.felix.framework.util.SecureAction
+WARNING: sun.misc.Unsafe::staticFieldOffset will be removed in a future release
+INFO  HEADLESS Script Paths:
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\Decompiler\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\FileFormats\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Debug\Debugger\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\SwiftDemangler\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\BSim\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\PDB\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\SystemEmulation\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Processors\DATA\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\MicrosoftCodeAnalyzer\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\FunctionID\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\GnuDemangler\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Processors\Atmel\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Processors\PIC\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Processors\8051\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Processors\JVM\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\VersionTracking\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Debug\Debugger-rmi-trace\ghidra_scripts
+    D:\upitest\fwsdk\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\BytePatterns\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\DecompilerDependent\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\WildcardAssembler\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\Base\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\PyGhidra\ghidra_scripts (HeadlessAnalyzer)  
+INFO  HEADLESS: execution starts (HeadlessAnalyzer)  
+INFO  Opening existing project: D:\upitest\fwsdk\proj073\wp2 (HeadlessAnalyzer)  
+INFO  Opening project: D:\upitest\fwsdk\proj073\wp2 (HeadlessProject)  
+INFO  REPORT: Processing project file: /app_073.bin (HeadlessAnalyzer)  
+INFO  REPORT: Execute script: Xrefs.java  (HeadlessAnalyzer)  
+INFO  SCRIPT: D:\upitest\fwsdk\ghidra_scripts\Xrefs.java (HeadlessAnalyzer)  
+INFO  Xrefs.java> TARGET 10203ea6 bytes=2f4e414e443a412f (GhidraScript)  
+INFO  Xrefs.java>   REF from=1006bd70 fn=FUN_1006bd18@1006bd18 type=PARAM ins=ldr r2,[0x1006bf80] (GhidraScript)  
+INFO  Xrefs.java>   REF from=1009a10c fn=FUN_1009a0a4@1009a0a4 type=PARAM ins=ldr r2,[0x1009a1a0] (GhidraScript)  
+INFO  Xrefs.java>   REF from=1006c018 fn=FUN_1006bfbc@1006bfbc type=PARAM ins=ldr r2,[0x1006c228] (GhidraScript)  
+INFO  Xrefs.java>   REF from=1006b4f8 fn=FUN_1006b4a0@1006b4a0 type=PARAM ins=ldr r2,[0x1006b738] (GhidraScript)  
+INFO  Xrefs.java>   REF from=100d565e fn=FUN_100d5600@100d5600 type=DATA ins=str r3,[sp,#0x0] (GhidraScript)  
+INFO  Xrefs.java>   REF from=100d5996 fn=ui_view_creater_1@100d587c type=PARAM ins=ldr r2,[0x100d5b58] (GhidraScript)  
+INFO  Xrefs.java>   REF from=100d5b7e fn=ui_view_creater_1@100d587c type=PARAM ins=ldr r2,[0x100d5d28] (GhidraScript)  
+INFO  Xrefs.java>   REF from=10062098 fn=- type=DATA ins=- (GhidraScript)  
+INFO  Xrefs.java>   REF from=100625a4 fn=- type=DATA ins=- (GhidraScript)  
+INFO  Xrefs.java>   REF from=10065e2c fn=- type=DATA ins=- (GhidraScript)  
+INFO  Xrefs.java>   REF from=10067c70 fn=- type=DATA ins=- (GhidraScript)  
+INFO  Xrefs.java>   REF from=10068230 fn=- type=DATA ins=- (GhidraScript)  
+INFO  Xrefs.java>   REF from=100685d8 fn=- type=DATA ins=- (GhidraScript)  
+INFO  Xrefs.java>   REF from=10068b60 fn=- type=DATA ins=- (GhidraScript)  
+INFO  Xrefs.java>   REF from=10068ffc fn=- type=DATA ins=- (GhidraScript)  
+INFO  Xrefs.java>   REF from=1006961c fn=- type=DATA ins=- (GhidraScript)  
+INFO  Xrefs.java>   REF from=1006a48c fn=- type=DATA ins=- (GhidraScript)  
+INFO  Xrefs.java>   REF from=1006aa80 fn=- type=DATA ins=- (GhidraScript)  
+INFO  Xrefs.java>   REF from=1006d8c8 fn=- type=DATA ins=- (GhidraScript)  
+INFO  Xrefs.java>   REF from=10076900 fn=- type=DATA ins=- (GhidraScript)  
+INFO  Xrefs.java>   REF from=1007db64 fn=- type=DATA ins=- (GhidraScript)  
+INFO  Xrefs.java>   REF from=1007dfcc fn=- type=DATA ins=- (GhidraScript)  
+INFO  Xrefs.java>   REF from=1007e650 fn=- type=DATA ins=- (GhidraScript)  
+INFO  Xrefs.java>   REF from=100b2cbc fn=- type=DATA ins=- (GhidraScript)  
+INFO  Xrefs.java>   REF from=100b3124 fn=- type=DATA ins=- (GhidraScript)  
+INFO  Xrefs.java>   REF from=100b3540 fn=- type=DATA ins=- (GhidraScript)  
+INFO  Xrefs.java>   REF from=100b3ac4 fn=- type=DATA ins=- (GhidraScript)  
+INFO  Xrefs.java>   REF from=100b3ec4 fn=- type=DATA ins=- (GhidraScript)  
+INFO  Xrefs.java>   REF from=100b432c fn=- type=DATA ins=- (GhidraScript)  
+INFO  Xrefs.java>   REF from=100b4748 fn=- type=DATA ins=- (GhidraScript)  
+INFO  Xrefs.java>   REF from=100b4ccc fn=- type=DATA ins=- (GhidraScript)  
+INFO  Xrefs.java>   REF from=100b7978 fn=- type=DATA ins=- (GhidraScript)  
+INFO  Xrefs.java>   REF from=100c0d08 fn=- type=DATA ins=- (GhidraScript)  
+INFO  Xrefs.java>   REF from=100c13ac fn=- type=DATA ins=- (GhidraScript)  
+INFO  Xrefs.java>   REF from=1007a25a fn=FUN_1007a248@1007a248 type=PARAM ins=ldr r2,[0x1007a314] (GhidraScript)  
+INFO  Xrefs.java>   REF from=1007a742 fn=FUN_1007a72c@1007a72c type=PARAM ins=ldr r2,[0x1007a864] (GhidraScript)  
+INFO  Xrefs.java>   REF from=1007c660 fn=FUN_1007c650@1007c650 type=PARAM ins=ldr r2,[0x1007c6dc] (GhidraScript)  
+INFO  Xrefs.java>   REF from=1007c902 fn=- type=PARAM ins=ldr r2,[0x1007ca90] (GhidraScript)  
+INFO  Xrefs.java>   REF from=100b78d8 fn=FUN_100b786c@100b786c type=PARAM ins=ldr r2,[0x100b7978] (GhidraScript)  
+INFO  Xrefs.java>   REF from=1006a4d6 fn=FUN_1006a4c8@1006a4c8 type=PARAM ins=ldr r2,[0x1006a594] (GhidraScript)  
+INFO  Xrefs.java>   REF from=1006b782 fn=FUN_1006b774@1006b774 type=PARAM ins=ldr r2,[0x1006b840] (GhidraScript)  
+INFO  Xrefs.java>   REF from=10069d76 fn=FUN_10069d64@10069d64 type=PARAM ins=ldr r2,[0x10069e34] (GhidraScript)  
+INFO  Xrefs.java>   REF from=1006913e fn=FUN_10069130@10069130 type=PARAM ins=ldr r2,[0x100691fc] (GhidraScript)  
+INFO  Xrefs.java>   REF from=10069662 fn=FUN_10069654@10069654 type=PARAM ins=ldr r2,[0x10069720] (GhidraScript)  
+INFO  Xrefs.java>   REF from=1006cd0a fn=FUN_1006ccfc@1006ccfc type=PARAM ins=ldr r2,[0x1006cdec] (GhidraScript)  
+INFO  Xrefs.java>   REF from=10084032 fn=FUN_10084020@10084020 type=PARAM ins=ldr r2,[0x100840d4] (GhidraScript)  
+INFO  Xrefs.java>   REF from=1006c272 fn=FUN_1006c264@1006c264 type=PARAM ins=ldr r2,[0x1006c330] (GhidraScript)  
+INFO  Xrefs.java>   REF from=1006c52e fn=FUN_1006c51c@1006c51c type=PARAM ins=ldr r2,[0x1006c5ec] (GhidraScript)  
+INFO  Xrefs.java>   REF from=1006c7da fn=FUN_1006c7cc@1006c7cc type=PARAM ins=ldr r2,[0x1006c8ac] (GhidraScript)  
+INFO  Xrefs.java>   REF from=1006d906 fn=FUN_1006d8f4@1006d8f4 type=PARAM ins=ldr r2,[0x1006d9e8] (GhidraScript)  
+INFO  Xrefs.java>   REF from=10065e60 fn=FUN_10065e4c@10065e4c type=PARAM ins=ldr r2,[0x10065f3c] (GhidraScript)  
+INFO  Xrefs.java>   REF from=10075fde fn=FUN_10075fcc@10075fcc type=PARAM ins=ldr r2,[0x1007609c] (GhidraScript)  
+INFO  Xrefs.java>   REF from=1004b170 fn=FUN_1004b120@1004b120 type=DATA ins=str r3,[sp,#0x4] (GhidraScript)  
+INFO  Xrefs.java>   REF from=10065d50 fn=FUN_10065cfc@10065cfc type=PARAM ins=ldr r2,[0x10065e2c] (GhidraScript)  
+INFO  Xrefs.java>   REF from=10067afa fn=FUN_10067a94@10067a94 type=PARAM ins=ldr r2,[0x10067c70] (GhidraScript)  
+INFO  Xrefs.java>   REF from=1006842c fn=FUN_100683c4@100683c4 type=PARAM ins=ldr r2,[0x100685d8] (GhidraScript)  
+INFO  Xrefs.java>   REF from=10068cfe fn=FUN_10068ca4@10068ca4 type=PARAM ins=ldr r2,[0x10068ffc] (GhidraScript)  
+INFO  Xrefs.java>   REF from=1006a260 fn=FUN_1006a204@1006a204 type=PARAM ins=ldr r2,[0x1006a48c] (GhidraScript)  
+INFO  Xrefs.java>   REF from=100767e6 fn=FUN_10076758@10076758 type=PARAM ins=ldr r2,[0x10076900] (GhidraScript)  
+INFO  Xrefs.java>   REF from=10084f84 fn=FUN_10084f70@10084f70 type=PARAM ins=ldr r2,[0x10085020] (GhidraScript)  
+INFO  Xrefs.java>   REF from=10096668 fn=btcall_msgbox_view@10096584 type=PARAM ins=ldr r2,[0x1009682c] (GhidraScript)  
+INFO  Xrefs.java>   REF from=10068020 fn=FUN_10067fc4@10067fc4 type=PARAM ins=ldr r2,[0x10068230] (GhidraScript)  
+INFO  Xrefs.java>   REF from=10069940 fn=FUN_10069930@10069930 type=PARAM ins=ldr r2,[0x10069a38] (GhidraScript)  
+INFO  Xrefs.java>   REF from=10068954 fn=FUN_100688fc@100688fc type=PARAM ins=ldr r2,[0x10068b60] (GhidraScript)  
+INFO  Xrefs.java>   REF from=1006d1c4 fn=FUN_1006d1b0@1006d1b0 type=PARAM ins=ldr r2,[0x1006d2bc] (GhidraScript)  
+INFO  Xrefs.java>   REF from=1006a886 fn=FUN_1006a7a0@1006a7a0 type=PARAM ins=ldr r2,[0x1006aa80] (GhidraScript)  
+INFO  Xrefs.java>   REF from=1006a866 fn=FUN_1006a7a0@1006a7a0 type=PARAM ins=ldr r2,[0x1006aa80] (GhidraScript)  
+INFO  Xrefs.java>   REF from=10069444 fn=FUN_100693ec@100693ec type=PARAM ins=ldr r2,[0x1006961c] (GhidraScript)  
+INFO  Xrefs.java>   count=68 (GhidraScript)  
+INFO  Xrefs.java> TARGET 10203c9e bytes=2f4e414e443a4b2f (GhidraScript)  
+INFO  Xrefs.java>   REF from=10060b98 fn=- type=DATA ins=- (GhidraScript)  
+INFO  Xrefs.java>   REF from=10060a9c fn=FUN_10060a54@10060a54 type=PARAM ins=ldr r2,[0x10060b98] (GhidraScript)  
+INFO  Xrefs.java>   count=2 (GhidraScript)  
+INFO  REPORT: Save succeeded for processed file: /app_073.bin (HeadlessAnalyzer)  

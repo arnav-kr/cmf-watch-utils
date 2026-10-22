@@ -32,8 +32,11 @@ tools/ota_client.py      full AOTA OTA client
 tools/spp_ota.py         SPP / RFCOMM experiments
 tools/rfcomm.py          RFCOMM helper
 tools/maputil.py         address and offset helpers
+tools/legacy/            the original standalone unpack, decompress and xref scripts
+tools/experiments/       one-off probes that established the pairing and OTA behaviour
+tooling/redact.py        removes device identifiers from logs before publishing
 site/                    Astro Starlight documentation site
-dumps/                   manifests, downloadable firmware images, redacted notes
+dumps/                   firmware images, analysis output, logs, traces and samples
 ```
 
 Documentation is organised per device:
@@ -81,6 +84,12 @@ git lfs install
 git lfs pull
 ```
 
+Beyond the images, `dumps/` carries the extracted analysis output (function list, strings,
+cross-references, 231 decompiled listings), the OTA run logs with device identifiers replaced,
+captured protocol traces and format samples. The
+[completeness audit](site/src/content/docs/about/completeness.md) lists every artifact of the
+research effort, what is published here and the reason for each omission.
+
 The images are vendor firmware and vendor resources; the proof-of-concept image additionally
 contains third-party animation frames. Redistribution rights are the responsibility of
 whoever republishes them, and `dumps/binaries/` is the directory to remove before a public
@@ -105,6 +114,7 @@ Key pages:
 - [Flash guide](site/src/content/docs/devices/cmf-watch-pro-2/guides/ota-flash.md)
 - [Bad Apple case study](site/src/content/docs/devices/cmf-watch-pro-2/guides/bad-apple.md)
 - [Roadmap and devices](site/src/content/docs/about/roadmap.md)
+- [Completeness audit](site/src/content/docs/about/completeness.md)
 - [Agent context](site/src/content/docs/ai/context.md)
 
 ## The three OTA rules that decide the outcome

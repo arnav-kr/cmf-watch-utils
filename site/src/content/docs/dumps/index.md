@@ -58,6 +58,41 @@ Every partition is derivable from the image:
 uv run fwkit unpack dumps/binaries/firmware/JX402_V1.0.0.73.bin work/aota
 ```
 
+## Analysis output
+
+| Path | Contents |
+|---|---|
+| `analysis/functions.txt` | Every function found in `app.bin` with its address range |
+| `analysis/function_map.tsv` | Function list with the size and flags used during the analysis |
+| `analysis/strings.txt` | String table of the application image |
+| `analysis/string_xrefs.txt` | Cross-references from strings to code |
+| `analysis/blocks.txt` | Block inventory |
+| `analysis/decomp/` | 231 decompiled function listings produced by the Ghidra scripts |
+| `analysis/ghidra/` | Run logs of the Ghidra analysis sessions |
+
+These files carry the knowledge extracted from the application image. They are regenerated with
+the scripts under `tooling/ghidra_scripts/` against `dumps/binaries/app/app_073.bin`.
+
+## Run logs and traces
+
+| Path | Contents |
+|---|---|
+| `logs/ota_badapple9.log` | The OTA client log of the successful transfer, up to the commit prompt |
+| `logs/ota_badapple9b.log` | The follow-up transfer that carried the end acknowledgement |
+| `logs/ota_py.log`, `logs/ota_mod.log`, `logs/ota_mod3.log`, `logs/ota_pwned.log` | Earlier attempts, including the failed ones |
+| `traces/sync_frames.json` | Captured notification frames used to map the protocol |
+
+Device identifiers, the pairing secret and the authkey are replaced with placeholders in every
+published log. The redaction tool is `tooling/redact.py`.
+
+## Samples
+
+| Path | Contents |
+|---|---|
+| `samples/bt_watch.sty` | A STY scene bundle, extracted from the resource partition |
+| `samples/wf1.bin` | A WFDL watch-face package, the sample used in the dial editing guide |
+| `samples/*.png` | Pictures decoded from the picture resources, showing the codecs in output |
+
 ## Redacted notes
 
 - [`ota-flash-run.md`](https://github.com/arnav-kr/watch-utils/blob/main/dumps/ota-flash-run.md) —

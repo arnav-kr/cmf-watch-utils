@@ -28,6 +28,7 @@ watchfaces/
 *.sty
 *.res
 !dumps/binaries/**
+!dumps/samples/**
 !dumps/manifests/*.json
 
 # Build output

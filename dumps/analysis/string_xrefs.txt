@@ -1,0 +1,125 @@
+101dfbb0	WEST_TOPDIR/application/bt_watch/src/jx_src/ui/manager/jx_msgbox_creater.c
+	REF 100d786e	100d7854	jx_msgbox_creater_5
+	REF 100d7882	100d7854	jx_msgbox_creater_5
+	REF 100d78a4	100d7854	jx_msgbox_creater_5
+	REF 100d78b8	100d7854	jx_msgbox_creater_5
+	REF 100d7bb8	100d7854	jx_msgbox_creater_5
+	REF 100d7bcc	100d7854	jx_msgbox_creater_5
+	REF 100d74d0	100d7488	jx_msgbox_creater_3
+	REF 100d74e8	100d7488	jx_msgbox_creater_3
+	REF 100d77ee	100d77a8	jx_msgbox_creater_4
+	REF 100d7806	100d77a8	jx_msgbox_creater_4
+	REF 100d8a80	100d8a60	jx_msgbox_creater_6
+101fe44c	lvgl_virtual_display_create
+	REF 1018f4a2	1018f4a0	lvgl_virtual_display_3
+	REF 1018f4c2	1018f4a0	lvgl_virtual_display_3
+	REF 1018f4fe	1018f4a0	lvgl_virtual_display_3
+	REF 1018f538	1018f4a0	lvgl_virtual_display_3
+	REF 1018f6f8	1018f4a0	lvgl_virtual_display_3
+1020189a	system_app_launch: ota_fg = %d, res_chk = %d ver_chk = %d\n
+	REF 10054d3a	10054cf4	FUN_10054cf4
+10201931	system_app_launch_init
+	REF 10054f0c	10054dbc	FUN_10054dbc
+1020201a	BT_HFP_CALL_CCWA_EVENT\n
+10202032	BT_HFP_CALL_OUTGOING\n
+10202048	BT_HFP_CALL_INCOMING\n
+10202075	BT_HFP_CALL_ONGOING\n
+102024d5	ota type %d
+102024fe	ota state: %d->%d
+	REF 10057eec	10057ed0	FUN_10057ed0
+10202514	OTA_UPG_FLAG
+	REF 100584b8	10058438	FUN_10058438
+	REF 10058510	10058508	FUN_10058508
+	REF 1005854c	10058544	FUN_10058544
+	REF 10057f0e	10057ed0	FUN_10057ed0
+	REF 10057f5a	10057ed0	FUN_10057ed0
+1020252a	REC_OTA_FLAG
+	REF 10057f50	10057ed0	FUN_10057ed0
+10202548	OTA_UPG_TYPE
+	REF 100585c4	100585bc	FUN_100585bc
+	REF 100585fc	100585bc	FUN_100585bc
+	REF 10057f78	10057ed0	FUN_10057ed0
+10202dc4	svc_id %x, cmd_id %x
+	REF 1005c010	1005bfcc	FUN_1005bfcc
+102039ad	***  JX APP Firmware Version  ***
+	REF 1005e72e	1005e728	FUN_1005e728
+102039df		Time: see printing "Current Firmware Version"
+	REF 1005e75a	1005e728	FUN_1005e728
+1021b870	album_wf_layout_create
+	REF 1009a0ac	1009a0a4	FUN_1009a0a4
+1021c518	wf_idx: %d, %d\n
+	REF 100b1684	100b15dc	FUN_100b15dc
+10220d73	head_id 0x%x, ability_id 0x%x, cmd_id 0x%x, length_id 0x%x\n
+	REF 100cc01e	100cbf84	FUN_100cbf84
+102210f0	updata_send wc, count = %d, index = %d,inlen = %d, Capability_id =  %d \n
+	REF 100cd34c	100cd324	FUN_100cd324
+102224ad	UpdataRecordData Capability_id=0x%04x, Cmd=0x%04x \n
+	REF 100d0fc6	101b60f0	FUN_101b60f0
+10222b66	sync_watch_face_info\n
+	REF 100d2d78	100d2d5c	FUN_100d2d5c
+10222d74	REQ_VERSION\n
+	REF 100d386c	100d343c	FUN_100d343c
+10223450	WEST_TOPDIR/application/bt_watch/src/jx_src/ui/manager/ui_view_creater.c
+	REF 100d5c22	100d587c	ui_view_creater_1
+	REF 100d5c32	100d587c	ui_view_creater_1
+102243f1	WFManager_SetWatchFaceListForBle
+10224412	WFManager_ReplaceWatchFaceForBle
+	REF 100de5d8	100de7a8	FUN_100de7a8
+	REF 100de646	100de7a8	FUN_100de7a8
+10228592	GETGPSVERSION,FAIL\n
+	REF 100e8bee	100e8bd0	FUN_100e8bd0
+102285a7	GETGPSVERSION:%d,OK\n
+	REF 100e8c08	100e8bd0	FUN_100e8bd0
+10228fd9	GETVERSION:%s,OK\n
+	REF 100ea52e	100ea50c	FUN_100ea50c
+10228fec	GETVERSION,FAIL\n
+	REF 100ea548	100ea50c	FUN_100ea50c
+1022925f	GETVERSION
+10229566	GETGPSVERSION
+1022987a	ReplaceWatchFace %d, error %d
+10229898	wf_lock_flg:%d, %s \n
+102299ff	invalid head_id: %04x
+	REF 100ec450	100ec400	FUN_100ec400
+10229a3b	unkown cmd_id:0x%04x
+	REF 100ec4d4	100ec400	FUN_100ec400
+10229a71	wewear_d2h_file_end
+	REF 100eb160	100eb12c	FUN_100eb12c
+10229a85	wewear_new_h2d_wf_start
+10229a9d	wewear_yun_h2d_wf_start
+10229ab5	wewear_new_d2h_wf_end
+10229af9	wewear_new_h2d_wf_start
+10229b11	wewear_yun_h2d_wf_start
+1022d84f	***  Current Firmware Version  ***\n
+	REF 100f7378	100f7374	FUN_100f7374
+1022d873	 Firmware Version: 0x%08x\n
+	REF 100f7380	100f7374	FUN_100f7374
+1022d88e	 res Version: 0x%08x\n
+	REF 100f7388	100f7374	FUN_100f7374
+1022d8a4	   System Version: 0x%08x\n
+	REF 100f7390	100f7374	FUN_100f7374
+1024471c	ota type: 0x%x
+10244963	wewear_ota_cmd_d2h_end
+	REF 10156022	1015600c	FUN_1015600c
+1024497a	ota_backend_bt_init
+	REF 10156710	101566f0	FUN_101566f0
+	REF 10156786	101566f0	FUN_101566f0
+10244ab8	upadte ota state:  %d\n
+	REF 10157290	10157278	FUN_10157278
+10245207	ota file_cnt %d
+	REF 1015883e	10158390	FUN_10158390
+	REF 10157e9e	10157e84	FUN_10157e84
+10245345	ota_rx thread started
+	REF 10158204	101581e8	FUN_101581e8
+102453b3	ota_rx thread exited
+	REF 10158238	101581e8	FUN_101581e8
+102453c8	handle upgrade
+	REF 101583b2	10158390	FUN_10158390
+102458be	OTA image progress total size %d
+	REF 101592a0	10159264	FUN_10159264
+102461e3	OTA_INFO
+	REF 1015a6da	1015a6d0	FUN_1015a6d0
+	REF 1015a674	1015a66c	FUN_1015a66c
+1024c9f0	AT+BRSF=%u
+	REF 1017e64e	1017e470	FUN_1017e470
+102515c0	*** Booting Zephyr OS build %s %s ***\n
+	REF 1019c47c	1019c478	FUN_1019c478
