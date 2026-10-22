@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node / Astro
+node_modules/
+site/.astro/
+site/dist/
+site/.astro/
+
+# Local device data (contains secrets!)
+tools/.watch_state.json
+*.watch_state.json
+.watch_state.json
+
+# Firmware, vendor resources and media: NOT redistributable.
+firmware/
+watchfaces/
+*.bin
+*.ajs
+*.wfdl
+*.sty
+*.res
+!dumps/manifests/*.json
+
+# Build output
+build/
+out/
+work/
+dist/
+
+# Editors / OS
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,20 @@
+[project]
+name = "cmf-watch-utils"
+version = "0.1.0"
+description = "Reverse-engineered tooling and documentation for the CMF Watch Pro 2"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "cmf-watch-fwkit",
+  "bleak>=3.0.2",
+  "pycryptodome>=4.0.1",
+]
+
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+cmf-watch-fwkit = { workspace = true }
+
+[tool.uv.workspace]
+members = ["tooling", "tools"]

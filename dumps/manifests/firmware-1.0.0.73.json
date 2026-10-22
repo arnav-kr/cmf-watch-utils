@@ -1,0 +1,65 @@
+{
+  "file": "JX402_V1.0.0.73.bin",
+  "size": 56903752,
+  "sha256": "30903fc8ce6db4f8860bb554366635db3d2bcbb2d43827b3b50fbbac22b59353",
+  "header_sha256": "d624374995d53152cea9c1a7f0b165c79e0966ffa6ceac23537c47979f6c1d05",
+  "header_crc_ok": true,
+  "version": "1.00_2509131556",
+  "board": "jx402_01_3089c",
+  "entries": [
+    {
+      "name": "ota.xml",
+      "offset": 1024,
+      "stored_size": 1832,
+      "raw_size": null,
+      "stored_sha256": "17a063be5ab2a175fb22682af831cc04312b8fb994987373f8fe51289ec47c92",
+      "raw_sha256": null,
+      "crc_ok": true
+    },
+    {
+      "name": "TEMP.bin",
+      "offset": 3072,
+      "stored_size": 1317084,
+      "raw_size": 2492928,
+      "stored_sha256": "987eef6cce3f2f7a7c7ee74ce84cc472de164034b8a4fa6632fe39f50483902d",
+      "raw_sha256": "17417019bf2fd2c9fe31a596f0ff660c3718e50d4411249a40b712c0b9eb1b0e",
+      "crc_ok": true
+    },
+    {
+      "name": "res.bin",
+      "offset": 1320448,
+      "stored_size": 6978004,
+      "raw_size": 10137792,
+      "stored_sha256": "176cf2395556d02fef656f758a80bbf1eb6818edb8d2c072ed43b08b7246299f",
+      "raw_sha256": "b73ae1b5e797f7bb09b8952bcd791edb4a211fe577715dfc402d4b5dfde10b5f",
+      "crc_ok": true
+    },
+    {
+      "name": "fonts.bin",
+      "offset": 8298496,
+      "stored_size": 7813200,
+      "raw_size": 9513344,
+      "stored_sha256": "59384c971bc5b940e1e5fc14c6216930e0caf7ed0a491d65a67dd78f1d4f015e",
+      "raw_sha256": "f36c502dc0d35be63be0aa5037a5f53d5ca85f44da57efe86859790efa14b01f",
+      "crc_ok": true
+    },
+    {
+      "name": "res_e.bin",
+      "offset": 16112128,
+      "stored_size": 39237168,
+      "raw_size": 58777088,
+      "stored_sha256": "0cbaef7a9a3e91ca7735b938f2926f605b0b65644e1a63a25b7aa1bc623f3f65",
+      "raw_sha256": "e4a61afa62692ce6bd2ad0b8adcc129e283b31a147e26236b9173bd1ee27c7ff",
+      "crc_ok": true
+    },
+    {
+      "name": "sdfs_k.bin",
+      "offset": 55349760,
+      "stored_size": 310872,
+      "raw_size": 524096,
+      "stored_sha256": "44a0e3ef8aac3e80758145e615c1c9acab82d678b789a3c511e43f321afdde70",
+      "raw_sha256": "31e16bf2b4a64d7f79d125d5b9a14086c47187b5531e48703218dd808f53274f",
+      "crc_ok": true
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+---
+title: CMF Watch Pro 2 Utilities
+description: Reverse-engineered firmware, BLE, watch-face and OTA tooling for the CMF Watch Pro 2.
+template: splash
+hero:
+  tagline: Open documentation and Python tooling for the CMF Watch Pro 2 (JX402, Actions ATS3089C).
+  actions:
+    - text: What works
+      link: /cmf-watch-utils/overview/achievements/
+      icon: right-arrow
+    - text: Quick start
+      link: /cmf-watch-utils/start/quickstart/
+      icon: rocket
+      variant: minimal
+    - text: GitHub
+      link: https://github.com/arnav-kr/cmf-watch-utils
+      icon: external
+      variant: minimal
+---
+
+This project documents and automates what we learned while reverse-engineering the **CMF Watch Pro 2**
+(firmware `1.0.0.73`, board `JX402`, Actions ATS3089C). It is not an official Nothing/CMF project.
+
+The practical results so far:
+
+- Parse, verify, rebuild and patch AOTA firmware images without touching the watch.
+- Parse and rebuild SDFS partitions, RES picture/string pools, STY UI bundles and WFDL watch faces.
+- Decode, edit and re-encode `.ajs` animations; a 202-frame Bad Apple proof of concept was flashed and verified.
+- Authenticate over BLE, talk to the shell channel, upload/delete watch faces, and run a full AOTA
+  firmware update over BLE.
+
+:::caution[Read this first]
+Firmware flashing can brick a watch. There is no confirmed hardware recovery path for every failure.
+The tools are provided for research and interoperability; use them on hardware you own and can afford
+to lose. Read [Limitations & risks](/cmf-watch-utils/overview/limitations/) before flashing anything.
+:::
+
+## Start here
+
+- New to the project? Read [What works](/cmf-watch-utils/overview/achievements/) and
+  [Setup](/cmf-watch-utils/start/setup/).
+- Want to flash firmware? Read the [AOTA OTA flow](/cmf-watch-utils/protocol/ota/) and the
+  [step-by-step guide](/cmf-watch-utils/guides/ota-flash/).
+- Want to edit a watch face? Start with [Watch faces & WFDL](/cmf-watch-utils/formats/watchface/)
+  and [Dial editing](/cmf-watch-utils/guides/dial-editing/).
+- Using an AI agent? Give it [Agent context](/cmf-watch-utils/ai/context/) first.
