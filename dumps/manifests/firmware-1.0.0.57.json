@@ -1,0 +1,67 @@
+{
+  "file": "JX402_V1.0.0.57.bin",
+  "size": 56065096,
+  "sha256": "cd4574f1f9fa31106e3a0490a12069adf5a99c59cf0e4d7f52d58be60cd55716",
+  "header_sha256": "e4565e832068af764ea99fb07a0b270786415cc1e7268de28c4226c75c03c364",
+  "header_crc_ok": true,
+  "version": "1.00_2408181820",
+  "board": "jx402_01_3089c",
+  "app_version": "1.0.0.57",
+  "provenance": "rebuilt from the unpacked parts with tooling/rebuild_aota.py; header CRC and every entry CRC match the recorded metadata",
+  "entries": [
+    {
+      "name": "ota.xml",
+      "offset": 1024,
+      "stored_size": 1832,
+      "raw_size": null,
+      "stored_sha256": "05344214bba98f235055c384677f7358db048f51e5ab2312a670663a859d021c",
+      "raw_sha256": null,
+      "crc_ok": true
+    },
+    {
+      "name": "TEMP.bin",
+      "offset": 3072,
+      "stored_size": 1306972,
+      "raw_size": 2472448,
+      "stored_sha256": "b24b8987c6f72463808d320923dbe0710dde910b5363b9184dcfecf7e087a660",
+      "raw_sha256": "97a96a20951974e9d2ec7c130756a71f238b990a0bcd6a6ce8d73b18d8e2d277",
+      "crc_ok": true
+    },
+    {
+      "name": "res.bin",
+      "offset": 1310208,
+      "stored_size": 6149484,
+      "raw_size": 9034368,
+      "stored_sha256": "d520f011ae67802d1b7655c0faa9c5cd7438eb31cd61fa5b99ffd457ee8d0da5",
+      "raw_sha256": "f7ba5c25fc2b6358f3a60580657b84b473e962f2252c407d6229201fa902ca50",
+      "crc_ok": true
+    },
+    {
+      "name": "fonts.bin",
+      "offset": 7459840,
+      "stored_size": 7813224,
+      "raw_size": 9513216,
+      "stored_sha256": "3f5dfc210f4fbd9f0b94b5828c5b800c35f9a7f4917d7d3a3a785bfb6cf08c52",
+      "raw_sha256": "aa2886757dc92a283548f855a46f43c286ddae11b3f8bea35a0cf062d7517d17",
+      "crc_ok": true
+    },
+    {
+      "name": "res_e.bin",
+      "offset": 15273472,
+      "stored_size": 39237168,
+      "raw_size": 58777088,
+      "stored_sha256": "0cbaef7a9a3e91ca7735b938f2926f605b0b65644e1a63a25b7aa1bc623f3f65",
+      "raw_sha256": "e4a61afa62692ce6bd2ad0b8adcc129e283b31a147e26236b9173bd1ee27c7ff",
+      "crc_ok": true
+    },
+    {
+      "name": "sdfs_k.bin",
+      "offset": 54511104,
+      "stored_size": 310872,
+      "raw_size": 524096,
+      "stored_sha256": "44a0e3ef8aac3e80758145e615c1c9acab82d678b789a3c511e43f321afdde70",
+      "raw_sha256": "31e16bf2b4a64d7f79d125d5b9a14086c47187b5531e48703218dd808f53274f",
+      "crc_ok": true
+    }
+  ]
+}

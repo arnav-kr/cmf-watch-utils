@@ -84,6 +84,9 @@ git lfs install
 git lfs pull
 ```
 
+The published images are the stock `1.0.0.73` firmware, a rebuilt `1.0.0.57` image that serves
+as a rollback target, the proof-of-concept rebuild, and the `app.bin` of both versions.
+
 Beyond the images, `dumps/` carries the extracted analysis output (function list, strings,
 cross-references, 231 decompiled listings), the OTA run logs with device identifiers replaced,
 captured protocol traces and format samples.

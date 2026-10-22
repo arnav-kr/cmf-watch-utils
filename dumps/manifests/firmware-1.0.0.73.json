@@ -65,9 +65,16 @@
   "binaries": [
     {
       "path": "dumps/binaries/firmware/JX402_V1.0.0.73.bin",
-      "role": "stock factory image",
+      "role": "stock factory image, firmware 1.0.0.73",
       "size": 56903752,
       "sha256": "30903fc8ce6db4f8860bb554366635db3d2bcbb2d43827b3b50fbbac22b59353",
+      "lfs": true
+    },
+    {
+      "path": "dumps/binaries/firmware/JX402_V1.0.0.57.bin",
+      "role": "rollback target, firmware 1.0.0.57, rebuilt from unpacked parts",
+      "size": 56065096,
+      "sha256": "cd4574f1f9fa31106e3a0490a12069adf5a99c59cf0e4d7f52d58be60cd55716",
       "lfs": true
     },
     {
@@ -79,9 +86,16 @@
     },
     {
       "path": "dumps/binaries/app/app_073.bin",
-      "role": "app.bin extracted from TEMP.bin of the stock image",
+      "role": "app.bin extracted from TEMP.bin of the 1.0.0.73 image",
       "size": 2465920,
       "sha256": "30e7978c39d8fb79b825c7ebf69b4377d214e9cc6739a52f06dbb5ff7f13b490",
+      "lfs": true
+    },
+    {
+      "path": "dumps/binaries/app/app_057.bin",
+      "role": "app.bin extracted from TEMP.bin of the 1.0.0.57 image",
+      "size": 2445440,
+      "sha256": "26fbe34c10343949fec53575021e8ab559e33aff13b6efa9974a34ae33ca1399",
       "lfs": true
     }
   ]
