@@ -8,30 +8,59 @@ and structure, and redacted notes.
 
 ## Downloadable images
 
-| File | Size | SHA-256 (first 16) | Description |
-|---|---|---|---|
-| `dumps/binaries/firmware/JX402_V1.0.0.73.bin` | 56,903,752 | `30903fc8ce6db4f8` | Stock factory image, CMF Watch Pro 2 (`JX402`), firmware 1.0.0.73 |
-| `dumps/binaries/firmware/JX402_V1.0.0.57.bin` | 56,065,096 | `cd4574f1f9fa3110` | Rollback target, firmware 1.0.0.57, rebuilt from unpacked parts |
-| `dumps/binaries/firmware/JX402_V1.0.0.73_badapple9.bin` | 54,117,960 | `4933e593d14bef6f` | Rebuilt image with the 202-frame animation proof of concept |
-| `dumps/binaries/app/app_073.bin` | 2,465,920 | `30e7978c39d8fb79` | `app.bin` extracted from the `TEMP` partition of the 1.0.0.73 image |
-| `dumps/binaries/app/app_057.bin` | 2,445,440 | `26fbe34c10343949` | `app.bin` extracted from the `TEMP` partition of the 1.0.0.57 image |
+The images are stored with Git LFS. `git lfs install` is required before cloning, and the
+links below serve the file content directly.
 
-The images are stored with Git LFS:
+### `JX402_V1.0.0.73.bin` ? stock factory firmware
+
+- Size: 56,903,752 bytes
+- SHA-256: `30903fc8ce6db4f8860bb554366635db3d2bcbb2d43827b3b50fbbac22b59353`
+- Contents: the unmodified image shipped for the CMF Watch Pro 2 (`JX402`), firmware 1.0.0.73
+- [Download](https://media.githubusercontent.com/media/arnav-kr/cmf-watch-utils/main/dumps/binaries/firmware/JX402_V1.0.0.73.bin) ?
+  [manifest](https://github.com/arnav-kr/cmf-watch-utils/blob/main/dumps/manifests/firmware-1.0.0.73.json)
+
+### `JX402_V1.0.0.57.bin` ? rollback target
+
+- Size: 56,065,096 bytes
+- SHA-256: `cd4574f1f9fa31106e3a0490a12069adf5a99c59cf0e4d7f52d58be60cd55716`
+- Contents: firmware 1.0.0.57 for the same board, rebuilt from extracted parts
+- [Download](https://media.githubusercontent.com/media/arnav-kr/cmf-watch-utils/main/dumps/binaries/firmware/JX402_V1.0.0.57.bin) ?
+  [manifest](https://github.com/arnav-kr/cmf-watch-utils/blob/main/dumps/manifests/firmware-1.0.0.57.json)
+
+### `JX402_V1.0.0.73_badapple9.bin` ? rebuilt proof of concept
+
+- Size: 54,117,960 bytes
+- SHA-256: `4933e593d14bef6f013db5f6d0a9760e36aaff63f052cf83a2dc54696ccff1ff`
+- Contents: the 1.0.0.73 image with a 202-frame animation in `res_e`
+- [Download](https://media.githubusercontent.com/media/arnav-kr/cmf-watch-utils/main/dumps/binaries/firmware/JX402_V1.0.0.73_badapple9.bin)
+
+### `app_073.bin` ? application image, 1.0.0.73
+
+- Size: 2,465,920 bytes
+- SHA-256: `30e7978c39d8fb79b825c7ebf69b4377d214e9cc6739a52f06dbb5ff7f13b490`
+- Contents: `app.bin`, extracted from the `TEMP` partition of the 1.0.0.73 image
+- [Download](https://media.githubusercontent.com/media/arnav-kr/cmf-watch-utils/main/dumps/binaries/app/app_073.bin)
+
+### `app_057.bin` ? application image, 1.0.0.57
+
+- Size: 2,445,440 bytes
+- SHA-256: `26fbe34c10343949fec53575021e8ab559e33aff13b6efa9974a34ae33ca1399`
+- Contents: `app.bin`, extracted from the `TEMP` partition of the 1.0.0.57 image
+- [Download](https://media.githubusercontent.com/media/arnav-kr/cmf-watch-utils/main/dumps/binaries/app/app_057.bin)
+
+Fetching a single artifact without cloning the history:
 
 ```bash
-git lfs install
-git clone https://github.com/arnav-kr/watch-utils.git
 git lfs pull --include="dumps/binaries/app/app_073.bin"
 ```
 
 The proof-of-concept image contains third-party animation frames. Redistribution rights for
 vendor firmware and for those frames are the responsibility of whoever redistributes them;
-before the repository is made public, `dumps/binaries/` is removed or the rights are
-confirmed.
+before making the repository public, either remove `dumps/binaries/` or confirm the rights.
 
 ## Manifests
 
-[`manifests/firmware-1.0.0.73.json`](https://github.com/arnav-kr/watch-utils/blob/main/dumps/manifests/firmware-1.0.0.73.json)
+[`manifests/firmware-1.0.0.73.json`](https://github.com/arnav-kr/cmf-watch-utils/blob/main/dumps/manifests/firmware-1.0.0.73.json)
 records the size, SHA-256, header fields and per-entry CRC status of the stock image, plus the
 published binaries. It serves as the reference for checking that a locally obtained image
 matches the structure the tooling was written against:
@@ -72,7 +101,7 @@ partition layout as the `1.0.0.73` image, and its application reports `1.0.0.57`
 | Size | 56,065,096 bytes |
 | SHA-256 | `cd4574f1f9fa31106e3a0490a12069adf5a99c59cf0e4d7f52d58be60cd55716` |
 | Provenance | Rebuilt from the unpacked parts with `tooling/rebuild_aota.py`; the header CRC and every entry CRC match the recorded metadata, and the result is byte-identical to earlier local rebuilds of the same image |
-| Manifest | [`manifests/firmware-1.0.0.57.json`](https://github.com/arnav-kr/watch-utils/blob/main/dumps/manifests/firmware-1.0.0.57.json) |
+| Manifest | [`manifests/firmware-1.0.0.57.json`](https://github.com/arnav-kr/cmf-watch-utils/blob/main/dumps/manifests/firmware-1.0.0.57.json) |
 
 Two caveats apply. The image is a reconstruction from extracted parts rather than a vendor
 download, and a downgrade over the OTA path has not been tested on hardware. The safer
@@ -123,7 +152,7 @@ published log. The redaction tool is `tooling/redact.py`.
 
 ## Redacted notes
 
-- [`ota-flash-run.md`](https://github.com/arnav-kr/watch-utils/blob/main/dumps/ota-flash-run.md) —
+- [`ota-flash-run.md`](https://github.com/arnav-kr/cmf-watch-utils/blob/main/dumps/ota-flash-run.md) —
   the shape of a successful flash log with device identifiers removed.
 
 ## Personal data

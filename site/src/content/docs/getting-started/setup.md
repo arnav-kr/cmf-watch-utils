@@ -6,7 +6,7 @@ description: Install the Python workspace, place firmware locally and pair the w
 ## 1. Installation
 
 ```bash
-git clone https://github.com/arnav-kr/watch-utils.git
+git clone https://github.com/arnav-kr/cmf-cmf-watch-utils.git
 cd watch-utils
 uv sync
 ```

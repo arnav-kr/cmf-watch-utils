@@ -1,0 +1,172 @@
+---
+import DefaultHead from '@astrojs/starlight/components/Head.astro';
+
+const route = Astro.locals.starlightRoute;
+const entry = route?.entry;
+const data = entry?.data ?? {};
+const isHome = Astro.url.pathname === '/';
+
+const siteName = 'CMF Watch Utils';
+const tagline =
+  'Tooling and documentation for CMF Watch and other smartwatches: firmware container toolkit, BLE tooling and per-device research notes.';
+const authorName = 'arnav-kr';
+const authorUrl = 'https://github.com/arnav-kr';
+const homepage = 'https://arnv.dev';
+const repoUrl = 'https://github.com/arnav-kr/cmf-watch-utils';
+
+const pageTitle = data.title ? `${data.title} · ${siteName}` : `${siteName} — smartwatch firmware tooling and BLE research`;
+const description = data.description ?? tagline;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://cmf.arnv.dev');
+const ogImage = new URL('/og-banner.png', Astro.site ?? 'https://cmf.arnv.dev');
+const pageUrl = canonical.href;
+const acronyms: Record<string, string> = {
+  cmf: 'CMF',
+  jx402: 'JX402',
+  aota: 'AOTA',
+  sdfs: 'SDFS',
+  wfdl: 'WFDL',
+  ajs: 'AJS',
+  ota: 'OTA',
+  ble: 'BLE',
+  ui: 'UI',
+  ghidra: 'Ghidra',
+  app: 'App',
+  res: 'RES',
+  sty: 'STY',
+  pic: 'PIC',
+};
+
+function prettyName(part: string): string {
+  return part
+    .split('-')
+    .map((word) => acronyms[word.toLowerCase()] ?? word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+const breadcrumbs = Astro.url.pathname
+  .split('/')
+  .filter(Boolean)
+  .map((part, index, all) => ({
+    name: prettyName(part),
+    url: new URL('/' + all.slice(0, index + 1).join('/') + '/', Astro.site ?? 'https://cmf.arnv.dev').href,
+  }));
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      '@id': `${new URL('/', Astro.site ?? 'https://cmf.arnv.dev').href}#website`,
+      url: new URL('/', Astro.site ?? 'https://cmf.arnv.dev').href,
+      name: siteName,
+      description: tagline,
+      inLanguage: 'en',
+      publisher: { '@id': `${new URL('/', Astro.site ?? 'https://cmf.arnv.dev').href}#person` },
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: `${new URL('/search/', Astro.site ?? 'https://cmf.arnv.dev').href}?q={search_term_string}`,
+        'query-input': 'required name=search_term_string',
+      },
+    },
+    {
+      '@type': 'Person',
+      '@id': `${new URL('/', Astro.site ?? 'https://cmf.arnv.dev').href}#person`,
+      name: authorName,
+      url: authorUrl,
+      sameAs: [authorUrl, homepage],
+      knowsAbout: [
+        'CMF Watch Pro 2',
+        'Actions ATS3089C',
+        'AOTA firmware containers',
+        'Bluetooth Low Energy',
+        'firmware reverse engineering',
+      ],
+    },
+    {
+      '@type': 'Organization',
+      '@id': `${new URL('/', Astro.site ?? 'https://cmf.arnv.dev').href}#organization`,
+      name: siteName,
+      url: new URL('/', Astro.site ?? 'https://cmf.arnv.dev').href,
+      logo: new URL('/icon-512.png', Astro.site ?? 'https://cmf.arnv.dev').href,
+      founder: { '@id': `${new URL('/', Astro.site ?? 'https://cmf.arnv.dev').href}#person` },
+      sameAs: [authorUrl, homepage, repoUrl],
+    },
+    {
+      '@type': isHome ? 'WebPage' : 'TechArticle',
+      '@id': `${pageUrl}#page`,
+      url: pageUrl,
+      name: data.title ?? siteName,
+      headline: data.title ?? siteName,
+      description,
+      image: ogImage.href,
+      inLanguage: 'en',
+      isPartOf: { '@id': `${new URL('/', Astro.site ?? 'https://cmf.arnv.dev').href}#website` },
+      about: { '@type': 'Thing', name: 'CMF Watch Pro 2' },
+      author: { '@id': `${new URL('/', Astro.site ?? 'https://cmf.arnv.dev').href}#person` },
+      publisher: { '@id': `${new URL('/', Astro.site ?? 'https://cmf.arnv.dev').href}#organization` },
+      ...(isHome
+        ? {}
+        : {
+            mainEntityOfPage: pageUrl,
+            articleSection: data.sidebar?.label ?? 'Documentation',
+          }),
+    },
+    ...(breadcrumbs.length > 0
+      ? [
+          {
+            '@type': 'BreadcrumbList',
+            '@id': `${pageUrl}#breadcrumb`,
+            itemListElement: breadcrumbs.map((crumb, index) => ({
+              '@type': 'ListItem',
+              position: index + 1,
+              name: crumb.name,
+              item: crumb.url,
+            })),
+          },
+        ]
+      : []),
+  ],
+};
+
+const gaId = 'G-N2Z43EJVZV';
+---
+
+<DefaultHead />
+
+<meta name="author" content={authorName} />
+<meta name="keywords" content="CMF Watch, CMF Watch Pro 2, Nothing, JX402, ATS3089C, watchface, AOTA, SDFS, WFDL, AJS, BLE, Bluetooth Low Energy, firmware, reverse engineering, OTA, smartwatch" />
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+<meta name="referrer" content="strict-origin-when-cross-origin" />
+<meta name="theme-color" content="#fb471f" />
+<meta name="color-scheme" content="light dark" />
+
+<meta property="og:image" content={ogImage.href} />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="CMF Watch Utils" />
+<meta property="article:author" content={authorUrl} />
+
+<meta name="twitter:title" content={pageTitle} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImage.href} />
+<meta name="twitter:image:alt" content="CMF Watch Utils" />
+<meta name="twitter:site" content="@arnav_kr" />
+<meta name="twitter:creator" content="@arnav_kr" />
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
+<link rel="manifest" href="/site.webmanifest" />
+
+<script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+<script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}></script>
+<script is:inline define:vars={{ gaId }}>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() {
+    window.dataLayer.push(arguments);
+  }
+  gtag('js', new Date());
+  gtag('config', gaId, { anonymize_ip: true });
+</script>
