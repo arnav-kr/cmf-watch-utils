@@ -86,9 +86,7 @@ git lfs pull
 
 Beyond the images, `dumps/` carries the extracted analysis output (function list, strings,
 cross-references, 231 decompiled listings), the OTA run logs with device identifiers replaced,
-captured protocol traces and format samples. The
-[completeness audit](site/src/content/docs/about/completeness.md) lists every artifact of the
-research effort, what is published here and the reason for each omission.
+captured protocol traces and format samples.
 
 The images are vendor firmware and vendor resources; the proof-of-concept image additionally
 contains third-party animation frames. Redistribution rights are the responsibility of
@@ -103,7 +101,19 @@ pnpm install
 pnpm dev
 ```
 
-The rendered site is published at <https://cmf.arnv.dev/>.
+The site is served from the repository root, so the local preview is at
+<http://localhost:4321/>.
+
+The published site is <https://cmf.arnv.dev/>. It is a GitHub Pages deployment with a custom
+domain, so the domain needs a DNS record of its own:
+
+| Type | Name | Target |
+|---|---|---|
+| CNAME | `cmf` | `arnav-kr.github.io` |
+
+The record is managed in the `arnv.dev` zone. Until it resolves, the Pages deployment
+redirects to the custom domain and stays unreachable from outside; the local preview is
+unaffected.
 
 Key pages:
 
@@ -114,7 +124,6 @@ Key pages:
 - [Flash guide](site/src/content/docs/devices/cmf-watch-pro-2/guides/ota-flash.md)
 - [Bad Apple case study](site/src/content/docs/devices/cmf-watch-pro-2/guides/bad-apple.md)
 - [Roadmap and devices](site/src/content/docs/about/roadmap.md)
-- [Completeness audit](site/src/content/docs/about/completeness.md)
 - [Agent context](site/src/content/docs/ai/context.md)
 
 ## The three OTA rules that decide the outcome

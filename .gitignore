@@ -14,6 +14,9 @@ site/.astro/
 site/dist/
 site/.astro/
 
+# Internal working notes, never published
+internal/
+
 # Local device data (contains secrets!)
 tools/.watch_state.json
 *.watch_state.json

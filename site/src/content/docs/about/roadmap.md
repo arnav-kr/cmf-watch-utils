@@ -57,3 +57,18 @@ code paths are not assumed to exist elsewhere.
   protocol abstraction.
 - No cross-device compatibility is claimed, and no device without a verified page is
   represented as supported.
+
+## Publishing
+
+The documentation is an Astro Starlight site built from `site/` and deployed by GitHub Pages
+on every push to `main`. It is served from the repository root, which keeps the local preview
+(`http://localhost:4321/`) and the published site (`https://cmf.arnv.dev/`) at the same paths.
+
+The custom domain needs one DNS record in the `arnv.dev` zone:
+
+| Type | Name | Target |
+|---|---|---|
+| CNAME | `cmf` | `arnav-kr.github.io` |
+
+While that record is missing, the Pages deployment redirects to the custom domain and the
+site is unreachable from outside; the local preview remains available.
