@@ -178,7 +178,11 @@ def main(path: str) -> int:
               "oversized .wfdl image rejected")
     else:
         check(False, "oversized .wfdl image rejected")
-    wf_dir = sys.argv[2] if len(sys.argv) > 2 else os.environ.get("WF_DIR", os.path.join(os.path.dirname(__file__), "..", "..", "watchfaces"))
+    root = os.path.join(os.path.dirname(__file__), "..", "..")
+    default_wf_dir = os.path.join(root, "watchfaces")
+    if not os.path.isdir(default_wf_dir):
+        default_wf_dir = os.path.join(root, "dumps", "samples", "watchfaces")
+    wf_dir = sys.argv[2] if len(sys.argv) > 2 else os.environ.get("WF_DIR", default_wf_dir)
     if os.path.isdir(wf_dir):
         for fn in sorted(os.listdir(wf_dir)):
             if not fn.lower().endswith(".bin"):
