@@ -11,8 +11,10 @@ and structure, and redacted notes.
 | File | Size | SHA-256 (first 16) | Description |
 |---|---|---|---|
 | `dumps/binaries/firmware/JX402_V1.0.0.73.bin` | 56,903,752 | `30903fc8ce6db4f8` | Stock factory image, CMF Watch Pro 2 (`JX402`), firmware 1.0.0.73 |
+| `dumps/binaries/firmware/JX402_V1.0.0.57.bin` | 56,065,096 | `cd4574f1f9fa3110` | Rollback target, firmware 1.0.0.57, rebuilt from unpacked parts |
 | `dumps/binaries/firmware/JX402_V1.0.0.73_badapple9.bin` | 54,117,960 | `4933e593d14bef6f` | Rebuilt image with the 202-frame animation proof of concept |
-| `dumps/binaries/app/app_073.bin` | 2,465,920 | `30e7978c39d8fb79` | `app.bin` extracted from the `TEMP` partition of the stock image |
+| `dumps/binaries/app/app_073.bin` | 2,465,920 | `30e7978c39d8fb79` | `app.bin` extracted from the `TEMP` partition of the 1.0.0.73 image |
+| `dumps/binaries/app/app_057.bin` | 2,445,440 | `26fbe34c10343949` | `app.bin` extracted from the `TEMP` partition of the 1.0.0.57 image |
 
 The images are stored with Git LFS:
 
@@ -57,6 +59,32 @@ Every partition is derivable from the image:
 ```bash
 uv run fwkit unpack dumps/binaries/firmware/JX402_V1.0.0.73.bin work/aota
 ```
+
+## Rollback target
+
+The `1.0.0.57` image is published so that a unit flashed to a modified build has a known-good
+older firmware to return to. It carries the same board string (`jx402_01_3089c`) and the same
+partition layout as the `1.0.0.73` image, and its application reports `1.0.0.57`.
+
+| Property | Value |
+|---|---|
+| AOTA version string | `1.00_2408181820` |
+| Size | 56,065,096 bytes |
+| SHA-256 | `cd4574f1f9fa31106e3a0490a12069adf5a99c59cf0e4d7f52d58be60cd55716` |
+| Provenance | Rebuilt from the unpacked parts with `tooling/rebuild_aota.py`; the header CRC and every entry CRC match the recorded metadata, and the result is byte-identical to earlier local rebuilds of the same image |
+| Manifest | [`manifests/firmware-1.0.0.57.json`](https://github.com/arnav-kr/watch-utils/blob/main/dumps/manifests/firmware-1.0.0.57.json) |
+
+Two caveats apply. The image is a reconstruction from extracted parts rather than a vendor
+download, and a downgrade over the OTA path has not been tested on hardware. The safer
+rollback is a full-image flash of this file onto a unit that is already on `1.0.0.73`.
+
+```bash
+uv run fwkit verify dumps/binaries/firmware/JX402_V1.0.0.57.bin
+uv run python tools/ota_client.py --image dumps/binaries/firmware/JX402_V1.0.0.57.bin --version 0100005a
+```
+
+The version argument of INIT2 is a build value used by the updater, not the version string of
+the image. The value that worked for `1.0.0.73` is `0100005a`.
 
 ## Analysis output
 

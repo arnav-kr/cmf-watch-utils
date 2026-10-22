@@ -96,6 +96,20 @@ partitions. The important signals are:
 - Frames were served with no long idle gap.
 - The watch rebooted and answers `info` on the new image.
 
+## Rollback
+
+A published rollback image for firmware `1.0.0.57` is available under `dumps/binaries/`, so a
+unit that was flashed with a modified build has an older firmware to return to. Its structure
+matches the `1.0.0.73` image and every CRC verifies.
+
+```bash
+uv run fwkit verify dumps/binaries/firmware/JX402_V1.0.0.57.bin
+uv run python tools/ota_client.py --image dumps/binaries/firmware/JX402_V1.0.0.57.bin --version 0100005a
+```
+
+The downgrade path has not been tested on hardware, and the image is a reconstruction from
+extracted parts rather than a vendor download. The risks of a full-image flash apply unchanged.
+
 ## Failure modes
 
 - **Disconnect during data:** the watch is allowed to reboot, `info` is checked, and the retry

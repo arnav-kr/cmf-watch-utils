@@ -9,8 +9,10 @@ notes.
 |---|---|
 | `manifests/firmware-1.0.0.73.json` | Sizes, SHA-256 hashes, header fields and per-entry CRC status of the stock image, plus the published binaries |
 | `binaries/firmware/JX402_V1.0.0.73.bin` | Stock factory firmware image for the CMF Watch Pro 2 (`JX402`, firmware 1.0.0.73) |
+| `binaries/firmware/JX402_V1.0.0.57.bin` | Rollback target, firmware 1.0.0.57, rebuilt from unpacked parts |
 | `binaries/firmware/JX402_V1.0.0.73_badapple9.bin` | Rebuilt image containing the 202-frame animation proof of concept |
-| `binaries/app/app_073.bin` | `app.bin` extracted from the `TEMP` partition of the stock image |
+| `binaries/app/app_073.bin` | `app.bin` extracted from the `TEMP` partition of the 1.0.0.73 image |
+| `binaries/app/app_057.bin` | `app.bin` extracted from the `TEMP` partition of the 1.0.0.57 image |
 | `analysis/` | Function list, function map, strings, string xrefs, block list, 231 decompiled listings, Ghidra run logs |
 | `logs/` | OTA client logs of the successful and failed flashes, with device identifiers replaced |
 | `traces/` | Captured notification frames used to map the protocol |
