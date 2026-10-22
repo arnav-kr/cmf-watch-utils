@@ -1,0 +1,47 @@
+INFO  Using log config file: jar:file:/C:/Users/arnav/scoop/apps/ghidra/12.1.4-20260921/Ghidra/Framework/Generic/lib/Generic.jar!/generic.log4j.xml (LoggingInitialization)  
+INFO  Using log file: C:\Users\arnav\AppData\Roaming\ghidra\ghidra_12.1.4_PUBLIC\application.log (LoggingInitialization)  
+INFO  Loading user preferences: C:\Users\arnav\AppData\Roaming\ghidra\ghidra_12.1.4_PUBLIC\preferences (Preferences)  
+INFO  Searching for classes... (ClassSearcher)  
+INFO  Class search complete (464 ms) (ClassSearcher)  
+INFO  Initializing SSL Context (DefaultSSLContextInitializer)  
+INFO  Initializing Random Number Generator... (SecureRandomFactory)  
+INFO  Random Number Generator initialization complete: SHA1PRNG (SecureRandomFactory)  
+INFO  Trust manager disabled, cacerts have not been set (DefaultTrustManagerFactory)  
+INFO  Headless startup complete (2219 ms) (AnalyzeHeadless)  
+INFO  Class searcher loaded 59 extension points (20 false positives) (ClassSearcher)  
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::staticFieldOffset has been called by org.apache.felix.framework.util.SecureAction (file:/C:/Users/arnav/scoop/apps/ghidra/12.1.4-20260921/Ghidra/Features/Base/lib/org.apache.felix.framework-7.0.5.jar)
+WARNING: Please consider reporting this to the maintainers of class org.apache.felix.framework.util.SecureAction
+WARNING: sun.misc.Unsafe::staticFieldOffset will be removed in a future release
+INFO  HEADLESS Script Paths:
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\Decompiler\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\FileFormats\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Debug\Debugger\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\SwiftDemangler\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\BSim\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\PDB\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\SystemEmulation\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Processors\DATA\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\MicrosoftCodeAnalyzer\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\FunctionID\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\GnuDemangler\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Processors\Atmel\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Processors\PIC\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Processors\8051\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Processors\JVM\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\VersionTracking\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Debug\Debugger-rmi-trace\ghidra_scripts
+    D:\upitest\fwsdk\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\BytePatterns\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\DecompilerDependent\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\WildcardAssembler\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\Base\ghidra_scripts
+    C:\Users\arnav\scoop\apps\ghidra\12.1.4-20260921\Ghidra\Features\PyGhidra\ghidra_scripts (HeadlessAnalyzer)  
+INFO  HEADLESS: execution starts (HeadlessAnalyzer)  
+INFO  Opening existing project: D:\upitest\fwsdk\proj073\wp2 (HeadlessAnalyzer)  
+INFO  Opening project: D:\upitest\fwsdk\proj073\wp2 (HeadlessProject)  
+INFO  REPORT: Processing project file: /app_073.bin (HeadlessAnalyzer)  
+INFO  REPORT: Execute script: DecompileAt.java  (HeadlessAnalyzer)  
+INFO  SCRIPT: D:\upitest\fwsdk\ghidra_scripts\DecompileAt.java (HeadlessAnalyzer)  
+INFO  DecompileAt.java> WP2_DECOMPAT wrote=5 (GhidraScript)  
+INFO  REPORT: Save succeeded for processed file: /app_073.bin (HeadlessAnalyzer)  

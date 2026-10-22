@@ -1,0 +1,146 @@
+[11:26:49.023] scanning ...
+[11:26:59.266] connecting AA:BB:CC:DD:EE:FF CMF Watch Pro 2-EEFF ...
+[11:26:59.741] connected=True mtu=23
+[11:26:59.746] notify chars: 10
+[11:26:59.754]   (notify 00002a05-0000-1000-8000-00805f9b34fb failed: Could not start notify on 0002: Access Denied)
+[11:27:01.002]   (notify 0000ffd2-0000-1000-8000-00805f9b34fb failed: (15, 'GATT Protocol Error: Insufficient Encryption'))
+[11:27:01.242] authkey=0e6848e79004057d2048006402e34a94
+[11:27:01.288]   < cmd2=0x0049 cc=1 ci=1 enc=True 5aaabbccddeeff
+[11:27:01.332]   < cmd2=0x004c cc=1 ci=1 enc=True d662eb3dc3b19fb188ef5dc8fa98aef9
+[11:27:01.337] nonce=d662eb3dc3b19fb188ef5dc8fa98aef9
+[11:27:01.341] sessionKey=9008c78dffc6c8ecc864c393ffeb01d0
+[11:27:01.377]   < cmd2=0x0004 cc=1 ci=1 enc=True 5a
+[11:27:01.407] INIT1 0x9052 (OTA begin)
+[11:27:01.437]   < cmd2=0x0001 cc=1 ci=1 enc=True 1a00
+[11:27:01.438]   < cmd2=0xa06b cc=1 ci=1 enc=True 656e000000000000000000000000000000000000000000000000000000000000
+[11:27:01.439]   < cmd2=0xa06a cc=1 ci=1 enc=True 5a
+[11:27:01.439]   < cmd2=0xa055 cc=1 ci=1 enc=True 01000007
+[11:27:01.526]   < cmd2=0xa052 cc=1 ci=1 enc=True 01
+[11:27:01.527] A052 ok
+[11:27:01.528] INIT2 0x9040 version=0100005a
+[11:27:06.570] !! no A040, retrying INIT2 on OTA char
+[11:27:06.630]   < cmd2=0xa040 cc=1 ci=1 enc=True 01
+[11:27:06.631] A040 ok, entering data phase
+[11:27:07.019]   (non-sequential request: expected 0xb28, got 0x3448600)
+[11:27:07.109]   (non-sequential request: expected 0x3448618, got 0x9398e8)
+[11:27:44.681]   served 1800 frames 390200B (0.7%) off=0x99729a len=3910
+[11:28:22.084]   served 3602 frames 781200B (1.4%) off=0x9f69f2 len=3910
+[11:28:58.775]   served 5404 frames 1172200B (2.1%) off=0xa5614a len=3910
+[11:29:33.774]   served 7206 frames 1563200B (2.8%) off=0xab58a2 len=3910
+[11:30:09.840]   served 9008 frames 1954200B (3.5%) off=0xb14ffa len=3910
+[11:30:46.421]   served 10810 frames 2345200B (4.2%) off=0xb74752 len=3910
+[11:31:23.707]   served 12612 frames 2736200B (4.9%) off=0xbd3eaa len=3910
+[11:32:00.531]   served 14414 frames 3127200B (5.6%) off=0xc33602 len=3910
+[11:32:37.770]   served 16216 frames 3518200B (6.3%) off=0xc92d5a len=3910
+[11:33:14.695]   served 18000 frames 3905290B (7.0%) off=0xcf156c len=3910
+[11:33:51.894]   served 19802 frames 4296290B (7.7%) off=0xd50cc4 len=3910
+[11:34:27.974]   served 21604 frames 4687290B (8.4%) off=0xdb041c len=3910
+[11:35:09.553]   served 23406 frames 5078290B (9.1%) off=0xe0fb74 len=3910
+[11:35:44.747]   served 25208 frames 5469290B (9.8%) off=0xe6f2cc len=3910
+[11:35:57.524]   (non-sequential request: expected 0xe90c68, got 0xe90e00)
+[11:36:22.350]   served 27008 frames 5859918B (10.5%) off=0xecea48 len=3910
+[11:36:59.580]   served 28810 frames 6250918B (11.1%) off=0xf2e1a0 len=3910
+[11:37:35.941]   served 30612 frames 6641918B (11.8%) off=0xf8d8f8 len=3910
+[11:38:14.325]   served 32414 frames 7032918B (12.5%) off=0xfed050 len=3910
+[11:38:52.376]   served 34216 frames 7423918B (13.2%) off=0x104c7a8 len=3910
+[11:39:29.357]   served 36000 frames 7811008B (13.9%) off=0x10ab0a0 len=3680
+[11:40:06.642]   served 37802 frames 8202008B (14.6%) off=0x110a7f8 len=3680
+[11:40:44.505]   served 39604 frames 8593008B (15.3%) off=0x1169f50 len=3680
+[11:41:22.850]   served 41406 frames 8984008B (16.0%) off=0x11c96a8 len=3680
+[11:42:02.123]   served 43208 frames 9375008B (16.7%) off=0x1228e00 len=3680
+[11:42:45.562]   served 45010 frames 9766008B (17.4%) off=0x1288558 len=3680
+[11:43:23.196]   served 46812 frames 10157008B (18.1%) off=0x12e7cb0 len=3680
+[11:43:59.875]   served 48614 frames 10548008B (18.8%) off=0x1347408 len=3680
+[11:44:36.580]   served 50416 frames 10939008B (19.5%) off=0x13a6b60 len=3680
+[11:45:11.786]   served 52201 frames 11326328B (20.2%) off=0x1405372 len=3910
+[11:45:49.627]   served 54003 frames 11717328B (20.9%) off=0x1464aca len=3910
+[11:46:23.953]   served 55805 frames 12108328B (21.6%) off=0x14c4222 len=3910
+[11:46:56.421]   served 57607 frames 12499328B (22.3%) off=0x152397a len=3910
+[11:47:25.456]   served 59409 frames 12890328B (23.0%) off=0x15830d2 len=3910
+[11:47:54.688]   served 61211 frames 13281328B (23.7%) off=0x15e282a len=3910
+[11:48:23.991]   served 63013 frames 13672328B (24.4%) off=0x1641f82 len=3910
+[11:48:53.300]   served 64815 frames 14063328B (25.1%) off=0x16a16da len=3910
+[11:49:25.949]   served 66617 frames 14454328B (25.8%) off=0x1700e32 len=3910
+[11:49:54.867]   served 68401 frames 14841418B (26.5%) off=0x175f644 len=3910
+[11:50:23.853]   served 70203 frames 15232418B (27.2%) off=0x17bed9c len=3910
+[11:50:53.569]   served 72005 frames 15623418B (27.9%) off=0x181e4f4 len=3910
+[11:51:22.719]   served 73807 frames 16014418B (28.6%) off=0x187dc4c len=3910
+[11:51:51.840]   served 75609 frames 16405418B (29.3%) off=0x18dd3a4 len=3910
+[11:52:20.846]   served 77411 frames 16796418B (30.0%) off=0x193cafc len=3910
+[11:52:50.124]   served 79213 frames 17187418B (30.7%) off=0x199c254 len=3910
+[11:53:19.165]   served 81015 frames 17578418B (31.4%) off=0x19fb9ac len=3910
+[11:53:48.474]   served 82817 frames 17969418B (32.1%) off=0x1a5b104 len=3910
+[11:54:17.151]   served 84601 frames 18356508B (32.7%) off=0x1ab99fc len=3680
+[11:54:46.254]   served 86403 frames 18747508B (33.4%) off=0x1b19154 len=3680
+[11:55:19.031]   served 88205 frames 19138508B (34.1%) off=0x1b788ac len=3680
+[11:55:48.040]   served 90007 frames 19529508B (34.8%) off=0x1bd8004 len=3680
+[11:56:17.406]   served 91809 frames 19920508B (35.5%) off=0x1c3775c len=3680
+[11:56:46.572]   served 93611 frames 20311508B (36.2%) off=0x1c96eb4 len=3680
+[11:57:15.769]   served 95413 frames 20702508B (36.9%) off=0x1cf660c len=3680
+[11:57:44.809]   served 97215 frames 21093508B (37.6%) off=0x1d55d64 len=3680
+[11:58:13.653]   served 99000 frames 21480828B (38.3%) off=0x1db4576 len=3910
+[11:58:42.650]   served 100802 frames 21871828B (39.0%) off=0x1e13cce len=3910
+[11:59:12.178]   served 102604 frames 22262828B (39.7%) off=0x1e73426 len=3910
+[11:59:41.196]   served 104406 frames 22653828B (40.4%) off=0x1ed2b7e len=3910
+[12:00:10.370]   served 106208 frames 23044828B (41.1%) off=0x1f322d6 len=3910
+[12:00:39.635]   served 108010 frames 23435828B (41.8%) off=0x1f91a2e len=3910
+[12:01:12.087]   served 109812 frames 23826828B (42.5%) off=0x1ff1186 len=3910
+[12:01:41.269]   served 111614 frames 24217828B (43.2%) off=0x20508de len=3910
+[12:02:10.386]   served 113416 frames 24608828B (43.9%) off=0x20b0036 len=3910
+[12:02:39.374]   served 115200 frames 24995918B (44.6%) off=0x210e848 len=3910
+[12:03:08.688]   served 117002 frames 25386918B (45.3%) off=0x216dfa0 len=3910
+[12:03:38.008]   served 118804 frames 25777918B (46.0%) off=0x21cd6f8 len=3910
+[12:04:07.280]   served 120606 frames 26168918B (46.7%) off=0x222ce50 len=3910
+[12:04:36.341]   served 122408 frames 26559918B (47.4%) off=0x228c5a8 len=3910
+[12:05:05.484]   served 124210 frames 26950918B (48.1%) off=0x22ebd00 len=3910
+[12:05:34.718]   served 126012 frames 27341918B (48.8%) off=0x234b458 len=3910
+[12:06:03.826]   served 127814 frames 27732918B (49.5%) off=0x23aabb0 len=3910
+[12:06:33.101]   served 129616 frames 28123918B (50.2%) off=0x240a308 len=3910
+[12:07:05.081]   served 131400 frames 28511008B (50.9%) off=0x2468c00 len=3680
+[12:07:34.617]   served 133202 frames 28902008B (51.6%) off=0x24c8358 len=3680
+[12:08:03.822]   served 135004 frames 29293008B (52.2%) off=0x2527ab0 len=3680
+[12:08:33.165]   served 136806 frames 29684008B (52.9%) off=0x2587208 len=3680
+[12:09:02.233]   served 138608 frames 30075008B (53.6%) off=0x25e6960 len=3680
+[12:09:31.504]   served 140410 frames 30466008B (54.3%) off=0x26460b8 len=3680
+[12:10:00.669]   served 142212 frames 30857008B (55.0%) off=0x26a5810 len=3680
+[12:10:29.866]   served 144014 frames 31248008B (55.7%) off=0x2704f68 len=3680
+[12:10:58.848]   served 145816 frames 31639008B (56.4%) off=0x27646c0 len=3680
+[12:11:27.856]   served 147601 frames 32026328B (57.1%) off=0x27c2ed2 len=3910
+[12:11:57.068]   served 149403 frames 32417328B (57.8%) off=0x282262a len=3910
+[12:12:26.248]   served 151205 frames 32808328B (58.5%) off=0x2881d82 len=3910
+[12:12:58.134]   served 153007 frames 33199328B (59.2%) off=0x28e14da len=3910
+[12:13:27.159]   served 154809 frames 33590328B (59.9%) off=0x2940c32 len=3910
+[12:13:56.314]   served 156611 frames 33981328B (60.6%) off=0x29a038a len=3910
+[12:14:25.455]   served 158413 frames 34372328B (61.3%) off=0x29ffae2 len=3910
+[12:14:54.692]   served 160215 frames 34763328B (62.0%) off=0x2a5f23a len=3910
+[12:15:23.877]   served 162017 frames 35154328B (62.7%) off=0x2abe992 len=3910
+[12:15:52.575]   served 163801 frames 35541418B (63.4%) off=0x2b1d1a4 len=3910
+[12:16:21.535]   served 165603 frames 35932418B (64.1%) off=0x2b7c8fc len=3910
+[12:16:50.592]   served 167405 frames 36323418B (64.8%) off=0x2bdc054 len=3910
+[12:17:19.626]   served 169207 frames 36714418B (65.5%) off=0x2c3b7ac len=3910
+[12:17:48.824]   served 171009 frames 37105418B (66.2%) off=0x2c9af04 len=3910
+[12:18:17.943]   served 172811 frames 37496418B (66.9%) off=0x2cfa65c len=3910
+[12:18:50.549]   served 174613 frames 37887418B (67.6%) off=0x2d59db4 len=3910
+[12:19:19.537]   served 176415 frames 38278418B (68.3%) off=0x2db950c len=3910
+[12:19:48.736]   served 178217 frames 38669418B (69.0%) off=0x2e18c64 len=3910
+[12:20:17.659]   served 180001 frames 39056508B (69.7%) off=0x2e7755c len=3680
+[12:20:46.842]   served 181803 frames 39447508B (70.4%) off=0x2ed6cb4 len=3680
+[12:21:15.875]   served 183605 frames 39838508B (71.1%) off=0x2f3640c len=3680
+[12:21:45.114]   served 185407 frames 40229508B (71.8%) off=0x2f95b64 len=3680
+[12:22:14.267]   served 187209 frames 40620508B (72.5%) off=0x2ff52bc len=3680
+[12:22:43.584]   served 189011 frames 41011508B (73.1%) off=0x3054a14 len=3680
+[12:23:12.722]   served 190813 frames 41402508B (73.8%) off=0x30b416c len=3680
+[12:23:41.936]   served 192615 frames 41793508B (74.5%) off=0x31138c4 len=3680
+[12:24:10.783]   served 194400 frames 42180828B (75.2%) off=0x31720d6 len=3910
+[12:24:42.915]   served 196202 frames 42571828B (75.9%) off=0x31d182e len=3910
+[12:25:12.098]   served 198004 frames 42962828B (76.6%) off=0x3230f86 len=3910
+[12:25:41.207]   served 199806 frames 43353828B (77.3%) off=0x32906de len=3910
+[12:26:10.288]   served 201608 frames 43744828B (78.0%) off=0x32efe36 len=3910
+[12:26:39.607]   served 203410 frames 44135828B (78.7%) off=0x334f58e len=3910
+[12:27:08.749]   served 205212 frames 44526828B (79.4%) off=0x33aece6 len=3910
+[12:27:32.461]   (non-sequential request: expected 0x33fc430, got 0x33fc600)
+[12:27:38.198]   served 207010 frames 44916996B (80.1%) off=0x340e2ce len=3910
+[12:28:10.504] watch status 0xa041 01
+[12:28:10.513] waiting for post-flash status ...
+[12:28:11.643]   <= cmd2=0xa042 000000000000000064
+[12:28:31.727] summary: frames=208089 bytes=45151048 (80.5% of image)

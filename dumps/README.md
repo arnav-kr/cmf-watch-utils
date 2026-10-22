@@ -11,6 +11,10 @@ notes.
 | `binaries/firmware/JX402_V1.0.0.73.bin` | Stock factory firmware image for the CMF Watch Pro 2 (`JX402`, firmware 1.0.0.73) |
 | `binaries/firmware/JX402_V1.0.0.73_badapple9.bin` | Rebuilt image containing the 202-frame animation proof of concept |
 | `binaries/app/app_073.bin` | `app.bin` extracted from the `TEMP` partition of the stock image |
+| `analysis/` | Function list, function map, strings, string xrefs, block list, 231 decompiled listings, Ghidra run logs |
+| `logs/` | OTA client logs of the successful and failed flashes, with device identifiers replaced |
+| `traces/` | Captured notification frames used to map the protocol |
+| `samples/` | A STY bundle, decoded picture samples, one WFDL watch-face package |
 | `ota-flash-run.md` | Redacted transcript shape of a successful AOTA flash |
 
 ## Storage
