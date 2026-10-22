@@ -28,7 +28,6 @@ export default defineConfig({
           label: 'About',
           items: [
             { label: 'Roadmap & devices', slug: 'about/roadmap' },
-            { label: 'Completeness audit', slug: 'about/completeness' },
             { label: 'Methodology', slug: 'about/methodology' },
             { label: 'Legal & attribution', slug: 'about/legal' },
           ],
