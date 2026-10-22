@@ -5,21 +5,23 @@ description: A compact, factual briefing for AI coding agents working in this re
 
 ## Mission
 
-Maintain and extend open tooling/documentation for the **CMF Watch Pro 2** (`JX402`, Actions
-ATS3089C, firmware `1.0.0.73`). The project parses and rebuilds AOTA/SDFS/RES/STY/WFDL/AJS
-containers and talks to the watch over BLE (auth, shell/AT, watch faces, firmware OTA).
+The scope of the project is open tooling and documentation for the **CMF Watch Pro 2**
+(`JX402`, Actions ATS3089C, firmware `1.0.0.73`). The project parses and rebuilds
+AOTA/SDFS/RES/STY/WFDL/AJS containers and talks to the watch over BLE (auth, shell/AT,
+watch faces, firmware OTA).
 
 ## Hard rules
 
-1. **Never flash, upload, delete or change device settings without explicit user approval.**
-   Read-only BLE commands are fine.
-2. Never use `Interceptor.attach` on Dart AOT (`libapp.so`); it crashes the target.
-3. Never blanket-kill Python processes; stop only the specific process you started.
-4. Never commit firmware binaries, vendor resources, animation/watch-face assets, or any
+1. **No device writes without explicit approval from the repository owner.** Read-only BLE
+   commands are unconstrained.
+2. `Interceptor.attach` on Dart AOT (`libapp.so`) crashes the target and is therefore excluded.
+3. Blanket termination of Python processes is excluded; termination applies only to the specific
+   process that was started.
+4. Commits exclude firmware binaries, vendor resources, animation/watch-face assets and any
    personal data: MAC, serial, secret, authkeys, session keys, logs with device ids.
-5. Do not reorder the OTA sequence. INIT2 goes to the OTA characteristic; the end ack is
+5. The OTA sequence is not reordered. INIT2 goes to the OTA characteristic; the end ack is
    required.
-6. Do not add comments to code unless asked. Match existing style.
+6. Comments are added to code only on request. The surrounding style is matched.
 
 ## Repository map
 
@@ -39,7 +41,7 @@ dumps/                  manifests and redacted notes (no binaries)
 ## Environment
 
 - Python **3.12+**, uv workspace at the repo root.
-- `uv sync`; run the CLI as `uv run fwkit ...` and tools as
+- `uv sync`; the CLI runs as `uv run fwkit ...` and tools as
   `uv run python tools/cmf_watch.py ...`.
 - Docs: `cd site; pnpm install; pnpm dev` / `pnpm build`.
 - Host tested on Windows 11; Bleak is cross-platform but MTU/behaviour may differ.
@@ -55,7 +57,7 @@ dumps/                  manifests and redacted notes (no binaries)
   `session = sha256(nonce||authkey)[:16]`.
 - OTA: `0x9052` → `A052 01`; `0x9040` **on `...ff01`** → `A040`; watch pulls `A042`;
   answer `0x9042`; at `A041` send `0x9041 A5`.
-- Do **not** send INIT2 on `CMD_W` first with a valid session; it can reboot the watch.
+- Sending INIT2 on `CMD_W` first with a valid session can reboot the watch.
 - Watch-face update: delete + append is the reliable path.
 - `.ajs`: 240×240 JPEG frames, fps at `+0x07` (0 => 25); `9.ajs` is sport type 22, 8 s.
 - Full Bad Apple (~18.75 MiB) does not fit the ~3.85 MiB free after replacing `9.ajs`.
@@ -69,7 +71,7 @@ dumps/                  manifests and redacted notes (no binaries)
 - `0xA055` capacity byte vs. actual dial slots; side-loaded dial ids are not listed.
 - UART recovery path is unverified.
 
-## How to verify changes
+## Verification
 
 ```bash
 uv run fwkit verify firmware/JX402_V1.0.0.73.bin
@@ -78,11 +80,11 @@ uv run python tooling/tests/selftest.py --firmware firmware/JX402_V1.0.0.73.bin
 cd site; pnpm build
 ```
 
-For format work, always prove a byte-identical round-trip before editing. For protocol work,
-use a dry run (`--stop-after-a040`) and do not write to the watch unless approved.
+Format work proves a byte-identical round-trip before any edit. Protocol work uses a dry run
+(`--stop-after-a040`); writes to the watch require approval.
 
 ## PII policy
 
-Placeholder MAC: `AA:BB:CC:DD:EE:FF`. Remove real MAC/serial/secret/authkey/GPS/notification
-data from logs, screenshots, issues and commits. `tools/.watch_state.json` is gitignored and
-must never be published.
+The placeholder MAC is `AA:BB:CC:DD:EE:FF`. Real MAC/serial/secret/authkey/GPS/notification
+data is absent from logs, screenshots, issues and commits. `tools/.watch_state.json` is
+gitignored and never published.

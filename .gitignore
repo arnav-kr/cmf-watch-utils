@@ -19,14 +19,15 @@ tools/.watch_state.json
 *.watch_state.json
 .watch_state.json
 
-# Firmware, vendor resources and media: NOT redistributable.
-firmware/
+# Local firmware copies: not tracked. The published dumps live under dumps/binaries/ (LFS).
+firmware/*
+!firmware/README.md
 watchfaces/
-*.bin
 *.ajs
 *.wfdl
 *.sty
 *.res
+!dumps/binaries/**
 !dumps/manifests/*.json
 
 # Build output

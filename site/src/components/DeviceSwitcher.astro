@@ -1,0 +1,131 @@
+---
+const devices = [
+  { slug: 'cmf-watch-pro-2', label: 'CMF Watch Pro 2', state: 'supported' },
+  { slug: 'cmf-watch-pro-3', label: 'CMF Watch Pro 3', state: 'planned' },
+  { slug: 'cmf-watch-pro', label: 'CMF Watch Pro', state: 'planned' },
+  { slug: 'cmf-watch', label: 'CMF Watch', state: 'planned' },
+];
+
+const current = Astro.url.pathname.match(/\/devices\/([^/]+)\//)?.[1] ?? '';
+const base = import.meta.env.BASE_URL;
+---
+
+<div class="device-switcher">
+  {
+    devices.map((device) => (
+      <details class="device-menu">
+        <summary class:list={['device-button', device.slug === current && 'is-current']}>
+          <span class="device-label">{device.label}</span>
+          <span class="device-state">{device.state === 'supported' ? 'supported' : 'planned'}</span>
+        </summary>
+        <ul class="device-list">
+          {
+            devices.map((entry) => (
+              <li>
+                <a
+                  href={`${base}devices/${entry.slug}/`}
+                  class:list={['device-link', entry.slug === current && 'is-current']}
+                  aria-current={entry.slug === current ? 'page' : undefined}
+                >
+                  <span>{entry.label}</span>
+                  <span class="device-badge">{entry.state}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </details>
+    ))
+  }
+</div>
+
+<style>
+  .device-switcher {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .device-menu {
+    position: relative;
+  }
+
+  .device-button {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.1rem;
+    padding: 0.15rem 0.5rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.25rem;
+    cursor: pointer;
+    list-style: none;
+    line-height: 1.2;
+  }
+
+  .device-button::-webkit-details-marker {
+    display: none;
+  }
+
+  .device-button:hover {
+    border-color: var(--sl-color-gray-4);
+  }
+
+  .device-label {
+    font-size: var(--sl-text-sm);
+    font-weight: 600;
+    color: var(--sl-color-text-accent);
+    white-space: nowrap;
+  }
+
+  .device-state {
+    font-size: var(--sl-text-2xs);
+    color: var(--sl-color-gray-3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .device-list {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 0.35rem);
+    z-index: 10;
+    min-width: 13rem;
+    margin: 0;
+    padding: 0.25rem;
+    list-style: none;
+    background: var(--sl-color-bg);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.35rem;
+    box-shadow: var(--sl-shadow-md);
+  }
+
+  .device-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.35rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: var(--sl-text-sm);
+    color: var(--sl-color-text);
+    text-decoration: none;
+  }
+
+  .device-link:hover {
+    background: var(--sl-color-gray-6);
+    text-decoration: none;
+  }
+
+  .device-link.is-current {
+    color: var(--sl-color-text-accent);
+    font-weight: 600;
+  }
+
+  .device-badge {
+    font-size: var(--sl-text-2xs);
+    color: var(--sl-color-gray-3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+</style>

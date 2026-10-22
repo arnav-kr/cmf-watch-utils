@@ -61,5 +61,28 @@
       "raw_sha256": "31e16bf2b4a64d7f79d125d5b9a14086c47187b5531e48703218dd808f53274f",
       "crc_ok": true
     }
+  ],
+  "binaries": [
+    {
+      "path": "dumps/binaries/firmware/JX402_V1.0.0.73.bin",
+      "role": "stock factory image",
+      "size": 56903752,
+      "sha256": "30903fc8ce6db4f8860bb554366635db3d2bcbb2d43827b3b50fbbac22b59353",
+      "lfs": true
+    },
+    {
+      "path": "dumps/binaries/firmware/JX402_V1.0.0.73_badapple9.bin",
+      "role": "rebuilt image with the 202-frame animation proof of concept in res_e (contains third-party media)",
+      "size": 54117960,
+      "sha256": "4933e593d14bef6f013db5f6d0a9760e36aaff63f052cf83a2dc54696ccff1ff",
+      "lfs": true
+    },
+    {
+      "path": "dumps/binaries/app/app_073.bin",
+      "role": "app.bin extracted from TEMP.bin of the stock image",
+      "size": 2465920,
+      "sha256": "30e7978c39d8fb79b825c7ebf69b4377d214e9cc6739a52f06dbb5ff7f13b490",
+      "lfs": true
+    }
   ]
 }

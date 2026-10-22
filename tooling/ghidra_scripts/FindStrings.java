@@ -27,7 +27,7 @@ public class FindStrings extends GhidraScript {
     @Override
     public void run() throws Exception {
         String outDir = System.getenv("WP2_OUT");
-        if (outDir == null) outDir = "D:\\upitest\\fwsdk\\out";
+        if (outDir == null) outDir = "out";
         File out = new File(outDir, "string_xrefs.txt");
         List<String> want = Arrays.asList(WANT);
         try (PrintWriter pw = new PrintWriter(out, "UTF-8")) {

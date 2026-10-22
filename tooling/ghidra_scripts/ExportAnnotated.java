@@ -138,7 +138,7 @@ public class ExportAnnotated extends GhidraScript {
             sb.append("\n");
         }
 
-        String out = "D:\\upitest\\firmware\\annotated_ota.c";
+        String out = "out/annotated_ota.c";
         try (Writer w = new FileWriter(out)) { w.write(sb.toString()); }
         println("wrote " + out + " (" + sb.length() + " chars)");
     }

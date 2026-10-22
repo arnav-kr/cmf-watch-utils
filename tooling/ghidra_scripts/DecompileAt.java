@@ -11,7 +11,7 @@ public class DecompileAt extends GhidraScript {
         String env = System.getenv("WP2_ADDRS");
         if (env == null || env.isEmpty()) { println("WP2_DECOMPAT no addresses"); return; }
         String outDir = System.getenv("WP2_OUT");
-        if (outDir == null) outDir = "D:\\upitest\\fwsdk\\out";
+        if (outDir == null) outDir = "out";
         File dd = new File(outDir, "decomp");
         dd.mkdirs();
         DecompInterface ifc = new DecompInterface();

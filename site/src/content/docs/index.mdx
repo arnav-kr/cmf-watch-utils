@@ -1,46 +1,56 @@
 ---
-title: CMF Watch Pro 2 Utilities
-description: Reverse-engineered firmware, BLE, watch-face and OTA tooling for the CMF Watch Pro 2.
+title: Watch Utils
+description: Tooling and documentation for CMF Watch and other Bluetooth wearables — firmware containers, BLE tooling and device research notes.
 template: splash
 hero:
-  tagline: Open documentation and Python tooling for the CMF Watch Pro 2 (JX402, Actions ATS3089C).
+  tagline: Firmware container tooling, BLE tooling and reverse-engineering notes for smartwatches, starting with the CMF Watch Pro 2.
   actions:
-    - text: What works
-      link: /cmf-watch-utils/overview/achievements/
+    - text: CMF Watch Pro 2
+      link: /watch-utils/devices/cmf-watch-pro-2/
       icon: right-arrow
-    - text: Quick start
-      link: /cmf-watch-utils/start/quickstart/
+    - text: Getting started
+      link: /watch-utils/getting-started/quickstart/
       icon: rocket
       variant: minimal
     - text: GitHub
-      link: https://github.com/arnav-kr/cmf-watch-utils
+      link: https://github.com/arnav-kr/watch-utils
       icon: external
       variant: minimal
 ---
 
-This project documents and automates what we learned while reverse-engineering the **CMF Watch Pro 2**
-(firmware `1.0.0.73`, board `JX402`, Actions ATS3089C). It is not an official Nothing/CMF project.
+Watch Utils is an unofficial interoperability project. It provides an offline toolkit for the
+firmware containers used by CMF Watch devices, a Python client for the watch's BLE services,
+and the research notes behind them.
 
-The practical results so far:
+The project is device-scoped: each supported model has its own section with its own
+protocol details, format notes and verified results. Shared tooling and general documentation
+live at the top level, so new devices can be added without duplicating the tools.
 
-- Parse, verify, rebuild and patch AOTA firmware images without touching the watch.
-- Parse and rebuild SDFS partitions, RES picture/string pools, STY UI bundles and WFDL watch faces.
-- Decode, edit and re-encode `.ajs` animations; a 202-frame Bad Apple proof of concept was flashed and verified.
-- Authenticate over BLE, talk to the shell channel, upload/delete watch faces, and run a full AOTA
-  firmware update over BLE.
-
-:::caution[Read this first]
-Firmware flashing can brick a watch. There is no confirmed hardware recovery path for every failure.
-The tools are provided for research and interoperability; use them on hardware you own and can afford
-to lose. Read [Limitations & risks](/cmf-watch-utils/overview/limitations/) before flashing anything.
+:::caution[Risk]
+Firmware flashing can leave a watch unbootable, and no universal recovery path has been proven
+for every failure mode. The tooling exists for research, interoperability and hardware that is
+owned and whose loss is acceptable. The device section documents the specific risks.
 :::
 
-## Start here
+## Device support
 
-- New to the project? Read [What works](/cmf-watch-utils/overview/achievements/) and
-  [Setup](/cmf-watch-utils/start/setup/).
-- Want to flash firmware? Read the [AOTA OTA flow](/cmf-watch-utils/protocol/ota/) and the
-  [step-by-step guide](/cmf-watch-utils/guides/ota-flash/).
-- Want to edit a watch face? Start with [Watch faces & WFDL](/cmf-watch-utils/formats/watchface/)
-  and [Dial editing](/cmf-watch-utils/guides/dial-editing/).
-- Using an AI agent? Give it [Agent context](/cmf-watch-utils/ai/context/) first.
+| Device | Firmware | State | Section |
+|---|---|---|---|
+| CMF Watch Pro 2 (`JX402`, Actions ATS3089C) | 1.0.0.73 | Full support | [Device pages](/watch-utils/devices/cmf-watch-pro-2/) |
+| Other CMF Watch models | — | Planned | [Roadmap](/watch-utils/about/roadmap/) |
+
+## Project contents
+
+| Area | Description |
+|---|---|
+| [Toolkit](/watch-utils/tooling/fwkit/) | `fwkit` — parse, rebuild and patch AOTA, SDFS, RES, STY, WFDL, AJS and picture containers offline |
+| [BLE tooling](/watch-utils/tooling/ble-tools/) | `cmf_watch.py`, `ota_client.py` — pairing, shell commands, watch-face upload, firmware OTA |
+| [Device research](/watch-utils/devices/cmf-watch-pro-2/) | Protocol details, format layouts, verified results and known gaps per device |
+| [Dumps](/watch-utils/dumps/) | Firmware manifests, hashes and downloadable images |
+| [Agent context](/watch-utils/ai/context/) | A compact briefing for AI coding agents |
+
+## Orientation
+
+- [Requirements](/watch-utils/getting-started/requirements/), [Setup](/watch-utils/getting-started/setup/) and [Quick start](/watch-utils/getting-started/quickstart/) cover the first steps.
+- [Methodology](/watch-utils/about/methodology/) describes how the formats were recovered and verified.
+- [Legal & attribution](/watch-utils/about/legal/) covers licensing, third-party notices and what is deliberately not redistributed.

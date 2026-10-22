@@ -1,0 +1,5 @@
+*.bin filter=lfs diff=lfs merge=lfs -text
+*.ajs filter=lfs diff=lfs merge=lfs -text
+*.wfdl filter=lfs diff=lfs merge=lfs -text
+*.sty filter=lfs diff=lfs merge=lfs -text
+*.res filter=lfs diff=lfs merge=lfs -text

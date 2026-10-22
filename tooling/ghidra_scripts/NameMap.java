@@ -24,7 +24,7 @@ public class NameMap extends GhidraScript {
     @Override
     public void run() throws Exception {
         String outDir = System.getenv("WP2_OUT");
-        if (outDir == null) outDir = "D:\\upitest\\fwsdk\\out";
+        if (outDir == null) outDir = "out";
         File dd = new File(outDir);
 
         Map<Address, String> strs = new HashMap<>();
