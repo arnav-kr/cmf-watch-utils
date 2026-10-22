@@ -9,7 +9,12 @@ export default defineConfig({
     starlight({
       title: 'CMF Watch Utils',
       description:
-        'CMF Watch Utils ? tooling and documentation for CMF Watch and other smartwatches: AOTA/SDFS/WFDL/AJS firmware containers, BLE tooling and per-device research notes.',
+        'CMF Watch Utils ? tooling and documentation for the CMF Watch Pro 2: AOTA/SDFS/WFDL/AJS firmware containers, BLE tooling and reverse-engineering notes.',
+      logo: {
+        src: './public/logo.svg',
+        alt: 'CMF Watch Utils logo',
+      },
+      customCss: ['/src/styles/custom.css'],
       favicon: '/favicon.svg',
       social: [
         {

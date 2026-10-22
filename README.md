@@ -1,12 +1,13 @@
 <p align="center">
-  <img src="./logo.svg" alt="CMF Watch Utils" width="120" height="120" />
+  <img src="./og_banner_transparent.svg#gh-light-mode-only" alt="CMF Watch Utils" width="640" />
+  <img src="./og_banner_dark_transparent.svg#gh-dark-mode-only" alt="CMF Watch Utils" width="640" />
 </p>
 
 <h1 align="center">CMF Watch Utils</h1>
 
 <p align="center">
-  Tooling and documentation for <b>CMF Watch</b> and other smartwatches — firmware container
-  toolkit, BLE tooling and per-device reverse-engineering notes.
+  Tooling and documentation for <b>CMF Watch Pro 2</b> — firmware container
+  toolkit, BLE tooling and reverse-engineering notes.
 </p>
 
 <p align="center">
@@ -22,15 +23,17 @@
 <p align="center">
   <a href="https://cmf.arnv.dev/"><strong>Read the documentation</strong></a> ·
   <a href="https://cmf.arnv.dev/llms.txt"><code>llms.txt</code></a> ·
-  <a href="https://github.com/arnav-kr">arnav-kr</a> ·
+  <a href="https://github.com/arnav-kr">Arnav Kumar</a> ·
   <a href="https://arnv.dev">arnv.dev</a>
 </p>
 
 ---
 
+> [!WARNING]
 > Unofficial interoperability project. Not affiliated with or endorsed by Nothing / CMF.
+>
 > Firmware modification can permanently damage a device — read the
-> [limitations page](https://cmf.arnv.dev/devices/cmf-watch-pro-2/limitations/) before flashing
+> [limitations](https://cmf.arnv.dev/devices/cmf-watch-pro-2/limitations/) before flashing
 > anything.
 
 ## What it does
@@ -180,26 +183,31 @@ uv run python tooling/tests/selftest.py dumps/binaries/firmware/JX402_V1.0.0.73.
 cd site && pnpm build
 ```
 
+## Star History
+
+<a href="https://www.star-history.com/?repos=arnav-kr%2Fcmf-watch-utils&type=date&legend=top-left">
+  <img src="https://api.star-history.com/chart?repos=arnav-kr/cmf-watch-utils&type=date&legend=top-left#gh-light-mode-only" alt="Star History Chart" />
+  <img src="https://api.star-history.com/chart?repos=arnav-kr/cmf-watch-utils&type=date&theme=dark&legend=top-left#gh-dark-mode-only" alt="Star History Chart" />
+</a>
+
+## Contributors
+
+<a href="https://github.com/arnav-kr/cmf-watch-utils/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=arnav-kr/cmf-watch-utils" alt="Contributors" />
+</a>
+
+See the [full contributor graph](https://github.com/arnav-kr/cmf-watch-utils/graphs/contributors).
+
 ## Attribution
 
-- [arnav-kr](https://github.com/arnav-kr) — [arnv.dev](https://arnv.dev)
+- [Arnav Kumar](https://github.com/arnav-kr) — [arnv.dev](https://arnv.dev)
 - The watch-face upload behaviour was informed by the AGPL-3.0
   [`freethinkel/fmc`](https://github.com/freethinkel/fmc) project.
 - Bad Apple is a copyrighted work; no animation frames are published in the documentation.
   The proof-of-concept image contains them, so the redistribution terms of that work apply to
   that file.
 
-<p align="center">
-  <a href="https://github.com/arnav-kr/cmf-watch-utils/graphs/contributors">
-    <img alt="Contributors" src="https://img.shields.io/github/contributors/arnav-kr/cmf-watch-utils?style=for-the-badge" />
-  </a>
-</p>
-
 ## License
 
 AGPL-3.0. See [`LICENSE`](LICENSE) and
 [Legal & attribution](https://cmf.arnv.dev/about/legal/).
-
-<p align="center">
-  <img src="./og-banner.png" alt="CMF Watch Utils" width="640" />
-</p>

@@ -1,0 +1,11 @@
+.sl-container .hero > img,
+.sl-container .hero > .hero-html {
+  width: min(70%, 16rem);
+}
+
+@media (min-width: 50rem) {
+  .sl-container .hero > img,
+  .sl-container .hero > .hero-html {
+    width: min(100%, 20rem);
+  }
+}

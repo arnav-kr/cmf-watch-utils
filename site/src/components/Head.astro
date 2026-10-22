@@ -8,13 +8,13 @@ const isHome = Astro.url.pathname === '/';
 
 const siteName = 'CMF Watch Utils';
 const tagline =
-  'Tooling and documentation for CMF Watch and other smartwatches: firmware container toolkit, BLE tooling and per-device research notes.';
+  'Tooling and documentation for the CMF Watch Pro 2: firmware container toolkit, BLE tooling and reverse-engineering notes.';
 const authorName = 'arnav-kr';
 const authorUrl = 'https://github.com/arnav-kr';
 const homepage = 'https://arnv.dev';
 const repoUrl = 'https://github.com/arnav-kr/cmf-watch-utils';
 
-const pageTitle = data.title ? `${data.title} · ${siteName}` : `${siteName} — smartwatch firmware tooling and BLE research`;
+const pageTitle = data.title ? `${data.title} · ${siteName}` : `${siteName} — CMF Watch Pro 2 firmware tooling and BLE research`;
 const description = data.description ?? tagline;
 const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://cmf.arnv.dev');
 const ogImage = new URL('/og-banner.png', Astro.site ?? 'https://cmf.arnv.dev');

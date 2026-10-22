@@ -25,8 +25,8 @@ export const GET: APIRoute = async ({ site }) => {
   const lines: string[] = [
     '# CMF Watch Utils',
     '',
-    '> Tooling and documentation for CMF Watch and other smartwatches: AOTA/SDFS/WFDL/AJS firmware container',
-    '> toolkit, BLE tooling, and per-device reverse-engineering notes. Unofficial project, not affiliated',
+    '> Tooling and documentation for the CMF Watch Pro 2: AOTA/SDFS/WFDL/AJS firmware container',
+    '> toolkit, BLE tooling, and reverse-engineering notes. Unofficial project, not affiliated',
     '> with Nothing / CMF.',
     '',
     'The documentation is organised per device. Each device has its own path below.',
