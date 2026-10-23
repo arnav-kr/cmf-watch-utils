@@ -4,7 +4,7 @@ Guidance for AI coding agents (and humans) working in this repository.
 
 ## Mission
 
-Maintain and extend CMF Watch Utils, the open tooling and documentation set for CMF Watch and other smartwatches:
+Maintain and extend CMF Watch Utils, the open tooling and documentation set for CMF watches:
 parse and rebuild the firmware containers, talk to a device over BLE (authentication, shell
 and AT commands, watch-face upload, firmware OTA), and document the findings per device.
 

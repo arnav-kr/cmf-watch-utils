@@ -9,7 +9,7 @@ const isHome = Astro.url.pathname === '/';
 const siteName = 'CMF Watch Utils';
 const tagline =
   'Tooling and documentation for the CMF Watch Pro 2: firmware container toolkit, BLE tooling and reverse-engineering notes.';
-const authorName = 'arnav-kr';
+const authorName = 'Arnav Kumar';
 const authorUrl = 'https://github.com/arnav-kr';
 const homepage = 'https://arnv.dev';
 const repoUrl = 'https://github.com/arnav-kr/cmf-watch-utils';
@@ -72,6 +72,7 @@ const jsonLd = {
       '@type': 'Person',
       '@id': `${new URL('/', Astro.site ?? 'https://cmf.arnv.dev').href}#person`,
       name: authorName,
+      alternateName: 'arnav-kr',
       url: authorUrl,
       sameAs: [authorUrl, homepage],
       knowsAbout: [
