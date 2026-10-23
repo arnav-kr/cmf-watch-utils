@@ -140,7 +140,8 @@ the scripts under `tooling/ghidra_scripts/` against `dumps/binaries/app/app_073.
 | `traces/sync_frames.json` | Captured notification frames used to map the protocol |
 
 Device identifiers, the pairing secret and the authkey are replaced with placeholders in every
-published log. The redaction tool is `tooling/redact.py`.
+published log. The redaction tool is `tooling/redact.py`; it reads the identifiers from a local,
+git-ignored map (`internal/redactions.json`) so that the values themselves are never committed.
 
 ## Samples
 
