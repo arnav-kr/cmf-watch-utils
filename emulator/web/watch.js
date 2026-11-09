@@ -1,5 +1,6 @@
 import {downloadCatalogFace, setupFaceCatalog} from './catalog.mjs';
 import {installWatchFace} from './face.mjs';
+import {speakerHop, speakerSegment} from './speaker.mjs';
 
 const $ = (id) => document.getElementById(id);
 const panel = $('panel');
@@ -54,6 +55,7 @@ let speaker, speakerOutput, audioCursor, audioEpoch, audioTime = 0;
 let audioFile, audioData, audioChanged = 0;
 let audioClockTime = 0, audioClockEnd = 0, audioSpeed = 1;
 let audioPaceReady = false;
+let audioOverlap;
 let customApp = false;
 let runtimeLog='', halted=false, nextLog=0;
 const debug=new URLSearchParams(location.search).has('debug');
@@ -260,29 +262,37 @@ function renderAudio() {
     if (epoch !== audioEpoch || audioCursor === undefined || audioCursor < first) {
       audioCursor = Math.max(first, end - Math.round(rate * delay * audioSpeed));
       audioEpoch = epoch;
+      audioOverlap = undefined;
     }
     const restarting = audioTime < now;
     const backlog = (end - audioCursor) / rate + Math.max(0, audioTime - now) * audioSpeed;
     const speed = Math.min(1.15, audioSpeed * (backlog > delay + .18 ? 1.07 : 1));
     if (restarting && (!audioPaceReady || (end - audioCursor) / (rate * speed) < delay) &&
         performance.now() - audioChanged < 140) return;
-    if (restarting) audioTime = now + .02;
-    const start = audioCursor;
-    const length = Math.min(end - start, Math.round(rate * speed * (delay - (audioTime - now) + .04)));
-    if (length <= 0) return;
+    const when = restarting ? now + .02 : audioTime;
+    const hop = speakerHop(rate);
+    const count = Math.min(8, Math.ceil((delay - (when - now) + .04) * rate / hop));
+    const read = index => view.getInt16(12 + (index - first) * 2, true) / 32768;
+    const flush = performance.now() - audioChanged >= 140;
+    const segments = [];
+    if (restarting) audioOverlap = undefined;
+    for (let i = 0; i < count; i++) {
+      const segment = speakerSegment(read, first, end, audioCursor, audioOverlap, rate, flush);
+      if (!segment) break;
+      segments.push(segment.output);
+      audioOverlap = segment.tail;
+      audioCursor += hop * speed;
+    }
+    if (!segments.length) return;
+    const length = segments.length * hop;
     const buffer = speaker.createBuffer(1, length, rate);
     const channel = buffer.getChannelData(0);
-    for (let i = 0; i < length; i++) {
-      const gain = restarting ? Math.min(1, i / (rate * .005)) : 1;
-      channel[i] = gain * view.getInt16(12 + (start - first + i) * 2, true) / 32768;
-    }
+    for (const [i, segment] of segments.entries()) channel.set(segment, i * hop);
     const source = speaker.createBufferSource();
     source.buffer = buffer;
-    source.playbackRate.value = speed;
     source.connect(speakerOutput);
-    source.start(audioTime);
-    audioTime += length / (rate * speed);
-    audioCursor = start + length;
+    source.start(when);
+    audioTime = when + length / rate;
   } catch (error) {
     if (error.name !== 'ErrnoError') {
       sound.checked = false;

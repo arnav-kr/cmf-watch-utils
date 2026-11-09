@@ -18,8 +18,8 @@ Stock starts at the highest manual brightness in the watch's own settings.
 The browser brightness slider adjusts the rendered display separately.
 The virtual speaker is on by default. If your browser blocks autoplay, tap or
 click the emulator to start audio. Use **Watch sound** under **Simulation →
-Display** to mute it. Audio follows the speed of the virtual watch, so it can
-play slower on a device that cannot keep up.
+Display** to mute it. If the virtual watch runs slowly, audio stretches to
+keep pace while preserving pitch.
 **Battery level** sets the reported percentage in stock firmware. With a
 custom app, the slider changes the simulated battery voltage and the app
 decides how to report it.

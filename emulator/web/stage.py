@@ -31,7 +31,7 @@ if args.frames_dir:
     for name in frame_names:
         shutil.copyfile(args.frames_dir / name, frames / name)
 web = Path(__file__).resolve().parent
-for name in ("index.html", "watch.js", "style.css", "face.mjs", "catalog.mjs"):
+for name in ("index.html", "watch.js", "style.css", "face.mjs", "catalog.mjs", "speaker.mjs"):
     shutil.copyfile(web / name, args.output / name)
 fixtures = args.output / "fixtures"
 fixtures.mkdir()
