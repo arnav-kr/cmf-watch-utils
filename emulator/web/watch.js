@@ -74,7 +74,11 @@ function render() {
     $('frames').textContent=`${frames} changed frames`;
     status('Stock firmware is rendering.');
   } catch(error) {if(error.name!=='ErrnoError'){log(error.message);clearInterval(timer);}}
-  try {$('log').textContent=runtimeLog+'\n'+runtime.FS.readFile('/watch/uart.log',{encoding:'utf8'}).slice(-16000);} catch {}
+  try {
+    const uart=runtime.FS.readFile('/watch/uart.log',{encoding:'utf8'});
+    $('log').textContent=runtimeLog+'\n'+uart.split('\n').filter(line=>!line.includes('#CD:')).join('\n').slice(0,48000);
+    if(uart.includes('ZEPHYR FATAL ERROR'))status('Stock firmware stopped with a fatal error. See the boot log.',true);
+  } catch {}
 }
 $('stop').onclick=()=>location.reload();
 $('start').onclick=async()=>{
@@ -110,3 +114,4 @@ $('start').onclick=async()=>{
     status('Runtime started; waiting for the stock display.');timer=setInterval(render,50);
   }catch(error){status(error.message,true);log(error.stack);}
 };
+
