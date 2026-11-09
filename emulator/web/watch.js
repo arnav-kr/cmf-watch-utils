@@ -260,7 +260,7 @@ function updateBootOptions() {
   $('advanced-boot-files').open = needsBaseFiles;
   $('hosted-frames').hidden = false;
   $('boot-presets').hidden = false;
-  if (needsBaseFiles) $('stock-file-hint').textContent =
+  if (needsBaseFiles) $('stock-file-hint').firstElementChild.textContent =
     'Select app.bin, compat.bin, nor.bin, nand-defaults.bin and nand-id.bin. The texture index is optional.';
   if (hosted) document.querySelector('.wordmark').href = '../';
   bootPreset.onchange = () => {
@@ -367,7 +367,8 @@ function sendPower() {
   const voltage = percent <= 69
     ? 3300 + 700 * percent / 69
     : 4000 + 350 * (percent - 69) / 31;
-  input(`p ${Math.round(voltage)} ${Number($('charger').checked)}`);
+  const charger = Number($('charger').checked);
+  input(customApp ? `p ${Math.round(voltage)} ${charger}` : `p 4000 ${charger} ${percent}`);
 }
 function updateBattery() {
   const percent = $('battery').value + '%';

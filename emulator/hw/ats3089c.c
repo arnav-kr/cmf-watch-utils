@@ -61,6 +61,7 @@ struct ActsState {
     bool exploratory;
     bool charger_present;
     unsigned battery_mv;
+    uint32_t battery_percent;
     bool stk_enabled;
     bool health_hook;
     uint32_t health_readings;
@@ -426,7 +427,7 @@ static void acts_input_tick(void *opaque)
     ActsState *s = opaque;
     int64_t now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
     char line[80];
-    unsigned down, x, y;
+    unsigned down, x, y, capacity = UINT32_MAX;
     int delta, ax, ay, az;
 
     timer_mod(s->input_timer, now + 6000000);
@@ -498,10 +499,12 @@ static void acts_input_tick(void *opaque)
         s->accel_mg[0] = ax;
         s->accel_mg[1] = ay;
         s->accel_mg[2] = az;
-    } else if (sscanf(line, "p %u %u", &x, &down) == 2 &&
-               x >= 3300 && x <= 4400 && down <= 1) {
+    } else if (sscanf(line, "p %u %u %u", &x, &down, &capacity) >= 2 &&
+               x >= 3300 && x <= 4400 && down <= 1 &&
+               (capacity <= 100 || capacity == UINT32_MAX)) {
         timer_del(s->unplug_timer);
         s->battery_mv = x;
+        s->battery_percent = capacity;
         if (s->charger_present != down) {
             s->charger_present = down;
             s->regs[0x4114 / 4] |= down ? 4 : 8;
@@ -1509,6 +1512,9 @@ static uint64_t acts_read(void *opaque, hwaddr addr, unsigned size)
     if (addr == 0xfffe0 && s->health_hook) {
         return s->health_readings;
     }
+    if (addr == 0xfffe4 && s->health_hook) {
+        return s->battery_percent;
+    }
     if ((addr >= 0x94000 && addr <= 0x9405c) ||
         (addr >= 0x780a0 && addr <= 0x780b4) ||
         (addr >= 0x78300 && addr <= 0x7851c && (addr & 255) <= 0x1c) ||
@@ -2173,6 +2179,7 @@ static void acts_reset(void *opaque)
     s->regs[0x4030 / 4] = 1u << 31; /* app handoff: CPU domain powered */
     s->charger_present = true;
     s->battery_mv = 4000;
+    s->battery_percent = UINT32_MAX;
     s->accel_mg[0] = s->accel_mg[1] = 0;
     s->accel_mg[2] = 1000;
     memset(s->stk_regs, 0, sizeof(s->stk_regs));
@@ -2230,6 +2237,54 @@ static void acts_reset(void *opaque)
     s->timers[2].ctl = 0x824;
     s->timers[2].value = UINT32_MAX;
     acts_timer_arm(&s->timers[2]);
+}
+
+static bool acts_install_stock_hook(uint32_t address, uint32_t destination,
+                                   const uint8_t *original, size_t original_size,
+                                   const uint8_t *code, size_t code_size)
+{
+    uint8_t *entry = rom_ptr(address, original_size);
+    uint8_t *slot = rom_ptr(destination, code_size);
+    const uint8_t empty[96] = {0};
+    if (!entry || !slot || code_size > sizeof(empty) ||
+        memcmp(entry, original, original_size) || memcmp(slot, empty, code_size)) {
+        return false;
+    }
+    stl_le_p(entry, 0xf000f8df);
+    stl_le_p(entry + 4, destination | 1);
+    memcpy(slot, code, code_size);
+    return true;
+}
+
+static bool acts_install_stock_power_hooks(void)
+{
+    const uint8_t capacity_entry[] = {0x2d, 0xe9, 0xf3, 0x41, 0x3f, 0x4d, 0xb5, 0xf8, 0xb2, 0x71};
+    const uint8_t brightness_entry[] = {0x00, 0xb5, 0x0a, 0x4a, 0x0a, 0x4b, 0xff, 0xb0};
+    const uint8_t notify_entry[] = {0x2d, 0xe9, 0xf0, 0x4f, 0x62, 0x4c, 0x8d, 0xb0};
+    const uint8_t capacity_code[] = {
+        0x06, 0x4b, 0x1b, 0x68, 0x64, 0x2b, 0x01, 0xd8, 0x18, 0x46, 0x70, 0x47, 0x2d, 0xe9, 0xf3, 0x41,
+        0x03, 0x4d, 0xb5, 0xf8, 0xb2, 0x71, 0xdf, 0xf8, 0x0c, 0xf0, 0x00, 0x00, 0xe4, 0xff, 0x0f, 0x40,
+        0x48, 0x0c, 0x00, 0x38, 0xff, 0x70, 0x11, 0x10,
+    };
+    const uint8_t brightness_code[] = {
+        0x10, 0xb5, 0x04, 0x20, 0x06, 0x4b, 0x98, 0x47, 0xbd, 0xe8, 0x10, 0x40, 0x04, 0x20, 0x05, 0x4b,
+        0x18, 0x60, 0x00, 0xb5, 0x04, 0x4a, 0x05, 0x4b, 0xff, 0xb0, 0xdf, 0xf8, 0x14, 0xf0, 0x00, 0x00,
+        0xc5, 0xe4, 0x06, 0x10, 0x20, 0x78, 0x00, 0x38, 0x14, 0xf3, 0x1d, 0x10, 0x7c, 0xf5, 0x1d, 0x10,
+        0xc9, 0x13, 0x0e, 0x10,
+    };
+    const uint8_t notify_code[] = {
+        0x07, 0xb5, 0x0c, 0x4b, 0x19, 0x68, 0x64, 0x29, 0x0b, 0xd8, 0x0b, 0x4a, 0x92, 0xf8, 0x28, 0x32,
+        0x99, 0x42, 0x06, 0xd0, 0xd2, 0xf8, 0xb8, 0x31, 0x1b, 0xb1, 0xb2, 0xf8, 0xb2, 0x01, 0x07, 0x4b,
+        0x98, 0x47, 0xbd, 0xe8, 0x07, 0x40, 0x2d, 0xe9, 0xf0, 0x4f, 0x03, 0x4c, 0x8d, 0xb0, 0xdf, 0xf8,
+        0x10, 0xf0, 0x00, 0x00, 0xe4, 0xff, 0x0f, 0x40, 0x48, 0x0c, 0x00, 0x38, 0x05, 0xb1, 0x11, 0x10,
+        0x3d, 0x90, 0x11, 0x10,
+    };
+    return acts_install_stock_hook(0x101170f4, 0x7e00, capacity_entry,
+                                   sizeof(capacity_entry), capacity_code, sizeof(capacity_code)) &&
+           acts_install_stock_hook(0x100e13c0, 0x7e40, brightness_entry,
+                                   sizeof(brightness_entry), brightness_code, sizeof(brightness_code)) &&
+           acts_install_stock_hook(0x10119034, 0x7e80, notify_entry,
+                                   sizeof(notify_entry), notify_code, sizeof(notify_code));
 }
 
 static void acts_init(MachineState *machine)
@@ -2449,6 +2504,10 @@ static void acts_init(MachineState *machine)
             exit(1);
         }
         memcpy(entry, jump, sizeof(jump));
+        if (!acts_install_stock_power_hooks()) {
+            error_report("Virtual power controls require stock 1.0.0.73 and a compatible ROM");
+            exit(1);
+        }
     }
 }
 

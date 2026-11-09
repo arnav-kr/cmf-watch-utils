@@ -78,7 +78,7 @@
       <details class="settings-section" open>
         <summary>Power</summary>
         <div id="power">
-          <label for="battery">Battery target <output id="battery-level" for="battery">69%</output></label>
+          <label for="battery">Battery level <output id="battery-level" for="battery">69%</output></label>
           <input id="battery" type="range" min="0" max="100" value="69">
           <label class="switch-label"><input id="charger" type="checkbox"> Charger connected</label>
         </div>
@@ -223,7 +223,7 @@
             <label class="file-control"><input id="stock-files" type="file" multiple accept=".bin,.txt" aria-label="Base firmware files"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m-4 4 4-4 4 4M4 15v5h16v-5"/></svg><span class="file-name">Select files</span></label>
             <button class="clear-file" type="button" aria-label="Clear base firmware files" hidden><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 4 8 8m0-8-8 8"/></svg></button>
           </div>
-          <small id="stock-file-hint">Optional. The emulator uses its prepared files for anything you leave out.</small>
+          <small id="stock-file-hint"><span>Optional. Override the emulator’s prepared flash and boot support files.</span> <a href="https://cmf.arnv.dev/emulator/#base-firmware-files">What each file does</a>.</small>
         </div>
       </details>
       <p id="image-error" role="status"></p>

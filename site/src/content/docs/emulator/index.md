@@ -14,6 +14,11 @@ desktop version of Chrome or Edge. Stock firmware starts automatically.
 The first boot downloads the virtual storage and can take a moment. **Watch log**
 shows the guest's progress. Use the touchscreen and crown, change brightness,
 or simulate battery, motion, GPS and optical sensor readings.
+Stock starts at the highest manual brightness in the watch's own settings.
+The browser brightness slider adjusts the rendered display separately.
+**Battery level** sets the reported percentage in stock firmware. With a
+custom app, the slider changes the simulated battery voltage and the app
+decides how to report it.
 
 Choose **Display test** from **Boot preset** to run a bundled custom firmware.
 Press the crown to change the pattern’s color. **Hard reset to stock** discards
@@ -33,6 +38,21 @@ under **Firmware package**, or select the application and companion SDFS
 separately under **Raw application files**. The **Bad Apple** preset accepts
 both formats. For Bluetooth OTA and recovery
 tests, use desktop QEMU.
+
+### Base firmware files
+
+The browser includes the stock files needed to boot. Use **Advanced boot
+files** when your test needs a different starting image. The emulator uses
+its bundled version for each file you leave out.
+
+| File | What it does |
+|---|---|
+| `app.bin` | Stock application used when booting stock. A custom app is selected through the main firmware inputs. |
+| `nor.bin` | The small flash image containing boot parameters and application partitions. Custom app and resource files are placed in this image. |
+| `nand-defaults.bin` | The larger flash image containing resources and settings. **Virtual NAND** supplies a replacement for this file. |
+| `compat.bin` | The emulator's compatibility ROM, which provides the services the watch app expects at boot. |
+| `nand-id.bin` | The chip identification table used by the NAND driver. |
+| `wfc-index.txt` | Texture information used to render stock watch faces. |
 
 ## Desktop emulator
 
