@@ -21,8 +21,9 @@ if (document.body.hasAttribute('data-bad-apple-ready')) {
 } else {
   bootPreset.querySelector('[value="bad-apple"]').textContent = 'Bad Apple (use your build)';
 }
-const firmwareInputs = ['firmware-file', 'app-file', 'sdfs-file'].map($);
+const needsBaseFiles = hosted && !bundledStock;
 let bootInProgress = false;
+let bootedCatalogFace;
 let nextFace;
 if (crossOriginIsolated) {
   try {
@@ -30,8 +31,21 @@ if (crossOriginIsolated) {
     sessionStorage.removeItem('wp2-next-face');
   } catch {}
 }
-const selectedCatalogFace = setupFaceCatalog($('face-catalog'), nextFace, face => {
-  if (bootInProgress) restartFor('stock', face);
+const faceCatalog = setupFaceCatalog($('face-catalog'), nextFace, face => {
+  if (bootInProgress) {
+    if (needsBaseFiles) {
+      $('image-error').textContent = 'Stop the watch and select the base files again before applying a face.';
+      return;
+    }
+    restartFor('stock', face);
+    return;
+  }
+  const faceFile = $('face-file');
+  if (face && faceFile.files.length) {
+    faceFile.value = '';
+    faceFile.dispatchEvent(new Event('change'));
+  }
+  $('start').click();
 });
 const requiredFixtures = ['nor.bin', 'nand-defaults.bin', 'nand-id.bin', 'compat.bin', 'app.bin'];
 let runtime, timer, pointer=null, crownDown=false, frames=0, lastFrame=null;
@@ -110,10 +124,12 @@ function release() {
   crown(false);
 }
 panel.addEventListener('pointerdown',event=>{
+  panel.classList.add('pointer-focus');
   if(!runtime||pointer)return;
   const [x,y]=point(event);pointer={id:event.pointerId,x,y};
-  panel.setPointerCapture(event.pointerId);panel.focus();input(`t 1 ${x} ${y}`);
+  panel.setPointerCapture(event.pointerId);panel.focus({preventScroll:true});input(`t 1 ${x} ${y}`);
 });
+for(const name of ['blur','keydown']) panel.addEventListener(name,()=>panel.classList.remove('pointer-focus'));
 panel.addEventListener('pointermove',event=>{
   if(!pointer||pointer.id!==event.pointerId)return;
   const [x,y]=point(event);
@@ -150,6 +166,7 @@ function renderFrame() {
       pixels.data[i]=data[j];pixels.data[i+1]=data[j+1];pixels.data[i+2]=data[j+2];pixels.data[i+3]=255;
     }
     context.putImageData(pixels,0,0);frames++;
+    if(frames===1 && !halted)faceCatalog.markApplied(bootedCatalogFace);
     $('offline').hidden=true;
     $('capture').disabled = false;
     if(!halted)status('Firmware is rendering locally.',false,'running');
@@ -227,30 +244,31 @@ frameColor.addEventListener('change', () => {
   frameFile.value = '';
   loadFrame();
 });
+function updateBootOptions() {
+  const preset = bootPreset.value;
+  const stock = preset === 'stock';
+  const uploads = preset === 'custom' || (preset === 'bad-apple' && !builtInPresets.has(preset));
+  $('firmware-package').hidden = !uploads;
+  $('raw-applications').hidden = !uploads;
+  $('advanced-boot-files').hidden = !uploads && !needsBaseFiles;
+  $('face-catalog').hidden = !stock;
+  $('watch-face-upload').hidden = !stock;
+  $('display-demo-guide').hidden = preset !== 'display-demo';
+  $('bad-apple-guide').hidden = preset !== 'bad-apple' || !uploads;
+}
 {
-  $('hosted-fixtures').hidden = false;
-  $('hosted-fixtures').open = hosted && !bundledStock;
+  $('advanced-boot-files').open = needsBaseFiles;
   $('hosted-frames').hidden = false;
   $('boot-presets').hidden = false;
-  if (hosted && !bundledStock) $('stock-file-hint').textContent =
+  if (needsBaseFiles) $('stock-file-hint').textContent =
     'Select app.bin, compat.bin, nor.bin, nand-defaults.bin and nand-id.bin. The texture index is optional.';
   if (hosted) document.querySelector('.wordmark').href = '../';
-  $('face-catalog').hidden = false;
   bootPreset.onchange = () => {
     if (bootInProgress || builtInPresets.has(bootPreset.value)) {
       restartFor(bootPreset.value);
       return;
     }
-    if (bootPreset.value === 'stock') {
-      for (const picker of firmwareInputs) {
-        picker.value = '';
-        picker.dispatchEvent(new Event('change'));
-      }
-    } else {
-      $('firmware-package').open = true;
-      $('raw-applications').open = true;
-    }
-    $('bad-apple-guide').hidden = bootPreset.value !== 'bad-apple';
+    updateBootOptions();
     $('image-error').textContent = '';
   };
   loadFrame();
@@ -332,9 +350,6 @@ for (const picker of document.querySelectorAll('.file-control input')) {
       names[0] || (picker.multiple ? 'Select files' : 'Select file');
     label.title = names.join(', ');
     clear.hidden = !file;
-    if (firmwareInputs.includes(picker) && bootPreset.value !== 'bad-apple') {
-      bootPreset.value = firmwareInputs.some(input => input.files.length) ? 'custom' : 'stock';
-    }
     $('image-error').textContent = '';
   });
   clear.onclick = () => {
@@ -595,13 +610,16 @@ function validateHostedFirmware(bytes) {
 }
 
 async function readBootOverrides() {
-  const firmware = $('firmware-file').files[0];
-  const app = $('app-file').files[0];
-  const nand = $('nand-file').files[0];
-  const face = $('face-file').files[0];
-  const sdfs = $('sdfs-file').files[0];
-  const catalogFace = selectedCatalogFace();
-  const builtIn = builtInPresets.get(bootPreset.value);
+  const preset = bootPreset.value;
+  const stock = preset === 'stock';
+  const builtIn = builtInPresets.get(preset);
+  const uploads = !stock && !builtIn;
+  const firmware = uploads ? $('firmware-file').files[0] : undefined;
+  const app = uploads ? $('app-file').files[0] : undefined;
+  const nand = uploads || needsBaseFiles ? $('nand-file').files[0] : undefined;
+  const face = stock ? $('face-file').files[0] : undefined;
+  const sdfs = uploads ? $('sdfs-file').files[0] : undefined;
+  const catalogFace = stock ? faceCatalog.selected() : undefined;
   if (builtIn && !firmware && !app && !sdfs) {
     const load = async name => {
       const response = await fetch(new URL(`./presets/${name}`, import.meta.url));
@@ -621,8 +639,8 @@ async function readBootOverrides() {
       : 'Choose a custom application image.');
   }
   if (face && catalogFace) throw Error('Clear the imported watch face or select “Use stock face” in the FMC picker.');
-  if (firmware && (app || sdfs || face || catalogFace)) {
-    throw Error('Clear the raw application and watch-face inputs before using a firmware package.');
+  if (firmware && (app || sdfs)) {
+    throw Error('Choose a firmware package or raw application files.');
   }
   if ((face || catalogFace) && (app || nand)) {
     throw Error('Use the watch-face picker with the stock application and default NAND.');
@@ -710,7 +728,7 @@ async function loadFixtures(nandOverride) {
   const textureIndex = 'wfc-index.txt';
   const nandName = 'nand-defaults.bin';
   const selected = new Map();
-  for (const file of stockFiles.files) {
+  for (const file of $('advanced-boot-files').hidden ? [] : stockFiles.files) {
     if (![...requiredFixtures, textureIndex].includes(file.name) || selected.has(file.name)) {
       throw Error(`Unexpected or duplicate stock file: ${file.name}.`);
     }
@@ -772,6 +790,7 @@ $('start').onclick=async()=>{
         : 'Loading the runtime and virtual storage…', false, 'loading');
       files = await loadFixtures(overrides.nand);
       if (overrides.face || overrides.catalogFace) {
+        status(overrides.catalogFace ? `Installing ${overrides.catalogFace.name}…` : 'Installing watch face…', false, 'loading');
         const face = overrides.face || await downloadCatalogFace(overrides.catalogFace);
         await installFace(face, files);
       }
@@ -783,6 +802,7 @@ $('start').onclick=async()=>{
       $('start').disabled = false;
       return;
     }
+    bootedCatalogFace = overrides.catalogFace;
     customApp = Boolean(overrides.app);
     for (const field of $('health-controls').querySelectorAll('input')) field.disabled = customApp;
     $('firmware-label').textContent = customApp
@@ -874,9 +894,8 @@ if (crossOriginIsolated && (idle || requestedPreset)) {
 }
 if (builtInPresets.has(requestedPreset)) {
   bootPreset.value = requestedPreset;
-  $('display-demo-guide').hidden = requestedPreset !== 'display-demo';
 } else if (requestedPreset === 'bad-apple' || requestedPreset === 'custom') {
   bootPreset.value = requestedPreset;
-  bootPreset.onchange();
 }
+updateBootOptions();
 if (crossOriginIsolated && !idle && (bundledStock || !hosted)) $('start').click();

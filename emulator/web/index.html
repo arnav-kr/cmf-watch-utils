@@ -123,14 +123,6 @@
     </section>
     <section id="boot-images" class="settings-group">
       <h2>Boot images</h2>
-      <details class="settings-section" id="hosted-fixtures" hidden>
-        <summary>Stock firmware override</summary>
-        <div class="file-row">
-          <label class="file-control"><input id="stock-files" type="file" multiple accept=".bin,.txt" aria-label="Stock override files"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m-4 4 4-4 4 4M4 15v5h16v-5"/></svg><span class="file-name">Select files</span></label>
-          <button class="clear-file" type="button" aria-label="Clear stock override files" hidden><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 4 8 8m0-8-8 8"/></svg></button>
-        </div>
-        <small id="stock-file-hint">Select only the prepared stock files you want to override.</small>
-      </details>
       <div id="boot-presets" class="field" hidden>
         <label for="boot-preset">Boot preset</label>
         <select id="boot-preset">
@@ -142,7 +134,7 @@
         <small id="display-demo-guide" hidden>Press the crown to change the test pattern’s color.</small>
         <small id="bad-apple-guide" hidden>Choose your Bad Apple AOTA package, or use the built application and its companion SDFS file. <a href="../../devices/cmf-watch-pro-2/guides/bad-apple/">Bad Apple build guide</a></small>
       </div>
-      <details class="settings-section" id="firmware-package" open>
+      <details class="settings-section" id="firmware-package" open hidden>
         <summary>Firmware package</summary>
         <div class="field">
           <div class="file-row">
@@ -154,7 +146,7 @@
         </div>
         <small>Watch Pro 2 AOTA package.</small>
       </details>
-      <details class="settings-section" id="raw-applications" open>
+      <details class="settings-section" id="raw-applications" open hidden>
         <summary>Raw application files</summary>
         <div class="field">
           <label for="app-file">Application image</label>
@@ -190,11 +182,17 @@
           </div>
           <div class="catalog-actions">
             <span role="status"></span>
-            <button class="catalog-clear" type="button">Use stock face</button>
+          </div>
+          <div class="catalog-selection">
+            <small id="catalog-selection" aria-live="polite"></small>
+            <div class="catalog-actions">
+              <button class="catalog-clear" type="button">Use stock face</button>
+              <button class="catalog-apply" type="button">Apply watch face</button>
+            </div>
           </div>
           <ul class="catalog-options" aria-label="FMC watch faces"></ul>
         </fieldset>
-        <small>Replaces Activity Mood for this session. Selecting a face restarts a running watch.</small>
+        <small>Replaces Activity Mood for this session. Applying restarts a running watch.</small>
       </details>
       <details class="settings-section" id="watch-face-upload">
         <summary>Watch face</summary>
@@ -208,15 +206,24 @@
         </div>
         <small>Replaces Activity Mood for this session.</small>
       </details>
-      <details class="settings-section">
-        <summary>Virtual NAND</summary>
+      <details class="settings-section" id="advanced-boot-files" hidden>
+        <summary>Advanced boot files</summary>
         <div class="field">
+          <label for="nand-file">Virtual NAND</label>
           <div class="file-row">
             <label class="file-control"><input id="nand-file" type="file" accept=".bin" aria-label="Virtual NAND"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m-4 4 4-4 4 4M4 15v5h16v-5"/></svg><span class="file-name">Select file</span></label>
             <button class="clear-file" type="button" aria-label="Clear virtual nand" title="Clear virtual nand" hidden>
               <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 4 8 8m0-8-8 8"/></svg>
             </button>
           </div>
+        </div>
+        <div class="field">
+          <label for="stock-files">Base firmware files</label>
+          <div class="file-row">
+            <label class="file-control"><input id="stock-files" type="file" multiple accept=".bin,.txt" aria-label="Base firmware files"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m-4 4 4-4 4 4M4 15v5h16v-5"/></svg><span class="file-name">Select files</span></label>
+            <button class="clear-file" type="button" aria-label="Clear base firmware files" hidden><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 4 8 8m0-8-8 8"/></svg></button>
+          </div>
+          <small id="stock-file-hint">Optional. The emulator uses its prepared files for anything you leave out.</small>
         </div>
       </details>
       <p id="image-error" role="status"></p>

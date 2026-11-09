@@ -17,15 +17,17 @@ or simulate battery, motion, GPS and optical sensor readings.
 
 Choose **Display test** from **Boot preset** to run a bundled custom firmware.
 Press the crown to change the pattern’s color. **Hard reset to stock** discards
-the running session and boots stock again. **Stock firmware override** accepts individual files. The emulator uses
-the bundled stock files for any you leave out.
+the running session and boots stock again. Under **Custom firmware**, **Advanced
+boot files** lets you supply a different virtual NAND image or override the
+prepared base files.
 Use the camera button to save the circular display as a transparent PNG.
 Turn on **Include frame in screenshots** under **Display** to include the case.
 
 Open **FMC watch faces** to browse the full Watch Pro 2 catalog. Search by
-title or creator and sort by newest, most downloaded, or most flashed. The
-emulator installs the selected face into its virtual storage at boot. You can
-also load a local watch-face file. To try your own build, select **Custom
+title or creator and sort by newest, most downloaded, or most flashed. Choose a
+face, then select **Apply watch face** to install it at boot. Applying restarts
+a running watch. To use a local face file, stop the watch, select the file
+under **Watch face**, and start it again. To try your own build, select **Custom
 firmware**, then select a Watch Pro 2 AOTA
 under **Firmware package**, or select the application and companion SDFS
 separately under **Raw application files**. The **Bad Apple** preset accepts

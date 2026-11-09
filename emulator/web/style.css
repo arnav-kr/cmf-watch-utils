@@ -64,6 +64,7 @@ h1 { margin: 0 0 14px; font-size: 19px; font-weight: 500; }
 }
 .case.frameless { padding: 0; border-color: transparent; background: transparent; }
 canvas { display: block; width: 94%; height: auto; border-radius: 50%; touch-action: none; }
+#panel.pointer-focus { outline: none; }
 .frameless canvas { width: 100%; }
 .offline {
   position: absolute;
@@ -530,6 +531,8 @@ details[open] > summary::after { transform: rotate(90deg); }
 }
 .catalog-actions [role=status] { color: var(--muted); }
 .catalog-actions button { flex-shrink: 0; }
+.catalog-selection { margin-top: 8px; }
+.catalog-selection .catalog-actions { flex-wrap: wrap; }
 .catalog-options {
   display: grid;
   gap: 4px;

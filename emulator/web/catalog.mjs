@@ -37,32 +37,37 @@ export async function downloadCatalogFace(face) {
   return file;
 }
 
-export function setupFaceCatalog(picker, initial, onSelect) {
-  const summary = picker.querySelector('summary');
+export function setupFaceCatalog(picker, initial, onApply) {
   const choices = picker.querySelector('.catalog-options');
   const message = picker.querySelector('[role=status]');
   const clear = picker.querySelector('.catalog-clear');
+  const apply = picker.querySelector('.catalog-apply');
+  const selection = picker.querySelector('#catalog-selection');
   const search = picker.querySelector('input[type=search]');
   const sort = picker.querySelector('select');
   const count = new Intl.NumberFormat();
   let faces;
   let selected = initial;
-  clear.disabled = !selected;
-  if (selected) summary.textContent = selected.name;
+  let applied;
   let loading = false;
 
+  function updateSelection() {
+    const changed = selected?.id !== applied?.id;
+    clear.disabled = !selected;
+    apply.disabled = !changed;
+    selection.textContent = changed ? `Selected: ${selected?.name || 'Stock face'}`
+      : (applied ? `Applied: ${applied.name}` : 'No FMC face selected');
+    for (const button of choices.querySelectorAll('button')) {
+      button.setAttribute('aria-pressed', String(button.value === selected?.id));
+    }
+  }
   function select(face) {
     selected = face;
-    clear.disabled = !selected;
-    summary.textContent = face?.name || 'FMC watch faces';
-    for (const button of choices.querySelectorAll('button')) {
-      button.setAttribute('aria-pressed', String(button.value === face?.id));
-    }
-    picker.open = false;
-    summary.focus();
-    onSelect(face);
+    updateSelection();
   }
   clear.onclick = () => select(undefined);
+  apply.onclick = () => onApply(selected);
+  updateSelection();
 
   function addOption(face) {
     const item = document.createElement('li');
@@ -129,5 +134,11 @@ export function setupFaceCatalog(picker, initial, onSelect) {
       loading = false;
     }
   });
-  return () => selected;
+  return {
+    selected: () => selected,
+    markApplied(face) {
+      applied = face;
+      updateSelection();
+    },
+  };
 }

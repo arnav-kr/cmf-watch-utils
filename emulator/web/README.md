@@ -53,11 +53,12 @@ loopback and sends the cross-origin isolation headers needed by Wasm workers.
 Opening the HTML directly as a file will not work. A first boot can take tens
 of seconds; the watch log shows guest progress.
 
-You can select individual files from `web-local/fixtures` under
-**Stock firmware override**. The bundled stock files fill in any you leave out.
+To test a different base image, select **Custom firmware** and use
+**Advanced boot files**. The bundled base files fill in any you leave out.
 The hosted preview accepts local firmware packages,
 application files and watch faces. Open **FMC watch faces** to browse community
-faces by name or author and sort by newest, downloads, or flashes. The same
+faces by name or author and sort by newest, downloads, or flashes. Choose a
+face and select **Apply watch face** to install it on the next boot. The same
 picker is available when serving local stock files. Select **Bad Apple** to
 provide your own built firmware. Under
 **Display**, you can choose a built-in frame color or replace its artwork with
