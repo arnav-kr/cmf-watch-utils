@@ -18,8 +18,6 @@ if (document.body.hasAttribute('data-demo-ready')) {
 }
 if (document.body.hasAttribute('data-bad-apple-ready')) {
   builtInPresets.set('bad-apple', 'bad-apple-app.bin');
-} else {
-  bootPreset.querySelector('[value="bad-apple"]').textContent = 'Bad Apple (use your build)';
 }
 const needsBaseFiles = hosted && !bundledStock;
 let bootInProgress = false;
@@ -142,14 +140,15 @@ panel.addEventListener('pointermove',event=>{
 for(const name of ['pointerup','pointercancel','lostpointercapture']) panel.addEventListener(name,release);
 $('crown').addEventListener('pointerdown',event=>{event.preventDefault();$('crown').setPointerCapture(event.pointerId);crown(true);});
 for(const name of ['pointerup','pointercancel','lostpointercapture']) $('crown').addEventListener(name,()=>crown(false));
-$('up').onclick=()=>input('r 80');$('down').onclick=()=>input('r -80');
-panel.addEventListener('wheel',event=>{if(runtime){event.preventDefault();input(`r ${event.deltaY>0?-80:80}`);}},{passive:false});
+const rotateCrown = steps => input(`r ${Math.max(-320, Math.min(320, steps * 40))}`);
+$('up').onclick=()=>rotateCrown(-2);$('down').onclick=()=>rotateCrown(2);
+panel.addEventListener('wheel',event=>{if(runtime&&event.deltaY){event.preventDefault();rotateCrown(event.deltaY>0?2:-2);}},{passive:false});
 window.addEventListener('keydown',event=>{
   if(!runtime||halted||event.ctrlKey||event.altKey||event.metaKey||!['Space','ArrowUp','ArrowDown'].includes(event.code))return;
   if(event.target.closest('button,input,select,summary,a'))return;
   event.preventDefault();
   if(event.code==='Space')crown(true);
-  else input(`r ${event.code==='ArrowUp'?80:-80}`);
+  else rotateCrown(event.code==='ArrowUp'?-2:2);
 });
 window.addEventListener('keyup',event=>{if(event.code==='Space' && crownDown){event.preventDefault();crown(false);}});
 window.addEventListener('blur',release);
@@ -396,14 +395,14 @@ roller.addEventListener('pointermove', event => {
   if (rollY === undefined || !roller.hasPointerCapture(event.pointerId)) return;
   const steps = Math.trunc((event.clientY - rollY) / 12);
   if (!steps) return;
-  input(`r ${Math.max(-320, Math.min(320, -steps * 40))}`);
+  rotateCrown(steps);
   rollY += steps * 12;
 });
 roller.addEventListener('lostpointercapture', () => { rollY = undefined; });
 roller.addEventListener('wheel', event => {
   if (!runtime || !event.deltaY) return;
   event.preventDefault();
-  input(event.deltaY > 0 ? 'r -80' : 'r 80');
+  rotateCrown(event.deltaY > 0 ? 2 : -2);
 }, { passive: false });
 for (const picker of document.querySelectorAll('.file-control input')) {
   const label = picker.parentElement.querySelector('.file-name');

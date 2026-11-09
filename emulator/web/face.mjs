@@ -159,9 +159,8 @@ async function faceTextures(face) {
     const width = (header >>> 10) & 2047;
     const height = header >>> 21;
     offset += 8;
-    if (!width || !height || width > 466 || height > 466 || offset + size > end) {
-      throw Error('Invalid watch-face resource dimensions or size.');
-    }
+    if (!width || !height) throw Error('A watch-face texture has zero width or height.');
+    if (offset + size > end) throw Error('A watch-face texture extends past the end of the file.');
     if ((header & 31) === 5) {
       const pixels = unpackLz4(face.subarray(offset, offset + size), width * height * 3);
       const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', pixels));

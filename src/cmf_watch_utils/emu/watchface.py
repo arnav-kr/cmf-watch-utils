@@ -89,8 +89,8 @@ def prepare_face(nand, face):
         raise ValueError("Watch-face checksums or section lengths are invalid.")
     textures = set()
     for resource in parsed.resources:
-        if not (0 < resource.w <= 466 and 0 < resource.h <= 466):
-            raise ValueError("Watch face contains an unsupported texture size.")
+        if not resource.w or not resource.h:
+            raise ValueError("A watch-face texture has zero width or height.")
         if resource.cf == 5:
             pixels = lz4.decompress(resource.data, resource.raw_size)
             if len(pixels) != resource.raw_size:

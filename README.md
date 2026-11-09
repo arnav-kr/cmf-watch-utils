@@ -53,9 +53,9 @@
 | Firmware `1.0.0.57` rollback image | published, rebuilt from extracted parts, all CRCs verify |
 
 [Bad Apple firmware](https://github.com/arnav-kr/firmware-wp2-badapple)
-(private preview) is a complete example of building a custom Zephyr app for
-this watch. The [Bad Apple case study](https://cmf.arnv.dev/devices/cmf-watch-pro-2/guides/bad-apple/)
-is public and explains how the player fits the watch's storage and memory.
+is an example of building a custom Zephyr app for this watch. The
+[Bad Apple case study](https://cmf.arnv.dev/devices/cmf-watch-pro-2/guides/bad-apple/)
+explains how the player fits the watch's storage and memory.
 
 ## Install
 

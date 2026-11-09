@@ -74,10 +74,11 @@ stock texture index and frame renders.
 
 The Display test preset is built from source for the virtual watch. A local
 preview can also bundle a verified Bad Apple package with
-`prepare-presets.py --output web-presets --bad-apple PATH`. For a public
-deployment after publishing that build, set the Pages repository variables
-`WP2_BAD_APPLE_TAG` and `WP2_BAD_APPLE_SHA256` to the public firmware release
-tag and the hash of its `wp2-badapple-ota.bin` asset, then rerun Pages.
+`prepare-presets.py --output web-presets --bad-apple PATH`. Pages downloads
+the pinned Bad Apple release, verifies its SHA-256 and bundles it when the
+release is available. Rerun Pages after making the release available. To
+select a different build, set both `WP2_BAD_APPLE_TAG` and
+`WP2_BAD_APPLE_SHA256` to its tag and package hash.
 
 ## Controls
 

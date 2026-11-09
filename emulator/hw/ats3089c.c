@@ -714,7 +714,7 @@ static bool acts_vg_wfc_packed(const uint8_t *data, unsigned w, unsigned h)
                 g_strchomp(lines[i]);
                 if (!*lines[i]) continue;
                 if (sscanf(lines[i], "%u:%u:%64[0123456789abcdef]%c", &tw, &th, hash, &extra) != 3 ||
-                    !tw || !th || tw > 466 || th > 466 || strlen(hash) != 64) {
+                    !tw || !th || tw > 2047 || th > 2047 || strlen(hash) != 64) {
                     error_report("Invalid WFC texture index line %u", i + 1);
                     exit(1);
                 }
@@ -833,7 +833,7 @@ static bool acts_vg_blit(ActsState *s, uint32_t origin, uint32_t size,
         state[0xa10] != 0x101 ||
         (state[0xa27] && !pattern) || state[0xa2d] ||
         state[0xa1a] != 0x3f800000 || state[0xa1e] || state[0xa22] ||
-        !width || !height || !sw || !sh || sw > 466 || sh > 466 ||
+        !width || !height || !sw || !sh || sw > 2047 || sh > 2047 ||
         x + width > 466 || y + height > 466 || pitch < (x + width) * 2 ||
         spitch < sw * bytes || spitch > 8192 || pitch > 8192 ||
         src < 0x18000000 || dst < 0x18000000 ||

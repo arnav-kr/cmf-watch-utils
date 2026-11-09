@@ -38,10 +38,10 @@ under **Watch face**, and start it again. To try your own build, select **Custom
 firmware**, then select a Watch Pro 2 AOTA
 under **Firmware package**, or select the application and companion SDFS
 separately under **Raw application files**. The **Bad Apple** preset accepts
-both formats. See the [Bad Apple case study](/devices/cmf-watch-pro-2/guides/bad-apple/)
-for an example of a custom Zephyr application. The
-[firmware repository](https://github.com/arnav-kr/firmware-wp2-badapple) is
-currently a private preview. For Bluetooth OTA and recovery tests, use desktop QEMU.
+both formats. For an example of a custom Zephyr application, see the
+[Bad Apple source](https://github.com/arnav-kr/firmware-wp2-badapple) and
+[case study](/devices/cmf-watch-pro-2/guides/bad-apple/).
+For Bluetooth OTA and recovery tests, use desktop QEMU.
 
 On phones and devices that report limited memory, the browser limits display
 updates to about 30 fps to reduce work. The watch firmware still runs in software,

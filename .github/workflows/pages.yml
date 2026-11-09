@@ -66,15 +66,19 @@ jobs:
 
       - name: Prepare firmware presets
         env:
-          BAD_APPLE_TAG: ${{ vars.WP2_BAD_APPLE_TAG }}
-          BAD_APPLE_SHA256: ${{ vars.WP2_BAD_APPLE_SHA256 }}
+          BAD_APPLE_TAG: ${{ vars.WP2_BAD_APPLE_TAG || 'v0.1.0' }}
+          BAD_APPLE_SHA256: ${{ vars.WP2_BAD_APPLE_SHA256 || '563b993656f8ebfc21d4e79e9eb7eb3c8b6ce483fcfbdb10198cffecfd8c4a88' }}
         run: |
           args=()
-          if [[ -n "$BAD_APPLE_TAG$BAD_APPLE_SHA256" ]]; then
-            [[ "$BAD_APPLE_TAG" =~ ^[A-Za-z0-9._-]+$ && "$BAD_APPLE_SHA256" =~ ^[a-f0-9]{64}$ ]]
-            curl -fLsS --retry 3 "https://github.com/arnav-kr/firmware-wp2-badapple/releases/download/$BAD_APPLE_TAG/wp2-badapple-ota.bin" -o browser-stock/bad-apple.bin
+          [[ "$BAD_APPLE_TAG" =~ ^[A-Za-z0-9._-]+$ && "$BAD_APPLE_SHA256" =~ ^[a-f0-9]{64}$ ]]
+          http_status=$(curl -LsS --retry 3 -o browser-stock/bad-apple.bin -w '%{http_code}' \
+            "https://github.com/arnav-kr/firmware-wp2-badapple/releases/download/$BAD_APPLE_TAG/wp2-badapple-ota.bin")
+          if [[ "$http_status" == 200 ]]; then
             printf '%s  %s\n' "$BAD_APPLE_SHA256" browser-stock/bad-apple.bin | sha256sum -c
             args+=(--bad-apple browser-stock/bad-apple.bin)
+          elif [[ "$http_status" != 404 ]]; then
+            printf 'Firmware download failed (HTTP %s)\n' "$http_status" >&2
+            exit 1
           fi
           uv run --locked python emulator/web/prepare-presets.py --output browser-stock/presets "${args[@]}"
 
