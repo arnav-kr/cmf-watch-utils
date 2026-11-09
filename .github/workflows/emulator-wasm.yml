@@ -1,0 +1,54 @@
+name: Experimental browser emulator
+
+on:
+  push:
+    branches: [wasm-watch-pro-2]
+    paths: ['emulator/**', '.github/workflows/emulator-wasm.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  GIT_LFS_SKIP_SMUDGE: '1'
+
+jobs:
+  wasm:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: ktock/qemu-wasm
+          ref: 0ef7b4e2814b231705d8371dd7997f5b72e70baf
+          path: wasm-source
+      - name: Integrate existing watch model
+        run: python3 emulator/web/prepare.py wasm-source
+      - uses: docker/setup-buildx-action@v3
+      - name: Build Emscripten dependencies
+        uses: docker/build-push-action@v6
+        with:
+          context: wasm-source
+          load: true
+          tags: wp2-wasm-builder:local
+          cache-from: type=gha,scope=wp2-wasm
+          cache-to: type=gha,mode=max,scope=wp2-wasm
+      - name: Compile browser runtime
+        run: |
+          mkdir -p wasm-output
+          docker run --name wp2-wasm -v "$PWD/wasm-source:/qemu:ro" -v "$PWD/emulator/web:/recipe:ro" wp2-wasm-builder:local bash /recipe/build.sh
+      - name: Collect build output
+        if: always()
+        run: |
+          docker cp wp2-wasm:/build/config.log wasm-output/ 2>/dev/null || true
+          docker cp wp2-wasm:/build/meson-logs wasm-output/ 2>/dev/null || true
+          for file in qemu-system-arm qemu-system-arm.wasm qemu-system-arm.worker.js; do
+            docker cp "wp2-wasm:/build/$file" wasm-output/ 2>/dev/null || true
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wp2-wasm-experimental
+          path: wasm-output/
+          if-no-files-found: warn
