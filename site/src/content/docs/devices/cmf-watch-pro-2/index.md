@@ -16,7 +16,7 @@ service, a watch-face upload channel and an AOTA firmware update path.
 | SoC | Actions ATS3089C (Cortex-M based, Thumb-2) |
 | Firmware | `1.0.0.73` (AOTA version string `1.00_2509131556`) |
 | Application | `app.bin`, base address `0x10000000`, ACTH header |
-| Display | 240×240 |
+| Display | 466×466 panel. The 240×240 size applies to the AJS animations. |
 | Storage | `/NAND:E` resource partition, fixed 58,777,088 bytes |
 | BLE | MTU 23 observed; payload frames are AES-CBC encrypted with a CRC32-LE tail |
 
@@ -37,10 +37,16 @@ The detailed result table, with the evidence behind each entry, is on the
 
 ## Page map
 
+**Emulator**
+
+- [Emulator CLI](/tooling/emulator/) for profiles, fixture setup, boot tests and virtual OTA
+- [Recovery & boot modes](/devices/cmf-watch-pro-2/internals/recovery/) for what the recovery model verifies
+
 **Protocol**
 
 - [BLE protocol](/devices/cmf-watch-pro-2/protocol/ble/) — frames, keys, characteristic layout, notification streams
 - [AOTA OTA flow](/devices/cmf-watch-pro-2/protocol/ota/) — the verified update sequence
+- [Actions SDK OTA](/tooling/actions-ota/) for firmware exposing the Actions service
 - [Shell / AT channel](/devices/cmf-watch-pro-2/protocol/shell/) — command family and pairing secret retrieval
 
 **Formats**

@@ -35,7 +35,7 @@ uv run fwkit sdfs-pack    work/res_e work/res_e_new.bin
 Replacing one file inside an AOTA partition without unpacking everything:
 
 ```bash
-uv run fwkit edit-sdfs firmware/JX402_V1.0.0.73.bin res_e.bin 9.ajs work/9.ajs out/custom.bin
+uv run fwkit edit-sdfs dumps/binaries/firmware/JX402_V1.0.0.73.bin res_e.bin 9.ajs work/9.ajs out/custom.bin
 ```
 
 ## Fixed partition length

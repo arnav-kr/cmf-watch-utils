@@ -19,6 +19,15 @@ description: Hard boundaries, unresolved formats, recovery uncertainty and safe 
    menu cleared pairing state on the reference unit. A stale authkey still produced an `A052`
    reply but no `A040`; re-pairing fixed it. See [Shell / AT channel](/devices/cmf-watch-pro-2/protocol/shell/).
 
+## Emulator limits
+
+QEMU can exercise bounded firmware boots, virtual OTA and modeled recovery.
+The virtual crown + charger test restores known-good app and SDFS data through a
+host supervisor. It does not execute the watch's physical boot chain or validate
+recovery from damaged boot partitions, power loss or hardware faults. A passing
+preflight or boot test is evidence for that fixture and test path. See
+[Recovery & boot modes](/devices/cmf-watch-pro-2/internals/recovery/).
+
 ## Storage ceiling
 
 `/NAND:E` (`res_e.bin`) is a fixed **58,777,088-byte** partition.

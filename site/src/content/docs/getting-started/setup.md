@@ -1,81 +1,65 @@
 ---
 title: Setup
-description: Install the Python workspace, place firmware locally and pair the watch.
+description: Install the workspace, verify the command line, and choose your next step.
 ---
 
-## 1. Installation
+## 1. Install the workspace
 
-```bash
-git clone https://github.com/arnav-kr/cmf-cmf-watch-utils.git
-cd watch-utils
-uv sync
+Install Git and [uv](https://docs.astral.sh/uv/getting-started/installation/). The
+workspace uses Python 3.12 or later. `uv` can fetch a compatible Python when one
+is missing. Open a terminal in the directory where you want the checkout.
+
+**Windows PowerShell**
+
+```powershell
+$env:GIT_LFS_SKIP_SMUDGE = '1'
+git clone https://github.com/arnav-kr/cmf-watch-utils.git
+Remove-Item Env:GIT_LFS_SKIP_SMUDGE
+cd cmf-watch-utils
+uv sync --locked
 ```
 
-This creates a virtual environment with the `fwkit` CLI and the BLE tool dependencies. The
-installation is verified with:
+**Linux or macOS**
 
 ```bash
-uv run fwkit --help
-uv run python tools/cmf_watch.py --help
+GIT_LFS_SKIP_SMUDGE=1 git clone https://github.com/arnav-kr/cmf-watch-utils.git
+cd cmf-watch-utils
+uv sync --locked
 ```
 
-## 2. Firmware image
-
-The stock image for this device is published under `dumps/binaries/`:
-
-```bash
-git lfs pull --include="dumps/binaries/firmware/JX402_V1.0.0.73.bin"
-```
-
-A local copy is used for editing, and the `firmware/` directory is gitignored:
+These commands skip large firmware downloads. From the checkout, verify the tools:
 
 ```text
-firmware/JX402_V1.0.0.73.bin
+uv run fwkit --help
+uv run cmf-watch-utils emu profiles
 ```
 
-The image is parsed and verified before any edit or flash:
+You should see the firmware toolkit help and two Watch Pro 2 profiles. Keep
+running the following commands from the repository root unless a step says otherwise.
 
-```bash
-uv run fwkit info firmware/JX402_V1.0.0.73.bin
-uv run fwkit verify firmware/JX402_V1.0.0.73.bin
+The checkout also includes `scripts/install.ps1` and `scripts/install.sh`. Run them
+with `-Target .` or `.` respectively to install the current checkout. Use
+`-Firmware` or `--firmware` only when you also want the reference image.
+
+## 2. Get the reference firmware if your task needs it
+
+For container inspection or creating emulator fixtures, install Git LFS and fetch
+the exact reference image:
+
+```text
+git lfs install --local
+git lfs pull --include=dumps/binaries/firmware/JX402_V1.0.0.73.bin --exclude=""
+uv run fwkit info dumps/binaries/firmware/JX402_V1.0.0.73.bin
 ```
 
-## 3. Watch advertising
+The image is about 57 MB. If `fwkit` sees a tiny text file instead, Git still has
+the LFS pointer. See [Dumps & data](/dumps/) for the direct download and checksum.
+Use a separate copy for edits.
 
-With the watch disconnected in the Nothing X / CMF app, or phone Bluetooth turned off, the
-watch advertises as `CMF Watch Pro 2-XXXX`. The advertised device is located with:
+## 3. Choose a task
 
-```bash
-uv run python tools/cmf_watch.py scan
-```
-
-## 4. Pairing and local auth state
-
-```bash
-uv run python tools/cmf_watch.py pair
-```
-
-The command performs the full pairing exchange and writes `tools/.watch_state.json`. The file
-holds the watch secret and authkey — **it is never committed or shared**. After a factory
-reset, or after the factory-menu shutdown/reset option is used, the watch is re-paired; a
-stale authkey can still get an `A052` reply but will not enter the OTA data phase.
-
-## 5. Read-only check
-
-```bash
-uv run python tools/cmf_watch.py info
-uv run python tools/cmf_watch.py ota-state --duration 5
-```
-
-Correct version, battery and PID values indicate a working BLE path. Firmware flashing is a
-later step.
-
-## Documentation site
-
-Required only for documentation work:
-
-```bash
-cd site
-pnpm install
-pnpm dev
-```
+- **Inspect firmware** with the [quick start](/getting-started/quickstart/) and [fwkit reference](/tooling/fwkit/).
+- **Boot firmware without a watch** with the [emulator setup](/tooling/emulator/). Start with a headless stock boot.
+- **Talk to your watch** with the [BLE tools](/tooling/ble-tools/). Start with `scan`. Pairing and OTA negotiation are live operations.
+- **Check an Actions OTA package** offline with the [Actions OTA guide](/tooling/actions-ota/).
+- **Build the docs** from `site/` with Node.js 22.22 or later and pnpm 12. Run `pnpm install --frozen-lockfile` and `pnpm build`. Use `pnpm dev` to preview.

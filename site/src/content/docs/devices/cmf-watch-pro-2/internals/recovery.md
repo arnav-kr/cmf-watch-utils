@@ -3,13 +3,29 @@ title: Recovery & boot modes
 description: What is known about recovery, safe mode, OTA flags and the limits of unbricking.
 ---
 
-## Honest summary
+## Physical recovery
 
 There is **no confirmed, button-only recovery path** for every failure mode on this watch.
 The app contains safe-mode and launch/retry logic, and OTA flags persist across reboots, but no
 unit has been deliberately bricked to prove a universal recovery sequence.
 
-The notes below are not a guarantee.
+An Actions OTA loading screen confirms the app exposed that update service in
+the tested state. It does not establish where boot-time recovery runs or whether
+the service survives a broken app.
+
+## What QEMU recovery verifies
+
+| Scenario | What the test verified |
+|---|---|
+| Stock OTA reset and install | Stock reported success and the host sent END. QMP observed the guest OTA reset and retained reboot reason. The recovery supervisor read logical TEMP from the captured virtual NAND using the stock NAND driver, validated app/SDFS data, retired the pending record and wrote a separate virtual NOR. The resulting Bad Apple app booted to the panel. |
+| Crown + charger with a broken app | Given both modeled inputs, the host restored the stock app and SDFS from the verified local fixture while leaving other virtual NOR partitions in place apart from retiring pending OTA records. The restored stock image booted. |
+| Actions OTA | The guest returned image validation success. Installation and post-reset boot were verified separately for the stock OTA path. |
+
+The guest starts through a compatibility ROM. The real bootloader and recovery
+partitions were not read back or executed in this flow. The model cannot verify
+the physical power-on selector, recovery BLE when the app is broken, or recovery
+after corruption in the bootloader, storage or power path. Use
+[Emulator CLI](/tooling/emulator/) for the fixture and command requirements.
 
 ## Evidence in the firmware
 

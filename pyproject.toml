@@ -10,8 +10,15 @@ dependencies = [
   "pycryptodome>=4.0.1",
 ]
 
-[tool.uv]
-package = false
+[project.scripts]
+cmf-watch-utils = "cmf_watch_utils.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/cmf_watch_utils"]
 
 [tool.uv.sources]
 cmf-watch-fwkit = { workspace = true }

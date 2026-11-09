@@ -15,6 +15,15 @@ uv run python tools/ota_client.py --help
 | `rfcomm.py` | RFCOMM helper |
 | `maputil.py` | address and offset helpers |
 
+## Actions OTA and the emulator
+
+The packaged Actions client uses a separate BLE service. With no address,
+`uv run cmf-watch-utils ota actions --image local/actions-update.bin` validates
+locally. Providing an address enables live negotiation. Physical transfer also
+requires `--flash`. See the [Actions OTA reference](https://cmf.arnv.dev/tooling/actions-ota/).
+
+Use `uv run cmf-watch-utils emu ota --help` for stock or Actions OTA over loopback.
+
 ## Local state
 
 `tools/.watch_state.json` holds the pairing secret and authkey. It is gitignored and must never

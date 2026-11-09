@@ -1,47 +1,33 @@
 ---
 title: Requirements
-description: Hardware, firmware, host tools and permissions needed before trying anything.
+description: Minimum dependencies by task, from offline inspection to a virtual or physical OTA.
 ---
 
-## Hardware
+Start with Git, uv and Python 3.12 or later. Install additional tools only for the
+task you are doing.
 
-- **CMF Watch Pro 2** (board `JX402`, Actions ATS3089C).
-- Firmware verified: **`1.0.0.73`**. Other builds may differ and require a diff first.
-- A Bluetooth LE adapter supported by [Bleak](https://github.com/hbldh/bleak).
-- The watch is disconnected from the phone/Nothing X app, so that it advertises to the host.
-- For flashing: a charged watch and a host that remains awake for 10–30 minutes.
+| Task | Additional requirements |
+|---|---|
+| List profiles or read command help | None |
+| Inspect a firmware file or preflight an update | The local firmware file. Git LFS is optional if you use a direct download. |
+| Create emulator fixtures | Project QEMU, compatibility ROM bundle with the provisioner, Arm-capable GDB, exact stock package and pinned NAND ID table |
+| Boot firmware in QEMU | Project QEMU, compatibility ROM, host runtime libraries and prepared virtual flash fixtures |
+| Open the emulator window | Tcl/Tk `wish` in addition to the QEMU boot requirements |
+| Run virtual BLE OTA | Local H4 controller such as Netsim. Stock CMF OTA also needs a synthetic pairing fixture. |
+| Read staged TEMP from raw virtual NAND | Arm-capable GDB and reader files from the ROM bundle |
+| Talk to a physical watch | A Watch Pro 2 and a Bluetooth LE adapter supported by Bleak |
+| Build the documentation | Node.js 22.22 or later and pnpm 12 |
 
-## Host software
+The [emulator guide](/tooling/emulator/) lists OS-specific runtime packages and
+shows how to create the fixtures. A basic boot needs no Android emulator, Nothing X
+account, root access, or Bluetooth adapter.
 
-- **Python 3.12+**.
-- **uv** for the Python workspace.
-- Git.
-- Optional: Ghidra 12.x for static analysis, Node 20+ and pnpm for the documentation site.
-- Optional: a UART adapter for investigating the physical debug shell (not required).
+## Physical watch
 
-Windows notes:
+The reference device is the CMF Watch Pro 2, board JX402, running stock `1.0.0.73`.
+Firmware builds and BLE behavior can differ. The tested physical host was Windows.
+Pairing state in `tools/.watch_state.json` is private.
 
-- Bleak uses the Windows BLE stack. The watch often stays at **MTU 23**; that is normal and
-  still works, only slower.
-- Pairing state is stored in `tools/.watch_state.json`, which is gitignored and never shared.
-
-## Externally supplied files
-
-The published dumps under `dumps/binaries/` contain the stock firmware image for this
-device and the proof-of-concept image built from it. Vendor resources, watch-face packages and
-copyrighted animation frames are not published separately; they are obtained legally for the
-device in use and placed locally:
-
-```text
-firmware/JX402_V1.0.0.73.bin
-watchfaces/           # optional .wfdl packages
-```
-
-Both paths are gitignored.
-
-## Permissions
-
-- Testing the watch in use requires permission.
-- Write and flash commands are limited to hardware that is owned or explicitly authorised.
-- The [Limitations & risks](/devices/cmf-watch-pro-2/limitations/) page covers the
-  risks that apply before the first write.
+A watch connected to Nothing X may be unavailable to the host. See
+[BLE tools](/tooling/ble-tools/) for a read-only first check and
+[Limitations & risks](/devices/cmf-watch-pro-2/limitations/) before any live update.

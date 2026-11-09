@@ -86,7 +86,7 @@ requires-dist = [
 [[package]]
 name = "cmf-watch-utils"
 version = "0.1.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "bleak" },
     { name = "cmf-watch-fwkit" },

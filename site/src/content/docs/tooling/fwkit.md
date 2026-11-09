@@ -93,7 +93,7 @@ image keep their original length that way.
 - `tooling/tests/selftest.py` runs the round-trip checks:
 
 ```bash
-uv run python tooling/tests/selftest.py firmware/JX402_V1.0.0.73.bin
+uv run python tooling/tests/selftest.py dumps/binaries/firmware/JX402_V1.0.0.73.bin
 ```
 
 The selftest requires a firmware image supplied locally; the published dumps under

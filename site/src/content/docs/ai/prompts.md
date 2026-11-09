@@ -11,7 +11,7 @@ covers.
 
 Scope, device-write approval and data handling:
 
-> You are working in `watch-utils`, an unofficial CMF Watch research repo. Read
+> You are working in `cmf-watch-utils`, an unofficial CMF Watch research repo. Read
 > `AGENTS.md` and `site/src/content/docs/ai/context.md` first. Never flash, upload, delete or
 > change device settings without explicit approval. Never commit firmware, vendor assets,
 > animation/watch-face media, MAC/serial/secret/authkey data, or personal logs. Prove format
@@ -41,17 +41,25 @@ Addition of a CLI subcommand following the existing parser/cmd_* pattern:
 BLE investigation, read-only until a write is approved:
 
 > Use only read-only BLE commands until I approve a write. Start with `info` and
-> `ota-state --duration 5`. If pairing is stale, propose `pair` but do not run it without
-> approval. For OTA, first run `tools/ota_client.py --stop-after-a040 -v`; verify INIT2 goes to
-> the OTA characteristic and that `A040` arrives. Never send INIT2 on `CMD_W` first.
+> `ota-state --duration 5`. Ask before pairing or negotiating physical OTA.
+> Stock `--dry-run` and `--stop-after-a040` both contact the watch. Test INIT2 on
+> the OTA characteristic and END acknowledgement in QEMU first.
+
+## Task: emulator and OTA verification
+
+> Run `uv run cmf-watch-utils emu profiles` and preflight the package for the selected
+> profile. Use prepared virtual fixtures and an isolated H4 controller for OTA.
+> Keep the real watch disconnected from the test. Run Actions validation without
+> an address, or use `emu ota --protocol actions` for loopback. Report separately
+> whether the package passed, the guest validated the transfer, the guest rebooted,
+> and the installed app rendered. Label crown + charger results as host-modeled rescue.
 
 ## Task: docs
 
 Documentation edits under the Astro content tree:
 
 > Edit the Astro content under `site/src/content/docs/`. Keep frontmatter `title` and
-> `description`. Use relative links for internal pages and include the `/`
-> base only for splash/absolute links. Do not include real device identifiers. Run
+> `description`. Use root-relative links with a trailing slash for internal pages. Do not include real device identifiers. Run
 > `pnpm build` in `site/` and fix broken links.
 
 ## Review checklist
@@ -59,6 +67,6 @@ Documentation edits under the Astro content tree:
 - [ ] No secrets, MAC, serial, authkeys or personal logs.
 - [ ] No firmware, vendor resources or copyrighted media added.
 - [ ] Format change has a round-trip proof.
-- [ ] I/O change has a dry-run path.
-- [ ] OTA order unchanged: `0x9052`, `0x9040` on OTA, `0x9042` pulls, `0x9041 A5` end.
+- [ ] I/O change has an offline or isolated virtual test path. Live negotiation is identified as such.
+- [ ] Stock CMF OTA order unchanged: `0x9052`, `0x9040` on OTA, `0x9042` pulls, `0x9041 A5` end.
 - [ ] `pnpm build` and the relevant Python checks pass.

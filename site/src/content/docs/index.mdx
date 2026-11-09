@@ -1,12 +1,12 @@
 ---
 title: CMF Watch Utils
-description: Tooling and documentation for the CMF Watch Pro 2 — firmware containers, BLE tooling and reverse-engineering notes.
+description: Firmware tools, Bluetooth utilities, and a QEMU emulator preview for the CMF Watch Pro 2.
 head:
   - tag: title
-    content: CMF Watch Utils — CMF watch firmware and BLE tooling
+    content: CMF Watch Utils — Firmware tools and Watch Pro 2 emulator
 template: splash
 hero:
-  tagline: Firmware container tooling, BLE tooling and reverse-engineering notes for the CMF Watch Pro 2.
+  tagline: Inspect firmware, work with the watch over Bluetooth, or test Watch Pro 2 firmware in QEMU.
   image:
     file: ../../../public/logo.svg
     alt: CMF Watch Utils logo
@@ -18,6 +18,10 @@ hero:
       link: /getting-started/quickstart/
       icon: rocket
       variant: minimal
+    - text: Try the emulator
+      link: /tooling/emulator/
+      icon: right-arrow
+      variant: minimal
     - text: GitHub
       link: https://github.com/arnav-kr/cmf-watch-utils
       icon: external
@@ -26,7 +30,7 @@ hero:
 
 CMF Watch Utils is an unofficial interoperability project. It provides an offline toolkit for the
 firmware containers used by CMF Watch devices, a Python client for the watch's BLE services,
-and the research notes behind them.
+a Watch Pro 2 QEMU emulator preview, and the research notes behind them.
 
 The project is device-scoped: each supported model has its own section with its own
 protocol details, format notes and verified results. Shared tooling and general documentation
@@ -38,11 +42,18 @@ for every failure mode. The tooling exists for research, interoperability and ha
 owned and whose loss is acceptable. The device section documents the specific risks.
 :::
 
+## Watch Pro 2 emulator preview
+
+Start with a headless stock boot, then try the interactive viewer or test a custom
+app. The preview can exercise virtual OTA and modeled recovery without a watch,
+phone or Bluetooth adapter. You will need the project QEMU build, its compatibility
+ROM and local firmware fixtures. [Emulator setup and requirements](/tooling/emulator/)
+
 ## Device support
 
 | Device | Firmware | State | Section |
 |---|---|---|---|
-| CMF Watch Pro 2 (`JX402`, Actions ATS3089C) | 1.0.0.73 | Full support | [Device pages](/devices/cmf-watch-pro-2/) |
+| CMF Watch Pro 2 (`JX402`, Actions ATS3089C) | 1.0.0.73 | Hardware-tested tooling and QEMU preview | [Device pages](/devices/cmf-watch-pro-2/) |
 | Other CMF Watch models | — | Planned | [Roadmap](/about/roadmap/) |
 
 ## Project contents
@@ -51,6 +62,8 @@ owned and whose loss is acceptable. The device section documents the specific ri
 |---|---|
 | [Toolkit](/tooling/fwkit/) | `fwkit` — parse, rebuild and patch AOTA, SDFS, RES, STY, WFDL, AJS and picture containers offline |
 | [BLE tooling](/tooling/ble-tools/) | `cmf_watch.py`, `ota_client.py` — pairing, shell commands, watch-face upload, firmware OTA |
+| [Emulator CLI](/tooling/emulator/) | Model profiles, firmware preflight, virtual OTA and modeled recovery |
+| [Actions SDK OTA](/tooling/actions-ota/) | Separate BLE OTA client with offline validation and loopback testing |
 | [Device research](/devices/cmf-watch-pro-2/) | Protocol details, format layouts, verified results and known gaps per device |
 | [Dumps](/dumps/) | Firmware manifests, hashes and downloadable images |
 | [Agent context](/ai/context/) | A compact briefing for AI coding agents |

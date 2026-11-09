@@ -57,6 +57,8 @@ export default defineConfig({
           items: [
             { label: 'fwkit CLI', slug: 'tooling/fwkit' },
             { label: 'BLE tools', slug: 'tooling/ble-tools' },
+            { label: 'Actions SDK OTA', slug: 'tooling/actions-ota' },
+            { label: 'Emulator CLI', slug: 'tooling/emulator' },
           ],
         },
         {

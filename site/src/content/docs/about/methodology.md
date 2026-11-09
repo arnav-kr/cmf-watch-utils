@@ -32,7 +32,7 @@ Conventions:
 
 - BLE traffic was captured and replayed against the watch with a Python/Bleak client.
 - Shell/AT commands were used for identity, battery and sensor checks.
-- The OTA flow was validated with a dry run (`--stop-after-a040`) before transferring data.
+- The stock OTA flow was tested with live negotiation (`--stop-after-a040`) before transferring data.
 - A successful full flash was accepted only after the watch rebooted and the new animation
   played on the UI.
 
@@ -62,6 +62,6 @@ AGPL-3.0.
 - Offline: the selftest is run against a locally held firmware image, followed by
   `fwkit info/verify`.
 - BLE read-only: `ota-state`, `info` or shell commands.
-- BLE write: a dry run precedes the write, and the old partition/image is retained.
+- BLE OTA: check the package offline and exercise the protocol over loopback when possible. Retain the previous image.
 - Firmware OTA: the [AOTA OTA flow](/devices/cmf-watch-pro-2/protocol/ota/) is followed exactly; INIT2
   is not reordered and the end acknowledgement is not skipped.

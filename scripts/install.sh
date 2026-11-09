@@ -1,43 +1,34 @@
 #!/usr/bin/env bash
-# Clone CMF Watch Utils, install the workspace and fetch the published firmware dumps.
 set -euo pipefail
 
-REPO_URL="${REPO_URL:-https://github.com/arnav-kr/cmf-watch-utils.git}"
+REPO_URL="${CMF_WATCH_UTILS_REPO:-${REPO_URL:-https://github.com/arnav-kr/cmf-watch-utils.git}}"
 TARGET="${1:-cmf-watch-utils}"
+FIRMWARE="${2:-}"
 
-if ! command -v uv >/dev/null 2>&1; then
-  echo "uv is required: https://docs.astral.sh/uv/getting-started/installation/" >&2
+if [[ "$FIRMWARE" != "" && "$FIRMWARE" != "--firmware" ]] || (( $# > 2 )); then
+  echo "Usage: bash scripts/install.sh [directory] [--firmware]" >&2
   exit 1
 fi
 
-if ! command -v git >/dev/null 2>&1; then
-  echo "git is required" >&2
+command -v uv >/dev/null || { echo "Install uv: https://docs.astral.sh/uv/getting-started/installation/" >&2; exit 1; }
+command -v git >/dev/null || { echo "Install Git first." >&2; exit 1; }
+if [[ "$FIRMWARE" == "--firmware" ]] && ! git lfs version >/dev/null 2>&1; then
+  echo "Install Git LFS to use --firmware." >&2
   exit 1
-fi
-
-if command -v git-lfs >/dev/null 2>&1 || git lfs version >/dev/null 2>&1; then
-  git lfs install
 fi
 
 if [ ! -d "$TARGET/.git" ]; then
-  git clone --recurse-submodules "$REPO_URL" "$TARGET"
+  GIT_LFS_SKIP_SMUDGE=1 git clone "$REPO_URL" "$TARGET"
 fi
 
 cd "$TARGET"
-uv sync
+uv sync --locked
 
-if git lfs version >/dev/null 2>&1; then
-  git lfs pull --include="dumps/binaries/**" --exclude=""
+if [[ "$FIRMWARE" == "--firmware" ]]; then
+  git lfs install --local
+  git lfs pull --include="dumps/binaries/firmware/JX402_V1.0.0.73.bin" --exclude=""
 fi
 
-cat <<'EOF'
-
-Ready. Useful commands:
-
-  uv run fwkit info   dumps/binaries/firmware/JX402_V1.0.0.73.bin
-  uv run fwkit verify dumps/binaries/firmware/JX402_V1.0.73.bin
-  uv run python tools/cmf_watch.py --help
-  uv run python tooling/tests/selftest.py dumps/binaries/firmware/JX402_V1.0.0.73.bin
-
-Documentation: https://cmf.arnv.dev/
-EOF
+printf '\nWorkspace installed at %s\n' "$PWD"
+echo 'Open that directory and run: uv run cmf-watch-utils emu profiles'
+echo 'Setup guide: https://cmf.arnv.dev/getting-started/setup/'

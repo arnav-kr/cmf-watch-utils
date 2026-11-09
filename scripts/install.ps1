@@ -1,42 +1,48 @@
-# Clone CMF Watch Utils, install the workspace and fetch the published firmware dumps.
+param(
+    [string]$Target = 'cmf-watch-utils',
+    [switch]$Firmware
+)
 $ErrorActionPreference = 'Stop'
 
-$RepoUrl = if ($env:CMF_WATCH_UTILS_REPO) { $env:CMF_WATCH_UTILS_REPO } else { 'https://github.com/arnav-kr/cmf-watch-utils.git' }
-$Target = if ($args.Count -ge 1) { $args[0] } else { 'cmf-watch-utils' }
+function Invoke-Checked($Command, [string[]]$Arguments) {
+    & $Command @Arguments
+    if ($LASTEXITCODE -ne 0) { throw "$Command exited with status $LASTEXITCODE." }
+}
 
-function Assert-Command($Name, $Hint) {
-    if (-not (Get-Command $Name -ErrorAction SilentlyContinue)) {
-        Write-Error "$Name is required. $Hint"
-        exit 1
+foreach ($Command in 'git', 'uv') {
+    if (-not (Get-Command $Command -ErrorAction SilentlyContinue)) {
+        throw "Install $Command before running this script."
     }
 }
 
-Assert-Command 'git' 'Install Git for Windows.'
-Assert-Command 'uv' 'Install uv: https://docs.astral.sh/uv/getting-started/installation/'
+if ($Firmware) {
+    git lfs version 2>$null | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw 'Install Git LFS to use -Firmware.' }
+}
 
-if (Get-Command 'git-lfs' -ErrorAction SilentlyContinue) { git lfs install }
-
+$RepoUrl = if ($env:CMF_WATCH_UTILS_REPO) { $env:CMF_WATCH_UTILS_REPO } else { 'https://github.com/arnav-kr/cmf-watch-utils.git' }
 if (-not (Test-Path (Join-Path $Target '.git'))) {
-    git clone $RepoUrl $Target
+    $PreviousSkipSmudge = $env:GIT_LFS_SKIP_SMUDGE
+    try {
+        $env:GIT_LFS_SKIP_SMUDGE = '1'
+        Invoke-Checked git @('clone', $RepoUrl, $Target)
+    }
+    finally {
+        $env:GIT_LFS_SKIP_SMUDGE = $PreviousSkipSmudge
+    }
 }
 
 Push-Location $Target
 try {
-    uv sync
-
-    if (Get-Command 'git-lfs' -ErrorAction SilentlyContinue) {
-        git lfs pull --include='dumps/binaries/**'
+    Invoke-Checked uv @('sync', '--locked')
+    if ($Firmware) {
+        Invoke-Checked git @('lfs', 'install', '--local')
+        Invoke-Checked git @('lfs', 'pull', '--include=dumps/binaries/firmware/JX402_V1.0.0.73.bin', '--exclude=')
     }
 
-    Write-Host ''
-    Write-Host 'Ready. Useful commands:'
-    Write-Host ''
-    Write-Host '  uv run fwkit info   dumps/binaries/firmware/JX402_V1.0.0.73.bin'
-    Write-Host '  uv run fwkit verify dumps/binaries/firmware/JX402_V1.0.0.73.bin'
-    Write-Host '  uv run python tools/cmf_watch.py --help'
-    Write-Host '  uv run python tooling/tests/selftest.py dumps/binaries/firmware/JX402_V1.0.0.73.bin'
-    Write-Host ''
-    Write-Host 'Documentation: https://cmf.arnv.dev/'
+    Write-Host "Workspace installed at $($PWD.Path)"
+    Write-Host 'Open that directory and run: uv run cmf-watch-utils emu profiles'
+    Write-Host 'Setup guide: https://cmf.arnv.dev/getting-started/setup/'
 }
 finally {
     Pop-Location

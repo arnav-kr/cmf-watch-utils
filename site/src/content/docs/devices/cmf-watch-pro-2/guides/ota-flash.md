@@ -5,13 +5,15 @@ description: A careful, checkpointed procedure for a full firmware update over B
 
 This is the procedure that worked on a `1.0.0.73` / `JX402` unit. The prerequisites are
 [AOTA OTA flow](/devices/cmf-watch-pro-2/protocol/ota/) and
-[Limitations & risks](/devices/cmf-watch-pro-2/limitations/).
+[Limitations & risks](/devices/cmf-watch-pro-2/limitations/). This procedure uses the stock
+CMF service. For the Actions service use [Actions SDK OTA](/tooling/actions-ota/). For
+a run without a physical watch use [Emulator CLI](/tooling/emulator/).
 
 ## 0. Rollback preparation
 
 ```bash
 mkdir -p backups
-cp firmware/JX402_V1.0.0.73.bin backups/stock.bin
+cp dumps/binaries/firmware/JX402_V1.0.0.73.bin backups/stock.bin
 uv run fwkit verify backups/stock.bin
 uv run fwkit verify firmware/custom.bin
 ```
@@ -38,10 +40,12 @@ The session is checked before any write:
 uv run python tools/cmf_watch.py info
 ```
 
-## 3. Dry run to `A040`
+## 3. Live negotiation to `A040`
+
+This step sends OTA commands to the watch and stops before serving firmware data.
 
 ```bash
-uv run python tools/ota_client.py --stop-after-a040 --version 0100005a -v
+uv run python tools/ota_client.py --image dumps/binaries/firmware/JX402_V1.0.0.73.bin --stop-after-a040 --version 0100005a -v
 ```
 
 Required checkpoints:
@@ -50,9 +54,9 @@ Required checkpoints:
 - `A040 01` immediately after INIT2.
 - No immediate disconnect.
 
-An `A052` without a following `A040` means the pairing state is not yet correct. A link that
-drops right after INIT2 points to the client writing `0x9040` to `...ff01` instead of
-`CMD_W`.
+An `A052` without a following `A040` can indicate stale pairing. Check that INIT2 went
+to the OTA characteristic `...ff01`. Sending it to `CMD_W` can cause a reboot before
+the data phase.
 
 ## 4. Full transfer
 

@@ -3,7 +3,7 @@ title: What works
 description: Verified functionality, hardware-tested results and known-good paths.
 ---
 
-This page separates **verified on hardware** from **offline verified** and **theory**. The read-only
+This page separates **verified on hardware** from **verified in QEMU**, **offline verified** and **theory**. The read-only
 paths are the safest starting point.
 
 ## Status summary
@@ -19,6 +19,10 @@ paths are the safest starting point.
 | WFDL watch faces | Verified offline + on-watch upload | Build and upload/delete |
 | AJS animations | Verified offline + on-watch | Extract/repack byte-identical; custom animation played |
 | Full AOTA firmware OTA over BLE | Verified on hardware | Changed partition transferred and committed; watch booted |
+| Stock, onboarding, Bad Apple and Tilt Mouse boots | Verified in QEMU on Windows | Panel frames captured. Bad Apple also produced nonzero WAV samples. |
+| Virtual stock OTA | Verified in QEMU | Guest reset, staged NAND read through the stock NAND driver, host install and custom boot |
+| Actions SDK OTA | Verified in QEMU | Full transfer and guest-reported validation. Physical transfer with this client remains unverified. |
+| Crown + charger rescue | Verified in the recovery model | The host restored a broken virtual app and booted stock. The physical boot path remains unverified. |
 | App binary patching | Verified offline | Scene-id literal rewrite and header rebuild |
 
 ## Firmware and container work
@@ -64,6 +68,8 @@ paths are the safest starting point.
   the transfer uncommitted in testing.
 - A full 54 MB candidate flashed successfully; the watch reported `A041 01`, accepted the end
   ack, rebooted and booted the new resource partition.
+
+See [Emulator CLI](/tooling/emulator/) and [Actions SDK OTA](/tooling/actions-ota/) for scope and dependencies.
 
 ## What the toolkit is not
 

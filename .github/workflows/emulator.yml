@@ -1,0 +1,144 @@
+name: Emulator builds
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'emulator-v*'
+
+permissions:
+  contents: read
+
+env:
+  GIT_LFS_SKIP_SMUDGE: '1'
+
+jobs:
+  qemu:
+    name: QEMU on ${{ matrix.host }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {host: linux-x64, runner: ubuntu-22.04, audio: pa}
+          - {host: windows-x64, runner: windows-2022, audio: dsound}
+          - {host: macos-arm64, runner: macos-15, audio: coreaudio}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 35
+    env:
+      AUDIO_BACKEND: ${{ matrix.audio }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: false
+      - name: Install clean workspace on Linux and macOS
+        if: runner.os != 'Windows'
+        shell: bash
+        run: bash scripts/install.sh .
+      - name: Install clean workspace on Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./scripts/install.ps1 -Target .
+      - name: Verify the installed CLI and virtual OTA protocol
+        run: |
+          uv run --locked cmf-watch-utils emu profiles
+          uv run --locked cmf-watch-utils emu prepare-fixtures --help
+          uv run --locked cmf-watch-utils ota actions --help
+          uv run --locked python -m unittest discover -s tests -v
+      - uses: actions/setup-python@v5
+        if: runner.os != 'Windows'
+        with:
+          python-version: '3.12'
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends build-essential ninja-build pkg-config libglib2.0-dev libpixman-1-dev libfdt-dev libpulse-dev
+      - name: Install macOS dependencies
+        if: runner.os == 'macOS'
+        run: brew install ninja pkgconf glib pixman dtc
+      - uses: msys2/setup-msys2@v2
+        if: runner.os == 'Windows'
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            make diffutils
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-pkgconf
+            mingw-w64-ucrt-x86_64-glib2
+            mingw-w64-ucrt-x86_64-pixman
+            mingw-w64-ucrt-x86_64-dtc
+            mingw-w64-ucrt-x86_64-ninja
+            mingw-w64-ucrt-x86_64-python
+            mingw-w64-ucrt-x86_64-python-distlib
+      - name: Build QEMU on Linux and macOS
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          source_args=()
+          if [[ "$RUNNER_OS" == Linux ]]; then source_args+=(--source-bundle); fi
+          python emulator/build.py --component qemu --audio "$AUDIO_BACKEND" "${source_args[@]}"
+      - name: Build QEMU on Windows
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        run: python emulator/build.py --component qemu --audio "$AUDIO_BACKEND"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: emulator-${{ matrix.host }}
+          path: emulator/dist/*.tar.gz
+          if-no-files-found: error
+          compression-level: 0
+
+  rom:
+    name: Shared Watch Pro 2 ROM and NAND tools
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Arm toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends gcc-arm-none-eabi libnewlib-arm-none-eabi
+      - run: python emulator/build.py --component rom --source-bundle
+      - uses: actions/upload-artifact@v4
+        with:
+          name: emulator-rom
+          path: emulator/dist/*.tar.gz
+          if-no-files-found: error
+          compression-level: 0
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/emulator-v')
+    needs: [qemu, rom]
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: emulator-*
+          path: dist
+          merge-multiple: true
+      - name: Publish emulator preview
+        env:
+          GH_TOKEN: ${{ github.token }}
+        working-directory: dist
+        run: |
+          sha256sum -- *.tar.gz > SHA256SUMS
+          cat > "$RUNNER_TEMP/emulator-preview.md" <<'EOF'
+          Preview for CMF Watch Pro 2 (JX402). Use the archive for your host plus the
+          shared ROM and NAND tools archive. See the [setup guide](https://cmf.arnv.dev/tooling/emulator/)
+          for runtime libraries, fixture preparation, and headless boot.
+
+          Windows x64, Linux x64, and macOS ARM64 passed clean CLI setup, protocol
+          tests, and a synthetic QEMU boot on GitHub runners. Stock firmware and local
+          virtual flash are supplied separately. Crown + charger rescue uses the
+          emulator's recovery model. Physical recovery remains unverified.
+          EOF
+          gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" \
+            --verify-tag --prerelease --latest=false --title "Watch Pro 2 emulator preview" \
+            --notes-file "$RUNNER_TEMP/emulator-preview.md" -- *.tar.gz SHA256SUMS

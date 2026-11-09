@@ -8,47 +8,48 @@ and structure, and redacted notes.
 
 ## Downloadable images
 
-The images are stored with Git LFS. `git lfs install` is required before cloning, and the
-links below serve the file content directly.
+The repository stores the images with Git LFS. Follow [Setup](/getting-started/setup/)
+to fetch a specific file, or use a direct download below. A tools-only checkout can
+leave the LFS files as pointers.
 
-### `JX402_V1.0.0.73.bin` ? stock factory firmware
+### `JX402_V1.0.0.73.bin` (stock factory firmware)
 
 - Size: 56,903,752 bytes
 - SHA-256: `30903fc8ce6db4f8860bb554366635db3d2bcbb2d43827b3b50fbbac22b59353`
 - Contents: the unmodified image shipped for the CMF Watch Pro 2 (`JX402`), firmware 1.0.0.73
-- [Download](https://media.githubusercontent.com/media/arnav-kr/cmf-watch-utils/main/dumps/binaries/firmware/JX402_V1.0.0.73.bin) ?
+- [Download](https://media.githubusercontent.com/media/arnav-kr/cmf-watch-utils/main/dumps/binaries/firmware/JX402_V1.0.0.73.bin) ·
   [manifest](https://github.com/arnav-kr/cmf-watch-utils/blob/main/dumps/manifests/firmware-1.0.0.73.json)
 
-### `JX402_V1.0.0.57.bin` ? rollback target
+### `JX402_V1.0.0.57.bin` (rollback target)
 
 - Size: 56,065,096 bytes
 - SHA-256: `cd4574f1f9fa31106e3a0490a12069adf5a99c59cf0e4d7f52d58be60cd55716`
 - Contents: firmware 1.0.0.57 for the same board, rebuilt from extracted parts
-- [Download](https://media.githubusercontent.com/media/arnav-kr/cmf-watch-utils/main/dumps/binaries/firmware/JX402_V1.0.0.57.bin) ?
+- [Download](https://media.githubusercontent.com/media/arnav-kr/cmf-watch-utils/main/dumps/binaries/firmware/JX402_V1.0.0.57.bin) ·
   [manifest](https://github.com/arnav-kr/cmf-watch-utils/blob/main/dumps/manifests/firmware-1.0.0.57.json)
 
-### `JX402_V1.0.0.73_badapple9.bin` ? rebuilt proof of concept
+### `JX402_V1.0.0.73_badapple9.bin` (rebuilt proof of concept)
 
 - Size: 54,117,960 bytes
 - SHA-256: `4933e593d14bef6f013db5f6d0a9760e36aaff63f052cf83a2dc54696ccff1ff`
 - Contents: the 1.0.0.73 image with a 202-frame animation in `res_e`
 - [Download](https://media.githubusercontent.com/media/arnav-kr/cmf-watch-utils/main/dumps/binaries/firmware/JX402_V1.0.0.73_badapple9.bin)
 
-### `app_073.bin` ? application image, 1.0.0.73
+### `app_073.bin` (application image for 1.0.0.73)
 
 - Size: 2,465,920 bytes
 - SHA-256: `30e7978c39d8fb79b825c7ebf69b4377d214e9cc6739a52f06dbb5ff7f13b490`
 - Contents: `app.bin`, extracted from the `TEMP` partition of the 1.0.0.73 image
 - [Download](https://media.githubusercontent.com/media/arnav-kr/cmf-watch-utils/main/dumps/binaries/app/app_073.bin)
 
-### `app_057.bin` ? application image, 1.0.0.57
+### `app_057.bin` (application image for 1.0.0.57)
 
 - Size: 2,445,440 bytes
 - SHA-256: `26fbe34c10343949fec53575021e8ab559e33aff13b6efa9974a34ae33ca1399`
 - Contents: `app.bin`, extracted from the `TEMP` partition of the 1.0.0.57 image
 - [Download](https://media.githubusercontent.com/media/arnav-kr/cmf-watch-utils/main/dumps/binaries/app/app_057.bin)
 
-Fetching a single artifact without cloning the history:
+From an existing checkout, fetch just the application image:
 
 ```bash
 git lfs pull --include="dumps/binaries/app/app_073.bin"
@@ -104,12 +105,12 @@ partition layout as the `1.0.0.73` image, and its application reports `1.0.0.57`
 | Manifest | [`manifests/firmware-1.0.0.57.json`](https://github.com/arnav-kr/cmf-watch-utils/blob/main/dumps/manifests/firmware-1.0.0.57.json) |
 
 Two caveats apply. The image is a reconstruction from extracted parts rather than a vendor
-download, and a downgrade over the OTA path has not been tested on hardware. The safer
-rollback is a full-image flash of this file onto a unit that is already on `1.0.0.73`.
+download, and the hardware downgrade remains unverified. Use the offline check below to
+inspect the archive. See [Recovery & boot modes](/devices/cmf-watch-pro-2/internals/recovery/)
+for the limits of using an older image as a recovery target.
 
 ```bash
 uv run fwkit verify dumps/binaries/firmware/JX402_V1.0.0.57.bin
-uv run python tools/ota_client.py --image dumps/binaries/firmware/JX402_V1.0.0.57.bin --version 0100005a
 ```
 
 The version argument of INIT2 is a build value used by the updater, not the version string of

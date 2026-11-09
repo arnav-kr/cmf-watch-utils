@@ -17,13 +17,18 @@ jobs:
           enable-cache: true
 
       - name: Install workspace
-        run: uv sync
+        run: uv sync --locked
 
       - name: Import check
         run: uv run python -c "import fwkit, sys; print('fwkit', fwkit.__name__)"
 
       - name: CLI smoke test
-        run: uv run fwkit --help
+        run: |
+          uv run --locked fwkit --help
+          uv run --locked cmf-watch-utils emu profiles
+
+      - name: Emulator CLI and OTA tests
+        run: uv run --locked python -m unittest discover -s tests -v
 
   docs:
     runs-on: ubuntu-latest
