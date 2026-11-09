@@ -31,6 +31,11 @@
 #include "wp2_jpeg.h"
 #include "wp2_vg_path.h"
 
+#define GPS_UART_CTL 0x40000
+#define GPS_UART_RX 0x40004
+#define GPS_UART_STATUS 0x4000c
+#define GPS_UART_RX_IRQ (1u << 18)
+
 typedef struct ActsState ActsState;
 typedef struct ActsTimer {
     ActsState *soc;
@@ -60,6 +65,12 @@ struct ActsState {
     uint32_t health_readings;
     int64_t health_next_sample;
     int accel_mg[3];
+    qemu_irq gps_irq;
+    bool gps_enabled, gps_gga;
+    int gps_lat_e6, gps_lon_e6;
+    int64_t gps_next_sentence;
+    char gps_sentence[96];
+    unsigned gps_pos, gps_length, gps_available;
     uint8_t stk_regs[256], stk_reg;
     unsigned stk_task_offset[4];
     int64_t stk_next_sample;
@@ -352,6 +363,60 @@ static uint8_t acts_knob_read(ActsState *s, uint8_t reg)
     }
 }
 
+static void acts_gps_irq(ActsState *s)
+{
+    qemu_set_irq(s->gps_irq, s->gps_available &&
+                 (s->regs[GPS_UART_CTL / 4] & GPS_UART_RX_IRQ));
+}
+
+static void acts_gps_coordinate(char *out, size_t size, int coordinate, int digits)
+{
+    unsigned absolute = abs(coordinate);
+    unsigned minutes = ((absolute % 1000000) * 60 + 50) / 100;
+    snprintf(out, size, "%0*u%02u.%04u", digits, absolute / 1000000,
+             minutes / 10000, minutes % 10000);
+}
+
+static void acts_gps_tick(ActsState *s, int64_t now)
+{
+    if (!s->gps_enabled || !(s->regs[GPS_UART_CTL / 4] & GPS_UART_RX_IRQ) ||
+        s->gps_available) {
+        return;
+    }
+
+    if (s->gps_pos == s->gps_length) {
+        if (now < s->gps_next_sentence) {
+            return;
+        }
+        g_autoptr(GDateTime) utc = g_date_time_new_now_utc();
+        g_autofree char *time = g_date_time_format(utc, "%H%M%S");
+        g_autofree char *date = g_date_time_format(utc, "%d%m%y");
+        char latitude[12], longitude[12], body[86];
+        acts_gps_coordinate(latitude, sizeof(latitude), s->gps_lat_e6, 2);
+        acts_gps_coordinate(longitude, sizeof(longitude), s->gps_lon_e6, 3);
+        char ns = s->gps_lat_e6 < 0 ? 'S' : 'N';
+        char ew = s->gps_lon_e6 < 0 ? 'W' : 'E';
+        if (s->gps_gga) {
+            snprintf(body, sizeof(body), "GPGGA,%s.00,%s,%c,%s,%c,1,08,0.9,0.0,M,0.0,M,,",
+                     time, latitude, ns, longitude, ew);
+        } else {
+            snprintf(body, sizeof(body), "GPRMC,%s.00,A,%s,%c,%s,%c,0.0,0.0,%s,,,A",
+                     time, latitude, ns, longitude, ew, date);
+        }
+        unsigned checksum = 0;
+        for (const char *byte = body; *byte; byte++) {
+            checksum ^= (unsigned char)*byte;
+        }
+        s->gps_length = snprintf(s->gps_sentence, sizeof(s->gps_sentence),
+                                 "$%s*%02X\r\n", body, checksum);
+        s->gps_pos = 0;
+        s->gps_next_sentence = now + (s->gps_gga ? 850000000 : 150000000);
+        s->gps_gga = !s->gps_gga;
+    }
+    s->gps_available = MIN(12, s->gps_length - s->gps_pos);
+    acts_gps_irq(s);
+}
+
 static void acts_input_tick(void *opaque)
 {
     ActsState *s = opaque;
@@ -362,6 +427,7 @@ static void acts_input_tick(void *opaque)
 
     timer_mod(s->input_timer, now + 6000000);
     acts_stk_tick(s, now);
+    acts_gps_tick(s, now);
     if (s->health_readings && now >= s->health_next_sample) {
         s->health_next_sample = now + 400000000;
         unsigned mode = ldub_phys(&address_space_memory, 0x2ffb1301);
@@ -437,6 +503,16 @@ static void acts_input_tick(void *opaque)
             s->regs[0x4114 / 4] |= down ? 4 : 8;
             acts_pmu_irq(s);
         }
+    } else if (sscanf(line, "g %u %d %d", &down, &ax, &ay) == 3 &&
+               down <= 1 && ax >= -90000000 && ax <= 90000000 &&
+               ay >= -180000000 && ay <= 180000000) {
+        s->gps_enabled = down;
+        s->gps_lat_e6 = ax;
+        s->gps_lon_e6 = ay;
+        s->gps_pos = s->gps_length = s->gps_available = 0;
+        s->gps_gga = false;
+        s->gps_next_sentence = now;
+        acts_gps_irq(s);
     } else if (s->health_hook && sscanf(line, "h %u %u %u", &down, &x, &y) == 3 &&
                down <= 1 && x >= 30 && x <= 220 && y >= 70 && y <= 100) {
         s->health_readings = down ? x | (y << 8) : 0;
@@ -1554,6 +1630,18 @@ static uint64_t acts_read(void *opaque, hwaddr addr, unsigned size)
             return acts_count(t);
         }
     }
+    if (addr == GPS_UART_RX) {
+        if (!s->gps_available) {
+            return 0;
+        }
+        uint8_t byte = s->gps_sentence[s->gps_pos++];
+        s->gps_available--;
+        acts_gps_irq(s);
+        return byte;
+    }
+    if (addr == GPS_UART_STATUS && s->gps_available) {
+        return (1u << 10) | (s->gps_available << 11) | 1;
+    }
     for (unsigned i = 0; i < 3; i++) {
         if (addr == 0x3800c + i * 0x4000) {
             return (1 << 10) | (1 << 5); /* TX empty, RX empty */
@@ -1929,6 +2017,14 @@ static void acts_write(void *opaque, hwaddr addr, uint64_t value, unsigned size)
                 acts_timer_arm(t); return;
         }
     }
+    if (addr == GPS_UART_CTL) {
+        s->regs[addr / 4] = value;
+        if (!(value & GPS_UART_RX_IRQ)) {
+            s->gps_pos = s->gps_length = s->gps_available = 0;
+        }
+        acts_gps_irq(s);
+        return;
+    }
     for (unsigned i = 0; i < 3; i++) {
         if (addr == 0x38008 + i * 0x4000) {
             uint8_t byte = value;
@@ -2046,6 +2142,10 @@ static void acts_reset(void *opaque)
     s->stk_reg = 0;
     memset(s->stk_task_offset, 0, sizeof(s->stk_task_offset));
     s->stk_next_sample = 0;
+    s->gps_enabled = s->gps_gga = false;
+    s->gps_pos = s->gps_length = s->gps_available = 0;
+    s->gps_next_sentence = 0;
+    acts_gps_irq(s);
     s->health_readings = 0;
     s->health_next_sample = 0;
     timer_del(s->tap_timer);
@@ -2272,6 +2372,7 @@ static void acts_init(MachineState *machine)
     }
     s->jpeg_irq = qdev_get_gpio_in(s->cpu, 57);
     s->gpio_irq = qdev_get_gpio_in(s->cpu, 37);
+    s->gps_irq = qdev_get_gpio_in(s->cpu, 24);
     s->pmu_irq = qdev_get_gpio_in(s->cpu, 52);
     s->i2cmt_irq[0] = qdev_get_gpio_in(s->cpu, 62);
     s->i2cmt_irq[1] = qdev_get_gpio_in(s->cpu, 63);

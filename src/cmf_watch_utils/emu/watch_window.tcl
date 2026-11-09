@@ -143,14 +143,30 @@ set charging 0
 set virtualHealth 0
 set heartRate 72
 set spo2 98
+set virtualGps 0
+set gpsLatitude 0
+set gpsLongitude 0
 
 proc apply_sensors {} {
     global accelX accelY accelZ battery charging virtualHealth heartRate spo2 stock
+    global virtualGps gpsLatitude gpsLongitude
+    set latitude 0
+    set longitude 0
+    if {$virtualGps} {
+        if {![string is double -strict $gpsLatitude] || ![string is double -strict $gpsLongitude] ||
+            [catch {expr {round(double($gpsLatitude) * 1000000)}} latitude] ||
+            [catch {expr {round(double($gpsLongitude) * 1000000)}} longitude] ||
+            abs($latitude) > 90000000 || abs($longitude) > 180000000} {
+            tk_messageBox -parent .advanced -icon error -message "Enter a latitude from -90 to 90 and a longitude from -180 to 180."
+            return
+        }
+    }
     send_event "a $accelX $accelY $accelZ"
     send_event "p $battery $charging"
     if {$stock} {
         send_event "h $virtualHealth $heartRate $spo2"
     }
+    send_event "g $virtualGps $latitude $longitude"
 }
 
 proc open_sensors {} {
@@ -182,6 +198,15 @@ proc open_sensors {} {
         pack .advanced.health.enabled .advanced.health.hr .advanced.health.spo2 -fill x -padx 4
         pack .advanced.health -padx 12 -pady 5
     }
+    labelframe .advanced.gps -text "GPS"
+    checkbutton .advanced.gps.enabled -text "Simulate a GPS fix" -variable virtualGps
+    grid .advanced.gps.enabled -columnspan 2 -sticky w
+    foreach {axis variable} {Latitude gpsLatitude Longitude gpsLongitude} {
+        label .advanced.gps.label$axis -text $axis
+        entry .advanced.gps.value$axis -textvariable $variable -width 15
+        grid .advanced.gps.label$axis .advanced.gps.value$axis -sticky w -padx 4 -pady 2
+    }
+    pack .advanced.gps -fill x -padx 12 -pady 5
     frame .advanced.buttons
     button .advanced.buttons.apply -text Apply -command apply_sensors
     button .advanced.buttons.close -text Close -command {destroy .advanced}
