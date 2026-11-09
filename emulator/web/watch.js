@@ -76,8 +76,11 @@ function render() {
   } catch(error) {if(error.name!=='ErrnoError'){log(error.message);clearInterval(timer);}}
   try {
     const uart=runtime.FS.readFile('/watch/uart.log',{encoding:'utf8'});
-    $('log').textContent=runtimeLog+'\n'+uart.split('\n').filter(line=>!line.includes('#CD:')).join('\n').slice(0,48000);
+    let diagnostic='';
+    try {diagnostic=runtime.FS.readFile('/watch/qemu.log',{encoding:'utf8'}).slice(-12000);} catch {}
+    $('log').textContent=runtimeLog+'\n'+diagnostic+'\n'+uart.split('\n').filter(line=>!line.includes('#CD:')).join('\n').slice(0,48000);
     if(uart.includes('ZEPHYR FATAL ERROR'))status('Stock firmware stopped with a fatal error. See the boot log.',true);
+    if(runtimeLog.includes('stopped on unimplemented'))status('Emulation stopped on an unsupported operation. See the boot log.',true);
   } catch {}
 }
 $('stop').onclick=()=>location.reload();
@@ -99,6 +102,7 @@ $('start').onclick=async()=>{
       locateFile:name=>new URL(`./runtime/${name}`,location.href).href,
       print:log,printErr:log,onAbort:reason=>status(`Runtime aborted: ${reason}`,true),
       arguments:['-M','ats3089c-wp2','-bios','/watch/compat.bin','-kernel','/watch/app.bin',
+        '-d','unimp','-D','/watch/qemu.log',
         '-display','none','-monitor','none','-serial','file:/watch/uart.log','-serial','null','-serial','null',
         '-icount','shift=3,align=off','-no-reboot'],
       preRun:[module=>{

@@ -113,7 +113,19 @@ static bool wp2_vg_solid_path(const uint32_t *r, const Wp2Path *path)
         for (unsigned x = x0; x < x1; x++) {
             inside += winding[x - x0];
             if (path->even_odd ? inside % 2 != 0 : inside != 0) {
-                stw_le_p(row + (x - x0) * 2, rgb);
+                uint16_t pixel = rgb;
+                if (r[0xa00] & 0x100) {
+                    unsigned alpha = color >> 24;
+                    uint16_t old = lduw_le_p(row + (x - x0) * 2);
+                    unsigned red = (((rgb >> 11) * alpha) +
+                                    (old >> 11) * (255 - alpha) + 127) / 255;
+                    unsigned green = ((((rgb >> 5) & 63) * alpha) +
+                                      ((old >> 5) & 63) * (255 - alpha) + 127) / 255;
+                    unsigned blue = (((rgb & 31) * alpha) +
+                                     (old & 31) * (255 - alpha) + 127) / 255;
+                    pixel = (red << 11) | (green << 5) | blue;
+                }
+                stw_le_p(row + (x - x0) * 2, pixel);
             }
         }
         if (address_space_write(&address_space_memory, addr, MEMTXATTRS_UNSPECIFIED,

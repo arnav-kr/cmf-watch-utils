@@ -793,7 +793,10 @@ static bool acts_vg_submit(ActsState *s, uint32_t units)
             semaphore = 0;
         } else if ((op & 0xffff0000) == 0x40000000 &&
                    (op & 0xffff) && (op & 0xffff) < units - i &&
-                   (s->vg_state[0xa00] == 0x10000002 ||
+                   (s->vg_state[0xa00] == 0x00000002 ||
+                    s->vg_state[0xa00] == 0x00000102 ||
+                    s->vg_state[0xa00] == 0x10000102 ||
+                    s->vg_state[0xa00] == 0x10000002 ||
                     s->vg_state[0xa00] == 0x10001002)) {
             unsigned length = op & 0xffff;
             const uint32_t *state = s->vg_state;
