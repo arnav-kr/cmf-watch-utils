@@ -43,6 +43,7 @@ dist/
 /runtime/
 /runs/
 /local/
+/web-local/
 
 # Editors / OS
 .vscode/*

@@ -37,7 +37,7 @@ jobs:
       - name: Compile browser runtime
         run: |
           mkdir -p wasm-output
-          docker run --name wp2-wasm -v "$PWD/wasm-source:/qemu:ro" -v "$PWD/emulator/web:/recipe:ro" wp2-wasm-builder:local bash /recipe/build.sh
+          docker run --name wp2-wasm -v "$PWD/wasm-source:/qemu" -v "$PWD/emulator/web:/recipe:ro" wp2-wasm-builder:local bash /recipe/build.sh
       - name: Collect build output
         if: always()
         run: |
