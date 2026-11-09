@@ -57,6 +57,7 @@ runtime.mkdir(parents=True, exist_ok=True)
 for name in scripts:
     shutil.copyfile(web / name, assets / name)
 shutil.copyfile(web / "isolation-worker.js", target / "isolation-worker.js")
+shutil.copyfile(root / "site/public/favicon.svg", target / "favicon.svg")
 html = (web / "index.html").read_text(encoding="utf-8")
 body = ["data-hosted"]
 if args.stock:

@@ -100,9 +100,11 @@ helpers. A successful browser boot does not verify the real boot ROM, physical
 recovery, electrical behavior or freedom from crashes. TCI execution is slower
 than native QEMU and does not reproduce device performance or power consumption.
 
-Sound, browser OTA, Nothing X pairing, persistent storage and other watch models
-are not implemented in this browser milestone. The Pages build generates its
-stock files from the public firmware package and keeps binaries out of Git.
+Sound is enabled by default. If Chromium blocks autoplay, click or tap the
+emulator. Audio follows guest speed while preserving pitch. The bundled Bad
+Apple preset uses playback timing. Use desktop QEMU for virtual Bluetooth OTA
+and recovery. Browser sessions use temporary storage and support Watch Pro 2.
+The Pages build generates stock files from the public firmware package.
 
 ## Development checks
 
@@ -113,6 +115,7 @@ The vector renderer has a host-side regression check:
 cc -Wall -Wextra -Werror emulator/tests/vg_path.c -lm -o vg-path-test
 ./vg-path-test
 node --check emulator/web/watch.js
+node --test emulator/tests/speaker.mjs
 ```
 
 For a browser regression check, boot stock, open the app list with the crown,

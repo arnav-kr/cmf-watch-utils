@@ -69,6 +69,10 @@ dumps/                  manifests and redacted notes (no binaries)
 
 ## Emulator and Actions OTA
 
+- Use the [browser emulator](/emulator/watch-pro-2/) to check firmware boot,
+  watch faces, controls, sensors and sound. Use desktop QEMU for Bluetooth OTA
+  and modeled recovery. The bundled Bad Apple demo uses playback timing, so use
+  a custom firmware boot for browser tests that depend on guest timing.
 - Start with `uv run cmf-watch-utils emu profiles` and `emu preflight --image FILE`.
   The only profiles are `wp2-stock` and `wp2-onboarding`, both for JX402 stock
   `1.0.0.73`. For a boot, provide the project-built ATS3089C QEMU, the matching

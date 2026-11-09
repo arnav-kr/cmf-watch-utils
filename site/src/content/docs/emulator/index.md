@@ -1,6 +1,6 @@
 ---
 title: Watch Pro 2 emulator
-description: What the QEMU preview supports and where to start.
+description: Run Watch Pro 2 firmware in your browser or use desktop QEMU for virtual Bluetooth OTA and recovery tests.
 ---
 
 The emulator runs CMF Watch Pro 2 firmware on your computer. You can use
@@ -39,8 +39,10 @@ a running watch. To use a local face file, stop the watch, select the file
 under **Watch face**, and start it again. To try your own build, select **Custom
 firmware**, then select a Watch Pro 2 AOTA
 under **Firmware package**, or select the application and companion SDFS
-separately under **Raw application files**. The **Bad Apple** preset accepts
-both formats. For an example of a custom Zephyr application, see the
+separately under **Raw application files**.
+
+Select **Bad Apple** from **Boot preset** to run the bundled demo.
+For an example of a custom Zephyr application, see the
 [Bad Apple source](https://github.com/arnav-kr/firmware-wp2-badapple) and
 [case study](/devices/cmf-watch-pro-2/guides/bad-apple/).
 For Bluetooth OTA and recovery tests, use desktop QEMU.

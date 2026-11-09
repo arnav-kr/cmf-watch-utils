@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="back" x2="1" y2="1" gradientUnits="objectBoundingBox">
+      <stop stop-color="#1b1516"/><stop offset=".64" stop-color="#0e0e11"/><stop offset="1" stop-color="#15161a"/>
+    </linearGradient>
+    <linearGradient id="metal" x2=".9" y2="1">
+      <stop stop-color="#737176"/><stop offset=".32" stop-color="#26262a"/><stop offset=".66" stop-color="#141417"/><stop offset="1" stop-color="#505056"/>
+    </linearGradient>
+    <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1" fill="#fff" opacity=".09"/>
+    </pattern>
+    <pattern id="dots" width="6" height="6" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.15" fill="#b5b0b4"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="630" fill="url(#back)"/>
+  <rect width="1200" height="630" fill="url(#grid)" opacity=".55"/>
+  <path d="M72 91H1128M72 539H1128" stroke="#343034"/>
+  <g font-family="DejaVu Sans, sans-serif">
+    <g fill="#cc483a">
+      <circle cx="78" cy="143" r="5"/><circle cx="99" cy="143" r="5"/>
+      <circle cx="88.5" cy="153.5" r="5"/>
+      <circle cx="78" cy="164" r="5"/><circle cx="99" cy="164" r="5"/>
+    </g>
+    <text x="122" y="160" fill="#e9e0dd" font-size="19" font-weight="700" letter-spacing="2">CMF WATCH UTILS</text>
+    <text x="70" y="269" fill="#fff8ee" font-size="64" font-weight="700" letter-spacing="-2">Watch Pro 2</text>
+    <text x="70" y="342" fill="#fff8ee" font-size="64" font-weight="700" letter-spacing="-2">emulator</text>
+    <text x="73" y="400" fill="#c9bfc3" font-size="22">Boot firmware and try watch faces</text>
+    <text x="73" y="435" fill="#c9bfc3" font-size="22">right in your browser.</text>
+    <text x="73" y="501" fill="#ed8371" font-size="17" font-weight="700" letter-spacing="1.4">CMF.ARNV.DEV</text>
+    <g transform="translate(572 128)">
+      <rect y="6" width="556" height="382" rx="19" fill="#050506" opacity=".55"/>
+      <rect width="556" height="382" rx="19" fill="#101014" stroke="#47434b"/>
+      <path d="M0 47H556M0 340H556M333 47V340M385 47V340" stroke="#2d2b33"/>
+      <text x="22" y="30" fill="#f0e8e5" font-size="16" font-weight="700">Watch Pro 2</text>
+      <circle cx="418" cy="24" r="4" fill="#ed8371"/>
+      <text x="430" y="29" fill="#c8bfc4" font-size="12">Stock firmware</text>
+      <rect x="124" y="58" width="79" height="270" rx="22" fill="#222227"/>
+      <rect x="127" y="60" width="73" height="267" rx="20" fill="url(#grid)"/>
+      <rect x="264" y="156" width="15" height="27" rx="4" fill="#5a575f"/>
+      <circle cx="163" cy="192" r="112" fill="url(#metal)" stroke="#57535b"/>
+      <circle cx="163" cy="192" r="103" fill="#08090b" stroke="#24242a" stroke-width="3"/>
+      <circle cx="163" cy="192" r="90" fill="#121315" stroke="#333137" stroke-width="2"/>
+      <path d="M93 151a82 82 0 0 1 140 0" fill="none" stroke="#ee7863" stroke-width="5" stroke-linecap="round"/>
+      <path d="M92 234a82 82 0 0 0 142 0" fill="none" stroke="#413337" stroke-width="4" stroke-linecap="round"/>
+      <text x="163" y="149" fill="#ed8371" font-size="12" font-weight="700" text-anchor="middle" letter-spacing="2">MON 09</text>
+      <text x="163" y="206" fill="#ffeed5" font-family="DejaVu Sans Mono, monospace" font-size="42" font-weight="700" text-anchor="middle" letter-spacing="-2">08:42</text>
+      <text x="163" y="232" fill="#c0b7a9" font-size="10" text-anchor="middle" letter-spacing="2">STEPS  6 240</text>
+      <path d="M351 76v-7h7m9 0h7v7m0 9v7h-7m-9 0h-7v-7" fill="none" stroke="#b5b0b4" stroke-width="1.5"/>
+      <circle cx="359" cy="122" r="10" fill="none" stroke="#b5b0b4"/><circle cx="359" cy="122" r="3" fill="#ed8371"/>
+      <rect x="350" y="148" width="19" height="54" fill="url(#dots)"/>
+      <rect x="355" y="230" width="9" height="9" rx="2" fill="#ded9dc"/>
+      <g transform="translate(402 68)" font-size="12" fill="#c8bfc4">
+        <text y="8" font-size="15" font-weight="700" fill="#f0e8e5">Simulation</text>
+        <text y="41">Brightness</text><text x="121" y="41" text-anchor="end">100%</text>
+        <path d="M0 56h124" stroke="#dbd4d6" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="123" cy="56" r="5" fill="#f0e8e5"/>
+        <text y="92">Battery level</text><text x="121" y="92" text-anchor="end">69%</text>
+        <path d="M0 107h124" stroke="#3e3b43" stroke-width="3" stroke-linecap="round"/>
+        <path d="M0 107h84" stroke="#dbd4d6" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="84" cy="107" r="5" fill="#f0e8e5"/>
+        <path d="M0 130h132" stroke="#2d2b33"/>
+        <text y="158" font-size="15" font-weight="700" fill="#f0e8e5">Boot preset</text>
+        <rect y="171" width="132" height="28" rx="5" fill="#1e1d23" stroke="#34313b"/>
+        <text x="9" y="189" fill="#ede6e9">Stock firmware</text>
+        <path d="m114 182 4 4 4-4" fill="none" stroke="#c8bfc4"/>
+        <text y="230">Watch faces</text>
+      </g>
+      <text x="22" y="366" fill="#c8bfc4" font-size="12">Watch log</text>
+      <text x="111" y="366" fill="#a29aa3" font-family="DejaVu Sans Mono, monospace" font-size="11">FIRMWARE 1.0.0.73</text>
+    </g>
+  </g>
+</svg>

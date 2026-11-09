@@ -61,6 +61,8 @@ Documentation edits under the Astro content tree:
 > Edit the Astro content under `site/src/content/docs/`. Keep frontmatter `title` and
 > `description`. Use root-relative links with a trailing slash for internal pages. Do not include real device identifiers. Run
 > `pnpm build` in `site/` and fix broken links.
+> For browser emulator changes, build the standalone page with
+> `emulator/web/publish.py` and check the resulting `/emulator/watch-pro-2/` page.
 
 ## Review checklist
 

@@ -90,6 +90,12 @@ are re-derived rather than assumed, and are documented in their own section.
 
 ## Emulator and Actions OTA
 
+- The browser emulator lives at `/emulator/watch-pro-2/`. Use it for stock or
+  custom firmware boot, watch faces, inputs, sensors and audio. Use desktop QEMU
+  for virtual Bluetooth OTA and modeled recovery. The bundled Bad Apple demo
+  uses playback timing and is unsuitable as a guest timing reference.
+- The browser page has its own HTML head in `emulator/web/index.html`.
+  Verify its metadata and assets in the published build as well as the Astro site.
 - Start with `uv run cmf-watch-utils emu profiles` and `emu preflight --image FILE`.
   The only profiles are `wp2-stock` and `wp2-onboarding`, both for JX402 stock
   `1.0.0.73`. For a boot, provide the project-built ATS3089C QEMU, the matching

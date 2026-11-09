@@ -33,6 +33,7 @@ if args.frames_dir:
 web = Path(__file__).resolve().parent
 for name in ("index.html", "watch.js", "style.css", "face.mjs", "catalog.mjs", "speaker.mjs"):
     shutil.copyfile(web / name, args.output / name)
+shutil.copyfile(web.parents[1] / "site/public/favicon.svg", args.output / "favicon.svg")
 fixtures = args.output / "fixtures"
 fixtures.mkdir()
 for path, name in ((nor, "nor.bin"), (nand, "nand-defaults.bin"), (nand_id, "nand-id.bin")):
