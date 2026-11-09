@@ -12,7 +12,17 @@ const frameFile = $('frame-file');
 const frameOverrides = new Map();
 const bootPreset = $('boot-preset');
 const firmwareInputs = ['firmware-file', 'app-file', 'sdfs-file'].map($);
-const selectedCatalogFace = setupFaceCatalog($('face-catalog'));
+let bootInProgress = false;
+let nextFace;
+if (crossOriginIsolated) {
+  try {
+    nextFace = JSON.parse(sessionStorage.getItem('wp2-next-face'));
+    sessionStorage.removeItem('wp2-next-face');
+  } catch {}
+}
+const selectedCatalogFace = setupFaceCatalog($('face-catalog'), nextFace, face => {
+  if (bootInProgress) restartFor('stock', face);
+});
 const requiredFixtures = ['nor.bin', 'nand-defaults.bin', 'nand-id.bin', 'compat.bin', 'app.bin'];
 let runtime, timer, pointer=null, crownDown=false, frames=0, lastFrame=null;
 let lastFrameFile;
@@ -37,10 +47,23 @@ function guestStopped(message) {
   }
 }
 
-function bootStock() {
+function restartFor(preset, face) {
   const url = new URL(location.href);
-  url.searchParams.set('recover', 'stock');
+  if (face) {
+    try {
+      sessionStorage.setItem('wp2-next-face', JSON.stringify(face));
+    } catch {
+      $('image-error').textContent = 'Stop the emulator and choose the face again.';
+      return;
+    }
+  }
+  url.searchParams.set('preset', preset);
+  if (preset !== 'stock') url.searchParams.set('idle', '1');
   location.replace(url.href);
+}
+
+function bootStock() {
+  restartFor('stock');
 }
 
 $('recover').onclick = bootStock;
@@ -204,6 +227,10 @@ frameColor.addEventListener('change', () => {
   if (hosted) document.querySelector('.wordmark').href = '../';
   $('face-catalog').hidden = false;
   bootPreset.onchange = () => {
+    if (bootInProgress) {
+      restartFor(bootPreset.value);
+      return;
+    }
     if (bootPreset.value === 'stock') {
       for (const picker of firmwareInputs) {
         picker.value = '';
@@ -704,13 +731,13 @@ $('stop').onclick=()=>{
   location.replace(url);
 };
 $('start').onclick=async()=>{
+  bootInProgress = true;
   $('start').disabled=true;
   try {
     if(!crossOriginIsolated)throw Error('Cross-origin isolation is required. Start the supplied local server.');
     $('image-error').textContent = '';
-    const pickers = ['stock-files', 'boot-preset', 'firmware-file', 'app-file', 'sdfs-file', 'face-file', 'nand-file']
+    const pickers = ['stock-files', 'firmware-file', 'app-file', 'sdfs-file', 'face-file', 'nand-file']
       .map($);
-    pickers.push($('face-catalog').querySelector('fieldset'));
     for (const picker of pickers) picker.disabled = true;
     if ($('firmware-file').files.length) status('Checking firmware package...', false, 'loading');
     let overrides, files;
@@ -727,6 +754,7 @@ $('start').onclick=async()=>{
     } catch (error) {
       $('image-error').textContent = error.message;
       for (const picker of pickers) picker.disabled = false;
+      bootInProgress = false;
       status('Ready');
       $('start').disabled = false;
       return;
@@ -813,15 +841,15 @@ if (hosted && !crossOriginIsolated) {
   history.replaceState(null, '', bootUrl);
 }
 
-const recoverStock = bootUrl.searchParams.get('recover') === 'stock';
 const idle = bootUrl.searchParams.has('idle');
-if (idle) {
+const requestedPreset = bootUrl.searchParams.get('preset');
+if (crossOriginIsolated && (idle || requestedPreset)) {
   bootUrl.searchParams.delete('idle');
+  bootUrl.searchParams.delete('preset');
   history.replaceState(null, '', bootUrl);
 }
-if (recoverStock) {
-  bootUrl.searchParams.delete('recover');
-  history.replaceState(null, '', bootUrl);
-  for (const picker of document.querySelectorAll('input[type=file]')) picker.value = '';
+if (requestedPreset === 'bad-apple' || requestedPreset === 'custom') {
+  bootPreset.value = requestedPreset;
+  bootPreset.onchange();
 }
 if (crossOriginIsolated && !idle && (bundledStock || !hosted)) $('start').click();

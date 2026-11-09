@@ -24,7 +24,7 @@ def catalog(search="", sort="newest"):
     while True:
         query = urlencode({
             "page": page, "perPage": 100, "sort": FMC_SORTS[sort], "expand": "owner",
-            "filter": 'published=true && device="watch_pro_2"',
+            "filter": 'published=true && (device="watch_pro_2" || device="")',
             "fields": "id,collectionId,name,preview,bin,downloads,flashes,expand.owner.name",
         })
         request = Request(f"{FMC}/collections/watchfaces/records?{query}", headers=FMC_HEADERS)

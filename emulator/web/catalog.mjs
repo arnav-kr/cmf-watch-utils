@@ -1,5 +1,5 @@
 const origin = 'https://fmc.freethinkel.dev';
-const compatible = 'published=true && device="watch_pro_2"';
+const compatible = 'published=true && (device="watch_pro_2" || device="")';
 
 async function entries() {
   const faces = new Map();
@@ -37,7 +37,7 @@ export async function downloadCatalogFace(face) {
   return file;
 }
 
-export function setupFaceCatalog(picker) {
+export function setupFaceCatalog(picker, initial, onSelect) {
   const summary = picker.querySelector('summary');
   const choices = picker.querySelector('.catalog-options');
   const message = picker.querySelector('[role=status]');
@@ -46,17 +46,21 @@ export function setupFaceCatalog(picker) {
   const sort = picker.querySelector('select');
   const count = new Intl.NumberFormat();
   let faces;
-  let selected;
+  let selected = initial;
+  clear.disabled = !selected;
+  if (selected) summary.textContent = selected.name;
   let loading = false;
 
   function select(face) {
     selected = face;
+    clear.disabled = !selected;
     summary.textContent = face?.name || 'FMC watch faces';
     for (const button of choices.querySelectorAll('button')) {
       button.setAttribute('aria-pressed', String(button.value === face?.id));
     }
     picker.open = false;
     summary.focus();
+    onSelect(face);
   }
   clear.onclick = () => select(undefined);
 
