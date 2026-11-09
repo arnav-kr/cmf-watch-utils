@@ -25,7 +25,7 @@ The guest starts through a compatibility ROM. The real bootloader and recovery
 partitions were not read back or executed in this flow. The model cannot verify
 the physical power-on selector, recovery BLE when the app is broken, or recovery
 after corruption in the bootloader, storage or power path. Use
-[Emulator CLI](/tooling/emulator/) for the fixture and command requirements.
+[OTA and recovery](/tooling/emulator-ota/) for the fixture and command requirements.
 
 ## Evidence in the firmware
 

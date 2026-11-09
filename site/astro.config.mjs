@@ -58,8 +58,15 @@ export default defineConfig({
             { label: 'fwkit CLI', slug: 'tooling/fwkit' },
             { label: 'BLE tools', slug: 'tooling/ble-tools' },
             { label: 'Actions SDK OTA', slug: 'tooling/actions-ota' },
-            { label: 'Run the emulator', slug: 'tooling/emulator' },
-            { label: 'Virtual updates and recovery', slug: 'tooling/emulator-ota' },
+          ],
+        },
+        {
+          label: 'Emulator',
+          items: [
+            { label: 'Overview', slug: 'tooling/emulator' },
+            { label: 'Installation', slug: 'tooling/emulator/installation' },
+            { label: 'First boot', slug: 'tooling/emulator/first-boot' },
+            { label: 'OTA and recovery', slug: 'tooling/emulator-ota' },
           ],
         },
         {

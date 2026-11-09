@@ -9,7 +9,7 @@ CMF Watch Utils supports two BLE OTA protocols for Watch Pro 2 firmware. The sto
 |---|---|---|
 | Stock CMF | `uv run python tools/ota_client.py` | Stock BLE command and OTA characteristics. See [AOTA OTA flow](/devices/cmf-watch-pro-2/protocol/ota/). |
 | Actions SDK | `uv run cmf-watch-utils ota actions` | Local package checks by default. An explicit address selects physical BLE. |
-| Emulator | `uv run cmf-watch-utils emu ota --protocol stock` or `--protocol actions` | Loopback H4 only. See [Emulator CLI](/tooling/emulator/). |
+| Emulator | `uv run cmf-watch-utils emu ota --protocol stock` or `--protocol actions` | Loopback H4 only. See [OTA and recovery](/tooling/emulator-ota/). |
 
 ## Offline validation
 
