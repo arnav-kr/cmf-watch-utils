@@ -11,6 +11,7 @@ const stockFiles = $('stock-files');
 const frameFile = $('frame-file');
 const frameOverrides = new Map();
 const bootPreset = $('boot-preset');
+const firmwareInputs = ['firmware-file', 'app-file', 'sdfs-file'].map($);
 const selectedCatalogFace = setupFaceCatalog($('face-catalog'));
 const requiredFixtures = ['nor.bin', 'nand-defaults.bin', 'nand-id.bin', 'compat.bin', 'app.bin'];
 let runtime, timer, pointer=null, crownDown=false, frames=0, lastFrame=null;
@@ -201,19 +202,20 @@ frameColor.addEventListener('change', () => {
   if (hosted && !bundledStock) $('stock-file-hint').textContent =
     'Select app.bin, compat.bin, nor.bin, nand-defaults.bin and nand-id.bin. The texture index is optional.';
   if (hosted) document.querySelector('.wordmark').href = '../';
-  const updatePreset = () => {
-    const stock = bootPreset.value === 'stock';
-    $('firmware-package').hidden = stock;
-    $('firmware-package').open = !stock;
-    $('raw-applications').hidden = stock;
-    $('raw-applications').open = bootPreset.value === 'custom';
+  $('face-catalog').hidden = false;
+  bootPreset.onchange = () => {
+    if (bootPreset.value === 'stock') {
+      for (const picker of firmwareInputs) {
+        picker.value = '';
+        picker.dispatchEvent(new Event('change'));
+      }
+    } else {
+      $('firmware-package').open = true;
+      $('raw-applications').open = true;
+    }
     $('bad-apple-guide').hidden = bootPreset.value !== 'bad-apple';
-    $('face-catalog').hidden = !stock;
-    $('watch-face-upload').hidden = !stock;
     $('image-error').textContent = '';
   };
-  bootPreset.onchange = updatePreset;
-  updatePreset();
   loadFrame();
 }
 $('show-frame').onchange=event=>$('case').classList.toggle('frameless',!event.target.checked);
@@ -293,6 +295,9 @@ for (const picker of document.querySelectorAll('.file-control input')) {
       names[0] || (picker.multiple ? 'Select files' : 'Select file');
     label.title = names.join(', ');
     clear.hidden = !file;
+    if (firmwareInputs.includes(picker) && bootPreset.value !== 'bad-apple') {
+      bootPreset.value = firmwareInputs.some(input => input.files.length) ? 'custom' : 'stock';
+    }
     $('image-error').textContent = '';
   });
   clear.onclick = () => {
@@ -553,14 +558,13 @@ function validateHostedFirmware(bytes) {
 }
 
 async function readBootOverrides() {
-  const useRawApp = bootPreset.value !== 'stock';
-  const firmware = useRawApp ? $('firmware-file').files[0] : undefined;
-  const app = useRawApp ? $('app-file').files[0] : undefined;
+  const firmware = $('firmware-file').files[0];
+  const app = $('app-file').files[0];
   const nand = $('nand-file').files[0];
-  const face = !useRawApp ? $('face-file').files[0] : undefined;
-  const sdfs = useRawApp ? $('sdfs-file').files[0] : undefined;
-  const catalogFace = !useRawApp ? selectedCatalogFace() : undefined;
-  if (useRawApp && !firmware && (!app || (bootPreset.value === 'bad-apple' && !sdfs))) {
+  const face = $('face-file').files[0];
+  const sdfs = $('sdfs-file').files[0];
+  const catalogFace = selectedCatalogFace();
+  if (bootPreset.value !== 'stock' && !firmware && (!app || (bootPreset.value === 'bad-apple' && !sdfs))) {
     throw Error(bootPreset.value === 'bad-apple'
       ? 'Choose the Bad Apple application and its companion SDFS file.'
       : 'Choose a custom application image.');

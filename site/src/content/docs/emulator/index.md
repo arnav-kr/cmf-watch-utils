@@ -25,9 +25,10 @@ Turn on **Include frame in screenshots** under **Display** to include the case.
 Open **FMC watch faces** to browse the full Watch Pro 2 catalog. Search by
 title or creator and sort by newest, most downloaded, or most flashed. The
 emulator installs the selected face into its virtual storage at boot. You can
-also load a local watch-face file. Choose **Custom firmware** to boot a local
-Watch Pro 2 AOTA package. The **Bad Apple** preset accepts your built package,
-or the application and companion SDFS files. For Bluetooth OTA and recovery
+also load a local watch-face file. For a custom build, select a Watch Pro 2 AOTA
+under **Firmware package**, or select the application and companion SDFS
+separately under **Raw application files**. The **Bad Apple** preset accepts
+both formats. For Bluetooth OTA and recovery
 tests, use desktop QEMU.
 
 ## Desktop emulator
