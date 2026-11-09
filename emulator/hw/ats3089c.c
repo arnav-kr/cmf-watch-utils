@@ -31,9 +31,10 @@
 #include "wp2_jpeg.h"
 #include "wp2_vg_path.h"
 
-#define GPS_UART_CTL 0x40000
-#define GPS_UART_RX 0x40004
-#define GPS_UART_STATUS 0x4000c
+/* Stock's GPS init binds UART_1 (0x4003c000, IRQ 23). */
+#define GPS_UART_CTL 0x3c000
+#define GPS_UART_RX 0x3c004
+#define GPS_UART_STATUS 0x3c00c
 #define GPS_UART_RX_IRQ (1u << 18)
 
 typedef struct ActsState ActsState;
@@ -2372,7 +2373,7 @@ static void acts_init(MachineState *machine)
     }
     s->jpeg_irq = qdev_get_gpio_in(s->cpu, 57);
     s->gpio_irq = qdev_get_gpio_in(s->cpu, 37);
-    s->gps_irq = qdev_get_gpio_in(s->cpu, 24);
+    s->gps_irq = qdev_get_gpio_in(s->cpu, 23);
     s->pmu_irq = qdev_get_gpio_in(s->cpu, 52);
     s->i2cmt_irq[0] = qdev_get_gpio_in(s->cpu, 62);
     s->i2cmt_irq[1] = qdev_get_gpio_in(s->cpu, 63);
