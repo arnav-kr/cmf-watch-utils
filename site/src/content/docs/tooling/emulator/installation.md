@@ -61,7 +61,42 @@ pacman -S --needed mingw-w64-ucrt-x86_64-glib2 mingw-w64-ucrt-x86_64-pixman ming
 The last package provides `wish.exe`, which opens the watch window. If you
 installed MSYS2 somewhere other than `C:/msys64`, use that path in the check below.
 
-### Linux and macOS
+### Arch Linux
+
+Install the runtime libraries, viewer and Arm debugger from the official repositories:
+
+```bash
+sudo pacman -Syu --needed git git-lfs uv glib2 pixman dtc libpulse tk arm-none-eabi-gdb
+```
+
+`uv` manages the Python workspace. GLib, Pixman and `dtc` provide QEMU's
+native libraries; `libpulse` provides its audio client library. Tcl/Tk supplies
+the `wish` viewer. [Arm GDB](https://archlinux.org/packages/extra/x86_64/arm-none-eabi-gdb/)
+is used to prepare the virtual storage.
+
+Use the Linux x64 archive and the shared ROM archive. From the checkout:
+
+```bash
+mkdir -p runtime
+tar -xf cmf-emulator-linux-x64.tar.gz -C runtime --strip-components 1
+tar -xf cmf-emulator-wp2-rom.tar.gz -C runtime --strip-components 1
+uv sync --locked
+uv run cmf-watch-utils emu doctor --qemu runtime/qemu-system-arm --rom runtime/compat.bin
+arm-none-eabi-gdb --version
+```
+
+In [First boot](/tooling/emulator/first-boot/), use
+`--qemu runtime/qemu-system-arm`, omit `--runtime-dir C:/msys64/ucrt64/bin`,
+and keep `--gdb arm-none-eabi-gdb`. The viewer needs a graphical desktop;
+on Wayland, it also needs XWayland (`xorg-xwayland`). Audio playback needs a
+running PulseAudio server or PipeWire's PulseAudio compatibility service.
+
+The Linux archive is built and smoke-tested on Ubuntu 22.04. Arch has not
+had an end-to-end firmware boot test. If a rolling library update prevents
+the archive from loading, follow the [Arch source build instructions](https://github.com/arnav-kr/cmf-watch-utils/blob/main/emulator/README.md#arch-linux).
+The distribution's standard QEMU package does not include this watch model.
+
+### Ubuntu and macOS
 
 | Host | Packages | Command differences |
 |---|---|---|

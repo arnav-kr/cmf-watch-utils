@@ -9,6 +9,11 @@ Install Git and [uv](https://docs.astral.sh/uv/getting-started/installation/). T
 workspace uses Python 3.12 or later. `uv` can fetch a compatible Python when one
 is missing. Open a terminal in the directory where you want the checkout.
 
+On Arch Linux, install the workspace tools with
+`sudo pacman -Syu --needed git git-lfs uv`, then use the Linux commands below.
+The emulator's additional libraries are listed under
+[Arch Linux installation](/tooling/emulator/installation/#arch-linux).
+
 **Windows PowerShell**
 
 ```powershell

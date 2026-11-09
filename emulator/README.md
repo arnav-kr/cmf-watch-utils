@@ -45,3 +45,25 @@ program through the watch machine's NOR handoff. The program needs no stock
 files. A manual run uploads artifacts for inspection. Pushing an `emulator-v*`
 tag publishes a prerelease with checksums and corresponding source archives
 after all build jobs pass.
+
+## Arch Linux
+
+For prebuilt archives, follow the [Arch runtime setup](https://cmf.arnv.dev/tooling/emulator/installation/#arch-linux).
+To compile QEMU locally, install the native build tools and libraries:
+
+```bash
+sudo pacman -Syu --needed base-devel python ninja pkgconf glib2 pixman dtc libpulse
+uv run --locked python emulator/build.py --component qemu --audio pa
+```
+
+To also build the shared ROM and NAND tools:
+
+```bash
+sudo pacman -S --needed arm-none-eabi-gcc arm-none-eabi-binutils arm-none-eabi-newlib
+uv run --locked python emulator/build.py --component rom
+```
+
+Run these commands from the repository root after `uv sync --locked`.
+Archives are written to `emulator/dist/`. Each QEMU build includes the synthetic
+boot check. Arch-specific firmware boot and viewer behavior have not been verified;
+the Linux release runner uses Ubuntu 22.04.

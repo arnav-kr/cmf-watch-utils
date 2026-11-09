@@ -140,6 +140,16 @@ jobs:
           tests, and a synthetic QEMU boot on GitHub runners. Stock firmware and local
           virtual flash are supplied separately. Crown + charger rescue uses the
           emulator's recovery model. Physical recovery remains unverified.
+
+          The checkout includes the uv-managed emulator CLI, Watch Pro 2 model
+          profiles, and Actions SDK OTA. Follow [Installation](https://cmf.arnv.dev/tooling/emulator/installation/)
+          and [First boot](https://cmf.arnv.dev/tooling/emulator/first-boot/)
+          to prepare storage and open the viewer. Arch Linux runtime and source-build
+          instructions are included; Arch-specific firmware boot is not yet tested.
+
+          This is a development preview, not a guarantee that firmware will boot or
+          recover on physical hardware. Nothing X integration requires the separate
+          lab setup and is not included in the runtime archives.
           EOF
           gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" \
             --verify-tag --prerelease --latest=false --title "Watch Pro 2 emulator preview" \
