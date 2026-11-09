@@ -17,8 +17,8 @@ const repoUrl = 'https://github.com/arnav-kr/cmf-watch-utils';
 const pageTitle = isHome || !data.title ? siteName : `${data.title} · ${siteName}`;
 const description = data.description ?? tagline;
 const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://cmf.arnv.dev');
-const ogImage = new URL('/og-emulator.png', Astro.site ?? 'https://cmf.arnv.dev');
-const ogImageAlt = 'Illustration of the Watch Pro 2 emulator with a digital watch face and simulation controls.';
+const ogImage = new URL('/og-emulator-screenshot.png', Astro.site ?? 'https://cmf.arnv.dev');
+const ogImageAlt = 'Watch Pro 2 browser emulator running the green LCD Giant watch face by Egor Kolesnikov.';
 const pageUrl = canonical.href;
 const acronyms: Record<string, string> = {
   cmf: 'CMF',
