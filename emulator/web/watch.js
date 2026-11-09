@@ -3,13 +3,15 @@ const panel = $('panel');
 const context = panel.getContext('2d', {alpha:false});
 const pixels = context.createImageData(466,466);
 let runtime, timer, pointer=null, crownDown=false, frames=0, lastFrame=null;
+let runtimeLog='';
 const encoder = new TextEncoder();
 function status(text,error=false) {
   $('status').textContent=text;
   $('status').toggleAttribute('data-error',error);
 }
 function log(text) {
-  $('log').textContent=($('log').textContent+'\n'+text).slice(-16000);
+  runtimeLog=(runtimeLog+'\n'+text).slice(-8000);
+  $('log').textContent=runtimeLog;
   $('log').scrollTop=$('log').scrollHeight;
 }
 function input(line) {
@@ -72,7 +74,7 @@ function render() {
     $('frames').textContent=`${frames} changed frames`;
     status('Stock firmware is rendering.');
   } catch(error) {if(error.name!=='ErrnoError'){log(error.message);clearInterval(timer);}}
-  try {$('log').textContent=runtime.FS.readFile('/watch/uart.log',{encoding:'utf8'}).slice(-16000);} catch {}
+  try {$('log').textContent=runtimeLog+'\n'+runtime.FS.readFile('/watch/uart.log',{encoding:'utf8'}).slice(-16000);} catch {}
 }
 $('stop').onclick=()=>location.reload();
 $('start').onclick=async()=>{
