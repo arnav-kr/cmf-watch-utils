@@ -20,6 +20,12 @@ ROOT = Path(__file__).resolve().parent
 QEMU = "qemu-9.2.0"
 QEMU_SHA256 = "f859f0bc65e1f533d040bbe8c92bcfecee5af2c921a6687c652fb44d089bd894"
 SDK_COMMIT = "26f51e584940d5b141cd1d09d2629d69b595f579"
+QEMU_BUILD_WHEELS = (
+    ("meson-1.5.0-py3-none-any.whl", "c4/cd/47e45d3abada2e1edb9e2ca9334be186d2e7f97a01b09b5b82799c4d7bd3",
+     "52b34f4903b882df52ad0d533146d4b992c018ea77399f825579737672ae7b20"),
+    ("pycotap-1.3.1-py3-none-any.whl", "36/f4/77b5a41d53ae3c530b204ed9a35137171b20f8ee0f337e2ec4993d6026a5",
+     "1c3a25b3ff89e48f4e00f1f71dbbc1642b4f65c65d416524d07e73492fff25ea"),
+)
 JPEG = "application/bt_watch/simulator/LVGL.Simulator/framework_porting/jpeg"
 ROM_SDK = (
     "framework/display/compression/lz4/lz4.c",
@@ -233,6 +239,10 @@ def build_qemu(args, sdk, output):
     if (build / "build.ninja").is_file() and (not stamp.is_file() or stamp.read_text() != recipe):
         raise ValueError("Configure options changed. Select a fresh --work-dir.")
     if not (build / "build.ninja").is_file():
+        wheels = source / "python/wheels"
+        wheels.mkdir(exist_ok=True)
+        for filename, location, checksum in QEMU_BUILD_WHEELS:
+            fetch(f"https://files.pythonhosted.org/packages/{location}/{filename}", wheels / filename, checksum)
         bash = os.environ.get("WP2_BUILD_BASH") or shutil.which("bash")
         if not bash:
             raise ValueError("QEMU configure requires Bash. On Windows use the MSYS2 UCRT64 shell.")
@@ -250,7 +260,8 @@ def build_qemu(args, sdk, output):
         shutil.copy2(source / license_file, output / f"qemu-{license_file}")
     if args.source_bundle:
         with tarfile.open(args.output_dir / "cmf-emulator-qemu-source.tar.gz", "w:gz") as bundle:
-            bundle.add(source, arcname=QEMU)
+            bundle.add(source, arcname=QEMU,
+                       filter=lambda member: None if member.name == f"{QEMU}/python/wheels" else member)
 
 
 def build_rom(args, sdk, output):

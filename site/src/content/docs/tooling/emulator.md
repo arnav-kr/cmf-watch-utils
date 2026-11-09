@@ -1,173 +1,151 @@
 ---
-title: Emulator CLI
-description: Set up the Watch Pro 2 QEMU preview, select a profile, and test firmware boot, virtual OTA and modeled recovery.
+title: Run the Watch Pro 2 emulator
+description: Start from a clean checkout and boot the stock Watch Pro 2 on your computer.
 ---
 
-The emulator runs Watch Pro 2 firmware against a QEMU model of the Actions ATS3089C. It can boot selected stock and custom images, capture panel frames and audio, and exercise OTA with virtual flash. The CLI can run these tests without a watch, a Bluetooth adapter, or a phone.
+This walkthrough opens the stock Watch Pro 2 in a window. You can click and
+drag on the watch screen and use the crown controls beside it. A physical watch,
+a phone, and Bluetooth are unnecessary for this walkthrough.
 
-## Profiles
+## 1. Install the command line tools
 
-| Profile | Stock baseline | Raw NAND in the fixture directory |
-|---|---|---|
-| `wp2-stock` (default) | Watch Pro 2 JX402, `1.0.0.73`, language already selected | `nand-defaults.bin` |
-| `wp2-onboarding` | Same watch and firmware, before language selection | `nand-onboarding.bin` |
-
-Both profiles use machine `ats3089c-wp2`. They share `nor.bin` and `nand-id.bin`. Profiles select a verified baseline and storage layout. Use `--app`, `--ota-image` or `--nor` to select custom firmware. Other watches and stock versions need their own verified profiles.
-
-## 1. Get the runtime
-
-Follow [Setup](/getting-started/setup/) through the CLI check. Package preflight can run
-at that point without any additional software. For a boot, get these two matching
-archives from the [release page](https://github.com/arnav-kr/cmf-watch-utils/releases)
-when available, or follow the [source build guide](https://github.com/arnav-kr/cmf-watch-utils/blob/main/emulator/README.md).
-Building QEMU from source also needs a compiler toolchain and several GB of disk space.
-
-- The QEMU archive for your OS and CPU. It contains `qemu-system-arm` (or
-  `qemu-system-arm.exe`) with the `ats3089c-wp2` machine. Standard QEMU lacks this machine.
-- The shared `cmf-emulator-wp2-rom` archive. It contains `compat.bin`, the NAND
-  provisioner (`provision-nand.elf` and `provision-nand.bin`), and the staged OTA reader
-  (`read-ota-temp.elf` and `read-ota-temp.bin`). Older bundles may lack the provisioner.
-
-For the examples, put the contents of both archives in `runtime/` under the checkout.
-Install host libraries for the build you picked:
-
-| Host | Runtime | Optional viewer |
-|---|---|---|
-| Windows x64 | In the MSYS2 UCRT64 shell, install `mingw-w64-ucrt-x86_64-glib2`, `mingw-w64-ucrt-x86_64-pixman`, `mingw-w64-ucrt-x86_64-dtc`, `mingw-w64-ucrt-x86_64-libwinpthread` and `mingw-w64-ucrt-x86_64-zlib` with `pacman -S --needed`. Add the UCRT64 `bin` directory to PATH or pass it as `--runtime-dir`. | Install `mingw-w64-ucrt-x86_64-tk` or supply another Tcl/Tk `wish.exe`. |
-| Ubuntu 22.04 x64 | Install `libglib2.0-0`, `libpixman-1-0`, `libfdt1` and `libpulse0` for the PulseAudio build. | Install `tk`. |
-| macOS ARM64 | For the Homebrew build, install `glib`, `pixman` and `dtc`. | Use Tcl/Tk with `wish` available on PATH. |
-
-Firmware integration ran on Windows. Linux and macOS are build targets with unverified
-runtime integration. Check package names and library versions if you use another distro
-or a different build. Android, root access, Nothing X and a BLE adapter are unnecessary
-for normal emulator use.
-
-Check the runtime before creating any fixtures:
-
-```text
-uv run cmf-watch-utils emu doctor --qemu runtime/qemu-system-arm --rom runtime/compat.bin
-```
-
-On Windows, use `runtime/qemu-system-arm.exe` and add `--runtime-dir C:/msys64/ucrt64/bin`
-if UCRT64 is outside PATH. A missing viewer is fine for a headless run.
-
-## 2. Prepare virtual flash
-
-If you already have a verified fixture set, skip to step 3 or use `emu import-fixtures`
-to copy it into one directory. Otherwise get these inputs:
-
-1. The exact `JX402_V1.0.0.73.bin` from the [setup guide](/getting-started/setup/).
-2. The pinned SDK [NAND ID file](https://raw.githubusercontent.com/lvgl/lv_port_actions_technology/26f51e584940d5b141cd1d09d2629d69b595f579/action_technology_sdk/zephyr/tools/prebuilt/leopard/common/bin/nand_id_all.bin).
-   Save it as `runtime/nand_id_all.bin`. The CLI checks its hash. You only need this one SDK file.
-3. An Arm-capable GDB. On Windows use a bare-metal Arm GNU Toolchain distribution that
-   includes `arm-none-eabi-gdb.exe`. On Ubuntu you can install `gdb-multiarch` and pass
-   `--gdb gdb-multiarch`. Verify the executable with `--version`. The debugger connects
-   to QEMU on loopback and runs the provisioner through the stock NAND driver.
-
-Allow at least 250 MiB of free space when preparing one profile. Each finished NAND
-image takes about 132 MiB. Run the following from the checkout. On Windows use
-`runtime/qemu-system-arm.exe` and add, for example, `--runtime-dir C:/msys64/ucrt64/bin`
-to commands that launch QEMU.
-
-```text
-uv run cmf-watch-utils emu prepare-fixtures --fixtures fixtures --stock dumps/binaries/firmware/JX402_V1.0.0.73.bin --nand-id runtime/nand_id_all.bin --qemu runtime/qemu-system-arm --rom runtime/compat.bin --provisioner runtime --gdb arm-none-eabi-gdb
-```
-
-The command prints the fixture directory and the location of the provisioning logs.
-It creates a 4 MiB `nor.bin`, a 790-byte `nand-id.bin`, and the profile's
-138,412,032-byte NAND file. Boot and recovery slots in NOR remain erased. The
-prepared NAND uses stock resource archives and a synthetic empty `res_b`.
-To create the onboarding NAND as well, run the same command with `--profile wp2-onboarding`.
-The example directories `runtime/`, `fixtures/`, `local/` and `runs/` are ignored by Git.
-
-## 3. Boot stock
+Follow [Setup](/getting-started/setup/) through step 2. That installs the CLI
+and puts the reference firmware at
+`dumps/binaries/firmware/JX402_V1.0.0.73.bin`. Keep your terminal open in the
+`cmf-watch-utils` folder. Run:
 
 ```text
 uv run cmf-watch-utils emu profiles
-uv run cmf-watch-utils emu doctor --fixtures fixtures --qemu runtime/qemu-system-arm --rom runtime/compat.bin
-uv run cmf-watch-utils emu run --fixtures fixtures --qemu runtime/qemu-system-arm --rom runtime/compat.bin --headless --output runs/stock
 ```
 
-For onboarding, select `--profile wp2-onboarding` when launching. Each run needs a new output directory. A successful headless run writes `report.json` and `frame.ppm`. Omit `--headless` for the viewer with mouse touch gestures, crown controls and simulated sensor inputs. For audio use `--headless --wav` or select a backend included in the interactive build with `--audio`.
+You should see `wp2-stock` and `wp2-onboarding`. Use `wp2-stock` for your first
+run. It starts after the language selection screen. The second profile starts
+at first-time setup.
 
-Use `--app local/app.bin --sdfs local/sdfs.bin` for raw custom images. Use `--ota-image local/update.bin` to validate and stage a supported update's app and SDFS directly in a working NOR copy. That boot test skips OTA transport and install logic. Use `--nor` to boot an already staged or recovered virtual NOR.
+## 2. Get the program that runs the virtual watch
 
-## Firmware preflight and loopback OTA
+Download **two** archives from the same [preview release](https://github.com/arnav-kr/cmf-watch-utils/releases):
+
+- The archive named `cmf-emulator-windows-x64.tar.gz`, `cmf-emulator-linux-x64.tar.gz`,
+  or `cmf-emulator-macos-arm64.tar.gz` for your computer. It contains the project's
+  QEMU executable. This build understands the Watch Pro 2 hardware.
+- `cmf-emulator-wp2-rom.tar.gz`. It contains `compat.bin`, which starts the
+  virtual watch, and the small programs used to prepare and read its storage.
+
+On Windows, move the downloads into the checkout. Then run these commands in
+PowerShell to put the contents of both archives in one folder:
+
+```powershell
+New-Item -ItemType Directory -Force runtime | Out-Null
+tar -xf cmf-emulator-windows-x64.tar.gz -C runtime --strip-components 1
+tar -xf cmf-emulator-wp2-rom.tar.gz -C runtime --strip-components 1
+Get-ChildItem runtime
+```
+
+Check that you see `qemu-system-arm.exe`, `compat.bin` and `provision-nand.elf`.
+On Linux or macOS, use `mkdir -p runtime` and substitute your host's archive in
+the first `tar` command. The QEMU executable on those hosts has no `.exe` suffix.
+If a release archive is unavailable, see the [source build instructions](https://github.com/arnav-kr/cmf-watch-utils/blob/main/emulator/README.md).
+
+**Install the libraries QEMU needs.** On Windows, install MSYS2 and open its
+**UCRT64** terminal. Run this there, then switch back to PowerShell:
 
 ```bash
-uv run cmf-watch-utils emu preflight --image local/update.bin
-uv run cmf-watch-utils emu ota --help
-uv run cmf-watch-utils emu recover --help
+pacman -S --needed mingw-w64-ucrt-x86_64-glib2 mingw-w64-ucrt-x86_64-pixman mingw-w64-ucrt-x86_64-dtc mingw-w64-ucrt-x86_64-libwinpthread mingw-w64-ucrt-x86_64-zlib mingw-w64-ucrt-x86_64-tk
 ```
 
-Preflight checks the supported app/SDFS package shape, board, manifest and CRCs, chunk bounds, ACTH checksums and partition sizes. It needs no QEMU binary or radio. Resource-heavy factory containers can contain additional partitions outside this verifier's supported shape. Use [fwkit](/tooling/fwkit/) to inspect those containers.
-
-Virtual OTA is optional. Run an isolated H4 controller before starting QEMU. The
-Windows test used `netsimd` from the Android Emulator package as a standalone
-process. A phone, Android virtual device, and Nothing X sign-in are unnecessary.
-For example, run `netsimd --instance 70 --hci-port 17310 --no-cli-ui --no-web-ui` in a separate
-terminal and use that port for both QEMU and the client.
-
-For a virtual transfer, launch the guest with `--hci-port` set to the isolated H4 listener. Run `emu ota --protocol stock|actions --hci-port PORT --image FILE` on the same simulated radio. Select the protocol the guest exposes and use `--name` if the advertisement differs from the default `cmf`. The default stops after negotiation. `--transfer` serves firmware bytes to the virtual guest.
-
-### Prepare stock virtual pairing
-
-A newly created NOR has no pairing secret. Start a fresh stock guest with both
-ports below. In another terminal, run the second command. It creates a random
-synthetic secret inside the guest, exports a new virtual NOR and closes QEMU.
+The last package provides `wish.exe`, which opens the watch window. If you
+installed MSYS2 somewhere other than `C:/msys64`, change the path below. Check
+the runtime from PowerShell:
 
 ```text
-uv run cmf-watch-utils emu run --fixtures fixtures --qemu runtime/qemu-system-arm --rom runtime/compat.bin --headless --hci-port 17310 --qmp-port 17320 --seconds 120 --output runs/pairing
-uv run cmf-watch-utils emu pair-fixture --hci-port 17310 --qmp-port 17320 --output local/paired-nor.bin
+uv run cmf-watch-utils emu doctor --qemu runtime/qemu-system-arm.exe --rom runtime/compat.bin --runtime-dir C:/msys64/ucrt64/bin
 ```
 
-Keep the paired NOR local. If Netsim stops after QEMU closes, start it again on the same
-port. Boot the next guest from the paired NOR so the app loads its new pairing state.
-Actions OTA uses its own protocol and skips stock pairing.
+Look for `"machine": "ats3089c-wp2"` and `"viewer_available": true`. If only the
+viewer is missing, you can still run the headless check in step 4.
 
-### Stock reset and staged install
+| On this host | Install these packages | Changes to the Windows commands |
+|---|---|---|
+| Ubuntu 22.04 x64 | `libglib2.0-0 libpixman-1-0 libfdt1 libpulse0 tk gdb-multiarch` with apt | Remove `.exe` and `--runtime-dir`. Use `--gdb gdb-multiarch`. |
+| macOS ARM64 | `glib pixman dtc` with Homebrew, Tcl/Tk with `wish` on PATH, and an Arm-capable GDB | Remove `.exe` and `--runtime-dir`. Set `--gdb` to your debugger's path. |
 
-Start an isolated H4 controller on port `17310`. Run the commands below in order, in separate
-terminals for the guest, recovery supervisor and transfer. `local/paired-nor.bin` is a virtual
-stock NOR with a synthetic guest pairing secret. The second command waits for the reset, so start
-it before running the third.
+## 3. Give the watch a local disk
 
-```bash
-uv run cmf-watch-utils emu run --fixtures fixtures --qemu runtime/qemu-system-arm --rom runtime/compat.bin --nor local/paired-nor.bin --headless --allow-reboot --ota-snapshot --hci-port 17310 --qmp-port 17320 --seconds 450 --output runs/stage
-uv run cmf-watch-utils emu recover --fixtures fixtures --qemu runtime/qemu-system-arm --rom runtime/compat.bin --reader runtime --gdb arm-none-eabi-gdb --qmp-port 17320 --pending-nand runs/stage/nand-staged.bin --output runs/install
-uv run cmf-watch-utils emu ota --protocol stock --hci-port 17310 --image local/stock-protocol-update.bin --transfer --output runs/stock-transfer.json
+QEMU needs files that stand in for the watch's storage. They contain the app,
+its fonts and images, and the language setting. The program in step 2 uses
+the stock firmware to create them on your computer.
+
+1. Download the pinned SDK [NAND ID file](https://raw.githubusercontent.com/lvgl/lv_port_actions_technology/26f51e584940d5b141cd1d09d2629d69b595f579/action_technology_sdk/zephyr/tools/prebuilt/leopard/common/bin/nand_id_all.bin)
+   and save it as `runtime/nand_id_all.bin`. It tells the stock driver which
+   kind of flash chip the emulator presents. You only need that one SDK file.
+2. Install an Arm debugger. On Windows, use an Arm GNU Toolchain distribution
+   containing `arm-none-eabi-gdb.exe`. Add its `bin` folder to PATH or pass
+   the full path in quotes after `--gdb`. Run `arm-none-eabi-gdb --version` to
+   check it. The debugger is used here to start the storage setup inside QEMU.
+3. Leave at least 250 MiB free on the drive. Run this from the checkout:
+
+```text
+uv run cmf-watch-utils emu prepare-fixtures --fixtures fixtures --stock dumps/binaries/firmware/JX402_V1.0.0.73.bin --nand-id runtime/nand_id_all.bin --qemu runtime/qemu-system-arm.exe --rom runtime/compat.bin --runtime-dir C:/msys64/ucrt64/bin --provisioner runtime --gdb arm-none-eabi-gdb
 ```
 
-When recovery succeeds, boot `runs/install/nor.bin` with `emu run --nor` in a fresh output
-directory. The recorded end-to-end run used a QEMU-only Bad Apple package with an empty
-AGPS trailer.
+Success prints a JSON result with the paths to the fixtures and logs. The
+`fixtures` folder should contain `nor.bin`, `nand-id.bin` and
+`nand-defaults.bin`. Keep them for future runs. If you already have these
+three files from a previous setup, you can reuse them and skip step 3.
 
-For a broken-app rescue, supply a broken **virtual** NOR and both modeled inputs:
+## 4. Boot the watch
 
-```bash
-uv run cmf-watch-utils emu recover --fixtures fixtures --nor local/broken-nor.bin --crown-held --charger-connected --output runs/rescue
+First run without opening a window. This checks that the virtual watch starts
+and draws something:
+
+```text
+uv run cmf-watch-utils emu run --fixtures fixtures --qemu runtime/qemu-system-arm.exe --rom runtime/compat.bin --runtime-dir C:/msys64/ucrt64/bin --headless --output runs/first-boot
 ```
 
-Boot `runs/rescue/nor.bin` to verify the restored app reaches the panel.
+Look for `"panel_frame_captured": true` in the output. QEMU saves a screenshot
+as `runs/first-boot/frame.ppm` and its result as `report.json`. Now open the
+window:
 
-## If setup stops
+```text
+uv run cmf-watch-utils emu run --fixtures fixtures --qemu runtime/qemu-system-arm.exe --rom runtime/compat.bin --runtime-dir C:/msys64/ucrt64/bin --output runs/first-window
+```
 
-| Symptom | Check |
+You should see a window titled **CMF Watch Pro 2**. For the first-run language
+screen, prepare a second disk by repeating step 3 with `--profile wp2-onboarding`,
+then add that flag to your boot command. Every boot command needs a new output
+folder. Use a different name to keep older results.
+
+## If a step fails
+
+| What you see | What to check |
 |---|---|
-| Stock hash mismatch or a tiny firmware file | Fetch the reference Git LFS object or use the direct download. A text pointer cannot be used. |
-| `ats3089c-wp2` missing | Point `--qemu` at the project's executable for your host. |
-| QEMU exits at startup | Run `emu doctor` and check the host libraries. On Windows, confirm `--runtime-dir` points to UCRT64's `bin`. |
-| Provisioning fails | Check the numbered QEMU, UART and GDB logs in the printed work directory. Verify the ROM bundle, free space and Arm-capable GDB. |
-| No viewer | Try `--headless` first, then install Tcl/Tk or pass the path to `wish` with `--wish`. |
-| No matching BLE advertisement | Check that both commands use the same H4 port and that `--name` matches the guest's advertisement. |
-| Output already exists | Choose a new output file or run directory so previous results stay intact. |
+| Firmware hash mismatch or a tiny firmware file | Repeat step 2 in [Setup](/getting-started/setup/) to download the full reference image. |
+| `ats3089c-wp2` missing | Point `--qemu` at the executable from the preview archive. |
+| QEMU exits before boot | Rerun `emu doctor`. On Windows, check that `--runtime-dir` points to MSYS2's UCRT64 `bin` folder. |
+| Storage preparation fails | Check free space, the debugger path, and the numbered GDB, QEMU and UART logs in the reported folder. |
+| Headless works but the window fails | Install Tcl/Tk and pass `--wish` with the path to its executable if it is outside PATH. |
 
-## Verified scope
+## Test a custom app
 
-- Stock `1.0.0.73`, stock onboarding, Bad Apple and Tilt Mouse rendered frames. Bad Apple produced nonzero PCM in a captured WAV.
-- Stock-protocol OTA reached END and rebooted the guest. The modeled install read TEMP from the resulting NAND snapshot through the stock NAND driver and booted the installed Bad Apple image.
-- Actions OTA negotiated with the Bad Apple guest, served the rollback package and received image validation success. That result covers transfer and validation.
-- Crown + charger rescue restored stock from a deliberately broken app in virtual NOR. This runs in the host recovery model and uses known-good stock app and SDFS data.
-- A separate Nothing X lab synced simulated heart rate and SpO₂ using a local binding fixture. The standard CLI provides the emulator and loopback OTA. Public account binding and live cloud sync are outside that verification.
+Use `--app local/app.bin` to start an app you built. Add `--sdfs local/sdfs.bin`
+if it needs a matching resource archive. Use `--ota-image local/update.bin`
+to extract the app and resources from a supported update and boot them directly.
+That direct boot checks the result you would run after an update. The next guide
+covers the Bluetooth transfer and the install after reboot.
 
-The compatibility ROM starts the application with a modeled handoff. Bootloader execution, real crown/charger power-on behavior, physical flash timing and failure modes remain outside this verification. See [Recovery & boot modes](/devices/cmf-watch-pro-2/internals/recovery/).
+```text
+uv run cmf-watch-utils emu preflight --image local/update.bin
+```
+
+Preflight means checking a package without running it. The command checks the
+target board, checksums, and whether the app and its resources fit. It only
+needs the Python workspace and the update file. Some factory packages include
+extra partitions. Use [fwkit](/tooling/fwkit/) to inspect those.
+
+## Test OTA and recovery
+
+Continue with [Virtual updates and recovery](/tooling/emulator-ota/) once the stock
+boot works. That guide shows how to transfer an update inside QEMU and what the
+result can tell you about the candidate. The physical bootloader remains outside
+the test.
