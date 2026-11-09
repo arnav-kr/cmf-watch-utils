@@ -7,7 +7,31 @@ The emulator runs CMF Watch Pro 2 firmware on your computer. You can use
 the watch face and menus, try a custom app, or test a firmware update
 without a physical watch.
 
-## Start here
+## Browser preview
+
+[Open the Watch Pro 2 browser emulator](/emulator/watch-pro-2/) in a recent
+desktop version of Chrome or Edge. Use the touchscreen and crown, change
+brightness, or simulate battery, motion, GPS and optical sensor readings.
+
+1. Follow [Installation](/emulator/installation/) and the
+   [Prepare the storage](/emulator/first-boot/#prepare-the-storage) section to
+   create the three stock storage files.
+2. From the repository root, prepare them for the browser. Use an output
+   folder that does not exist yet.
+
+   ```sh
+   uv run python emulator/web/stage.py --fixtures fixtures --rom runtime/compat.bin --output web-local
+   ```
+
+3. Open the browser emulator, select the `web-local/fixtures` folder under
+   **Boot images**, then press **Play**. Give stock firmware time to reach the
+   watch face. **Watch log** shows its progress.
+
+The browser reads the selected files on your computer. Reloading or resetting
+starts a fresh session and asks you to select the folder again. For Bluetooth
+OTA and recovery tests, use desktop QEMU.
+
+## Desktop emulator
 
 | Page | What you will do |
 |---|---|

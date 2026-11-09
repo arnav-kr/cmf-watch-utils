@@ -1,6 +1,6 @@
 # Watch Pro 2 in the browser
 
-Experimental browser port on `wasm-watch-pro-2`. It runs stock 1.0.0.73 using
+The [browser preview](https://cmf.arnv.dev/emulator/watch-pro-2/) runs stock 1.0.0.73 using
 our existing ATS3089C model and compatibility ROM. Firmware is supplied locally;
 the browser runtime does not contain stock firmware or artwork.
 
@@ -50,7 +50,12 @@ uv run python emulator/web/serve.py web-local
 Open `http://127.0.0.1:8090/` and select **Start emulation**. The server binds to
 loopback and sends the cross-origin isolation headers needed by Wasm workers.
 Opening the HTML directly as a file will not work. A first boot can take tens
-of seconds; the boot log shows guest progress.
+of seconds; the watch log shows guest progress.
+
+You can also select the staged `web-local/fixtures` folder directly in the
+hosted preview. The hosted build serves the emulator runtime and reads
+firmware from the selected folder. Use the local server for firmware package
+and watch-face uploads.
 
 ## Controls
 
@@ -60,7 +65,7 @@ of seconds; the boot log shows guest progress.
 - **Show frame** toggles the surrounding bezel. The expand button enlarges the
   device view. Neither changes the guest's 466 x 466 display resolution.
 - **Stop & reset** reloads the page. Guest storage changes are discarded.
-- Expand **Boot log** to inspect output or save it. Add `?debug` to the URL for
+- Open **Watch log** to inspect recent guest UART output or save the full captured UART log. Add `?debug` to the URL for
   verbose GPU/MMIO diagnostics; this increases logging and memory use.
 
 ## Current limits
@@ -72,8 +77,7 @@ than native QEMU and does not reproduce device performance or power consumption.
 
 Sound, browser OTA, Nothing X pairing, persistent storage and other watch models
 are not implemented in this browser milestone. The stock firmware and resource
-files stay outside Git and runner artifacts. No website deployment is included.
-The proposed route remains `/emulator/watch-pro-2/`, listed under `/emulator/`.
+files stay outside the browser build and deployment artifacts.
 
 ## Development checks
 
@@ -90,3 +94,39 @@ For a browser regression check, boot stock, open the app list with the crown,
 scroll it using both touch and crown rotation, and tap a stock app. Repeat after
 reset. Keep the runtime revision, boot output and screenshots with the results.
 A loading screen or a canvas with no guest output is not a successful boot.
+
+With the local Python server running, select a single Watch Pro 2 face
+(`.wfdl`, `.wfc`, or `.bin`) under **Boot images â†’ Watch face**, then press Play.
+The import replaces Activity Mood for that stock session. If the face needs
+more room, the importer uses the Prismatic Time slot to keep the original
+Activity Mood available. The server builds a patch in memory and the browser
+applies it to its copy of the prepared NAND. Reload to start from stock again.
+
+For a custom firmware session, open **Boot images** and select its Watch Pro 2 ACTH `app.bin` under
+**Application image** and its matching `sdfs.bin`, if provided, under
+**Application resources**. Start emulation to boot the staged virtual NOR.
+
+Use **Firmware package** to boot a validated Watch Pro 2 AOTA package that
+contains an application and companion resources. The verified stock 1.0.0.73
+package uses the matching stock fixtures. Select the package and press Play. If a guest fault or runtime exit appears in the notification strip,
+**Boot stock** starts a fresh session from the supplied stock fixtures.
+**Battery target** maps percentage to an approximate voltage. The guest
+firmware calculates its own displayed percentage.
+Use **Simulation → Display → Brightness** to dim the virtual screen. At
+100%, the screen uses the brightness set by the guest firmware. Desktop
+QEMU offers the same slider under **Advanced**.
+
+Drag the miniature watch to change orientation, or use the arrow keys for
+smaller adjustments. Select its X/Y/Z readout to edit the three acceleration
+values directly. **Reset simulation** restores the default sensor and power
+settings. **Hard reset to stock** discards the running session and selected
+files, then starts a fresh stock session.
+
+Open **Optical sensors** to set the heart rate and blood oxygen shown by
+the stock measurement apps. Open **GPS** to send a stationary fix at a
+latitude and longitude in decimal degrees. The guest must start its GPS
+receiver, for example when starting an outdoor workout.
+
+Pass `--frames-dir` to the staging script to include the four Nothing X
+front renders. Select **Watch color** in the browser to switch frames while
+the emulator runs.

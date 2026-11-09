@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - 'site/**'
+      - 'emulator/**'
+      - '.github/workflows/emulator-wasm.yml'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
 
@@ -18,7 +20,13 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  wasm:
+    uses: ./.github/workflows/emulator-wasm.yml
+    permissions:
+      contents: read
+
   build:
+    needs: wasm
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -40,6 +48,14 @@ jobs:
       - name: Build site
         working-directory: site
         run: pnpm build
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: wp2-wasm-experimental
+          path: wasm-output
+
+      - name: Add browser emulator
+        run: python3 emulator/web/publish.py --runtime wasm-output --output site/dist
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

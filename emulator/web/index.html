@@ -8,31 +8,190 @@
 </head>
 <body>
 <header class="topbar">
-  <a class="wordmark" href="./" aria-label="CMF emulator home"><span class="mark" aria-hidden="true">⁙</span> CMF <span class="muted">/</span> EMULATOR</a>
-  <span class="badge"><span></span> BROWSER PREVIEW</span>
+  <a class="wordmark" href="./" aria-label="CMF emulator home"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="5" r="3.4"/><circle cx="19" cy="5" r="3.4"/><circle cx="12" cy="12" r="3.4"/><circle cx="5" cy="19" r="3.4"/><circle cx="19" cy="19" r="3.4"/></svg> CMF <span class="muted">/</span> EMULATOR</a>
 </header>
 <main>
-  <div class="intro"><div><p class="eyebrow">MODEL 01 / ATS3089C</p><h1>WATCH PRO 2</h1></div><p class="intro-note">The stock watch.<br>Running in your browser.</p></div>
+  <h1>Watch Pro 2</h1>
   <div class="workspace">
-    <section class="device-card" aria-label="Virtual watch">
-      <div class="card-heading"><span class="eyebrow">01 / DEVICE</span><button class="icon-button" id="fullscreen" aria-label="Expand watch view" title="Expand watch view">⛶</button></div>
-      <div class="watch" id="watch">
-        <div class="case" id="case"><div class="bezel"><canvas id="panel" width="466" height="466" tabindex="0" aria-label="Watch touchscreen"></canvas><div class="offline" id="offline"><span class="offline-dot"></span>DISPLAY OFFLINE</div></div></div>
-        <div class="crown-controls" aria-label="Crown controls">
-          <button class="crown" id="crown" aria-label="Press crown" title="Press crown · Space" disabled><span></span></button>
-          <div class="roller"><button id="up" aria-label="Rotate crown upward" title="Rotate upward · ↑" disabled><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 10 4-4 4 4"/></svg></button><div class="knurls" aria-hidden="true"></div><button id="down" aria-label="Rotate crown downward" title="Rotate downward · ↓" disabled><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4"/></svg></button></div>
+  <section class="device-card" aria-label="Virtual watch">
+    <div class="watch">
+      <div class="case" id="case">
+        <div class="bezel">
+          <canvas id="panel" width="466" height="466" tabindex="0" aria-label="Watch touchscreen"></canvas>
+          <div class="offline" id="offline">Display offline</div>
         </div>
       </div>
-      <div class="device-footer"><span>FIRMWARE 1.0.0.73</span><label class="toggle"><input id="show-frame" type="checkbox" checked><span class="switch"></span>Show frame</label></div>
-    </section>
-    <aside class="sidebar">
-      <section class="session-card"><p class="eyebrow">02 / SESSION</p><div class="session-state"><span id="state-dot"></span><h2 id="state-label">Ready</h2></div><p id="status" role="status">Start a local stock firmware session.</p><button class="primary" id="start">Start emulation <span aria-hidden="true">↗</span></button><button class="secondary" id="stop" disabled>Stop & reset</button><p class="reset-note">Virtual storage resets when you stop or reload.</p></section>
-      <section class="spec-card"><p class="eyebrow">RUNTIME</p><dl><div><dt>Display</dt><dd>466 × 466</dd></div><div><dt>CPU engine</dt><dd>TCI / WebAssembly</dd></div><div><dt>Storage</dt><dd>Local, in memory</dd></div><div><dt>Frame updates</dt><dd id="frames">—</dd></div></dl></section>
-      <details class="controls-help"><summary>Controls <span aria-hidden="true">+</span></summary><dl><div><dt>Touch & swipe</dt><dd>Click or drag the display</dd></div><div><dt>Crown press</dt><dd><kbd>Space</kbd> or the round button</dd></div><div><dt>Crown rotation</dt><dd><kbd>↑</kbd> <kbd>↓</kbd> or scroll on the display</dd></div></dl></details>
+    </div>
+    <aside class="control-strip" aria-label="Watch controls">
+      <button class="icon-button" id="fullscreen" aria-label="Expand watch view" title="Expand watch view">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path class="expand-icon" d="M9 4H4v5m11-5h5v5M4 15v5h5m11-5v5h-5"/><path class="shrink-icon" d="M4 9h5V4m11 5h-5V4M4 15h5v5m11-5h-5v5"/></svg>
+      </button>
+      <div class="crown-controls">
+        <button class="crown" id="crown" aria-label="Press crown" title="Press crown (Space)" disabled><span></span></button>
+          <div class="roller"><button id="up" aria-label="Rotate crown upward" title="Rotate upward (Up arrow)" disabled><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 10 4-4 4 4"/></svg></button><div class="knurls" aria-hidden="true"></div><button id="down" aria-label="Rotate crown downward" title="Rotate downward (Down arrow)" disabled><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4"/></svg></button></div>
+      </div>
+      <div class="transport">
+        <button class="icon-button" id="start" aria-label="Start emulation" title="Start emulation">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 4 13 8-13 8z"/></svg>
+        </button>
+        <button class="icon-button" id="stop" aria-label="Stop and reset" title="Stop and reset" disabled>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="1"/></svg>
+        </button>
+      </div>
+      <button class="icon-button" id="capture" aria-label="Save screen PNG" title="Save screen PNG" disabled>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h4l2-3h6l2 3h4v13H3z"/><circle cx="12" cy="13" r="3.5"/></svg>
+      </button>
     </aside>
+    <div class="notification" id="notification" hidden>
+      <p id="status" role="status"></p>
+      <button id="recover" hidden>Boot stock</button>
+    </div>
+  </section>
+  <aside class="side-panels" aria-label="Emulator settings">
+    <section class="settings-group advanced">
+      <h2>Simulation</h2>
+      <details class="settings-section" open>
+        <summary>Display</summary>
+        <div class="brightness-control">
+          <label for="brightness">Brightness <output id="brightness-level" for="brightness">100%</output></label>
+          <input id="brightness" type="range" min="0" max="100" value="100">
+        </div>
+        <label class="switch-label"><input id="show-frame" type="checkbox" checked> Show watch frame</label>
+        <label class="frame-color">Watch color
+          <select id="frame-color">
+            <option value="dark-grey">Dark Grey</option>
+            <option value="light-grey">Light Grey</option>
+            <option value="blue">Blue</option>
+            <option value="orange">Orange</option>
+          </select>
+        </label>
+      </details>
+      <details class="settings-section" open>
+        <summary>Power</summary>
+        <div id="power">
+          <label for="battery">Battery target <output id="battery-level" for="battery">69%</output></label>
+          <input id="battery" type="range" min="0" max="100" value="69">
+          <label class="switch-label"><input id="charger" type="checkbox"> Charger connected</label>
+        </div>
+      </details>
+      <details class="settings-section">
+        <summary>Orientation</summary>
+        <div id="motion">
+          <div id="orientation-pad" tabindex="0" aria-label="Watch orientation. Drag or use arrow keys to tilt. Home resets." aria-describedby="orientation-reading">
+            <div id="orientation-model" aria-hidden="true">
+              <div class="orientation-face"><strong>CMF</strong><small>by NOTHING</small></div>
+              <div class="orientation-back"></div>
+              <div class="crown-cylinder"></div>
+            </div>
+          </div>
+          <button id="orientation-reading" type="button" aria-label="Edit X, Y and Z acceleration" aria-expanded="false" aria-controls="orientation-axes">X 0 · Y 0 · Z 1000 mg</button>
+          <div id="orientation-axes" hidden>
+            <label>X <input type="number" min="-2000" max="2000" step="1" value="0" aria-label="X in milligravity"></label>
+            <label>Y <input type="number" min="-2000" max="2000" step="1" value="0" aria-label="Y in milligravity"></label>
+            <label>Z <input type="number" min="-2000" max="2000" step="1" value="1000" aria-label="Z in milligravity"></label>
+          </div>
+          <button id="reset-orientation" type="button">Reset orientation</button>
+        </div>
+      </details>
+      <details class="settings-section" id="health-controls">
+        <summary>Optical sensors</summary>
+        <label class="switch-label"><input id="health-enabled" type="checkbox"> Simulate readings</label>
+        <div class="sensor-fields">
+          <label>Heart rate (bpm)<input id="heart-rate" type="number" min="30" max="220" value="72" required></label>
+          <label>Blood oxygen (%)<input id="blood-oxygen" type="number" min="70" max="100" value="98" required></label>
+        </div>
+        <small id="health-hint">Available with stock firmware.</small>
+      </details>
+      <details class="settings-section">
+        <summary>GPS</summary>
+        <label class="switch-label"><input id="gps-enabled" type="checkbox"> Simulate a GPS fix</label>
+        <div class="sensor-fields">
+          <label>Latitude<input id="gps-lat" type="number" min="-90" max="90" step="0.000001" value="0" required></label>
+          <label>Longitude<input id="gps-lon" type="number" min="-180" max="180" step="0.000001" value="0" required></label>
+        </div>
+      </details>
+      <div class="panel-actions"><button id="reset-simulation" type="button">Reset simulation</button></div>
+    </section>
+    <section id="boot-images" class="settings-group">
+      <h2>Boot images</h2>
+      <div class="field" id="hosted-fixtures" hidden>
+        <label for="fixture-folder">Stock fixtures</label>
+        <div class="file-row">
+          <label class="file-control"><input id="fixture-folder" type="file" webkitdirectory aria-label="Stock fixture folder"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h7l2 2h9v11H3z"/></svg><span class="file-name">Select folder</span></label>
+          <button class="clear-file" type="button" aria-label="Clear stock fixture folder" hidden><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 4 8 8m0-8-8 8"/></svg></button>
+        </div>
+        <small>Choose your prepared fixtures folder, then press Play. Files stay on your computer. <a href="../#browser-preview">Prepare fixtures</a></small>
+      </div>
+      <details class="settings-section" id="firmware-package" open>
+        <summary>Firmware package</summary>
+        <div class="field">
+          <div class="file-row">
+            <label class="file-control"><input id="firmware-file" type="file" accept=".bin,.fw,.aota" aria-label="Firmware package"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m-4 4 4-4 4 4M4 15v5h16v-5"/></svg><span class="file-name">Select file</span></label>
+            <button class="clear-file" type="button" aria-label="Clear firmware package" title="Clear firmware package" hidden>
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 4 8 8m0-8-8 8"/></svg>
+            </button>
+          </div>
+        </div>
+        <small>Watch Pro 2 AOTA package.</small>
+      </details>
+      <details class="settings-section">
+        <summary>Raw application files</summary>
+        <div class="field">
+          <label for="app-file">Application image</label>
+          <div class="file-row">
+            <label class="file-control"><input id="app-file" type="file" accept=".bin" aria-label="Application image"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m-4 4 4-4 4 4M4 15v5h16v-5"/></svg><span class="file-name">Select file</span></label>
+            <button class="clear-file" type="button" aria-label="Clear application image" title="Clear application image" hidden>
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 4 8 8m0-8-8 8"/></svg>
+            </button>
+          </div>
+        </div>
+        <small>Leave empty for stock.</small>
+        <div class="field">
+          <label for="sdfs-file">Application resources</label>
+          <div class="file-row">
+            <label class="file-control"><input id="sdfs-file" type="file" accept=".bin" aria-label="Application resources"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m-4 4 4-4 4 4M4 15v5h16v-5"/></svg><span class="file-name">Select file</span></label>
+            <button class="clear-file" type="button" aria-label="Clear application resources" title="Clear application resources" hidden>
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 4 8 8m0-8-8 8"/></svg>
+            </button>
+          </div>
+        </div>
+        <small>Companion sdfs.bin.</small>
+      </details>
+      <details class="settings-section" id="watch-face-upload">
+        <summary>Watch face</summary>
+        <div class="field">
+          <div class="file-row">
+            <label class="file-control"><input id="face-file" type="file" accept=".wfdl,.wfc,.bin" aria-label="Watch face"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m-4 4 4-4 4 4M4 15v5h16v-5"/></svg><span class="file-name">Select file</span></label>
+            <button class="clear-file" type="button" aria-label="Clear watch face" title="Clear watch face" hidden>
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 4 8 8m0-8-8 8"/></svg>
+            </button>
+          </div>
+        </div>
+        <small>Replaces Activity Mood for this session.</small>
+      </details>
+      <details class="settings-section">
+        <summary>Virtual NAND</summary>
+        <div class="field">
+          <div class="file-row">
+            <label class="file-control"><input id="nand-file" type="file" accept=".bin" aria-label="Virtual NAND"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m-4 4 4-4 4 4M4 15v5h16v-5"/></svg><span class="file-name">Select file</span></label>
+            <button class="clear-file" type="button" aria-label="Clear virtual nand" title="Clear virtual nand" hidden>
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 4 8 8m0-8-8 8"/></svg>
+            </button>
+          </div>
+        </div>
+      </details>
+      <p id="image-error" role="status"></p>
+      <div class="panel-actions"><button id="hard-reset" type="button" title="Discard this session and boot stock">Hard reset to stock</button></div>
+    </section>
+  </aside>
+  <section class="diagnostics" aria-label="Watch log">
+    <details open>
+      <summary>Watch log <span id="firmware-label">Firmware 1.0.0.73</span></summary>
+      <pre id="log" tabindex="0">No output yet.</pre>
+    </details>
+    <button id="save-log" title="Save full watch log">Save log</button>
+  </section>
   </div>
-  <details class="diagnostics"><summary><span class="eyebrow">03 / BOOT LOG</span><span class="log-hint">Guest output <span aria-hidden="true">+</span></span></summary><pre id="log" tabindex="0">No output yet.</pre><button id="save-log" class="secondary">Save log</button></details>
-  <footer><span>CMF WATCH UTILS <span class="muted">/</span> EXPERIMENTAL</span><span>Display + input preview. Hardware behavior is modeled.</span></footer>
 </main>
 <script type="module" src="./watch.js"></script>
 </body>

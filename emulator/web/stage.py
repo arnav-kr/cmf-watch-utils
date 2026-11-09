@@ -12,13 +12,22 @@ parser.add_argument("--fixtures", type=Path, required=True)
 parser.add_argument("--rom", type=Path, required=True)
 parser.add_argument("--output", type=Path, required=True)
 parser.add_argument("--wfc-dir", type=Path)
+parser.add_argument("--frames-dir", type=Path, help="Directory with the four Nothing X front renders")
 args = parser.parse_args()
 profile = PROFILES["wp2-stock"]
 nor, nand, nand_id = profile.fixtures(args.fixtures)
 rom = args.rom.read_bytes()
 if len(rom) != 65536:
     raise ValueError("Expected a 64 KiB compatibility ROM")
+frame_names = ("dark-grey.png", "light-grey.png", "blue.png", "orange.png")
+if args.frames_dir and any(not (args.frames_dir / name).is_file() for name in frame_names):
+    parser.error("--frames-dir needs dark-grey.png, light-grey.png, blue.png, and orange.png")
 args.output.mkdir(parents=True, exist_ok=False)
+if args.frames_dir:
+    frames = args.output / "frames"
+    frames.mkdir()
+    for name in frame_names:
+        shutil.copyfile(args.frames_dir / name, frames / name)
 web = Path(__file__).resolve().parent
 for name in ("index.html", "watch.js", "style.css"):
     shutil.copyfile(web / name, args.output / name)

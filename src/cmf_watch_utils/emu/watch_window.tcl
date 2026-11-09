@@ -22,7 +22,7 @@ image create photo watch_frame
 .panel create image $screenInset $screenInset -image watch_frame -anchor nw
 .panel create oval 5 5 493 493 -outline #303030 -width 8 -tags case
 .panel create oval 3 3 495 495 -outline #5e5e5e -width 1 -tags case
-.panel create oval 12 12 486 486 -outline #111111 -width 3 -tags case
+.panel create oval 12 12 486 486 -outline #050505 -width 8 -tags case
 label .status -text $version -background #181818 -foreground white
 frame .controls -background #1a1a1a -padx 16 -pady 20
 frame .controls.stack -background #1a1a1a
@@ -146,6 +146,7 @@ set spo2 98
 set virtualGps 0
 set gpsLatitude 0
 set gpsLongitude 0
+set brightness 100
 
 proc apply_sensors {} {
     global accelX accelY accelZ battery charging virtualHealth heartRate spo2 stock
@@ -179,6 +180,9 @@ proc open_sensors {} {
     wm title .advanced "Advanced - Virtual sensors"
     wm transient .advanced .
     wm resizable .advanced 0 0
+    scale .advanced.brightness -orient horizontal -length 280 -from 0 -to 100 \
+        -label "Brightness (%)" -variable brightness -command {send_brightness}
+    pack .advanced.brightness -fill x -padx 12 -pady 4
     foreach axis {X Y Z} {
         scale .advanced.accel$axis -orient horizontal -length 280 -from -2000 -to 2000 \
             -resolution 10 -label "$axis acceleration (mg)" -variable accel$axis
@@ -212,6 +216,10 @@ proc open_sensors {} {
     button .advanced.buttons.close -text Close -command {destroy .advanced}
     pack .advanced.buttons.apply .advanced.buttons.close -side left -padx 4
     pack .advanced.buttons -padx 12 -pady 5
+}
+
+proc send_brightness {value} {
+    send_event "b $value"
 }
 
 proc crown {state} {
