@@ -3,7 +3,7 @@ title: First boot
 description: Create the watch's virtual storage, boot stock firmware, and open the viewer.
 ---
 
-Complete [Installation](/tooling/emulator/installation/) first. The commands
+Complete [Installation](/emulator/installation/) first. The commands
 below use Windows paths. On Linux and macOS, use the executable names and
 debugger options from the installation guide.
 
@@ -62,7 +62,7 @@ Use `--app local/app.bin` to start an app you built. Add `--sdfs local/sdfs.bin`
 if it needs a matching resource archive. Use `--ota-image local/update.bin`
 to extract the app and resources from a supported update and boot them directly.
 That direct boot checks whether the app starts and renders. Use
-[OTA and recovery](/tooling/emulator-ota/) to test transfer and installation.
+[OTA and recovery](/emulator/ota-recovery/) to test transfer and installation.
 
 ```text
 uv run cmf-watch-utils emu preflight --image local/update.bin

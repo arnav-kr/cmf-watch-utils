@@ -11,9 +11,9 @@ without a physical watch.
 
 | Page | What you will do |
 |---|---|
-| [Installation](/tooling/emulator/installation/) | Install the command line tools, download the QEMU and ROM archives, and check the host libraries. |
-| [First boot](/tooling/emulator/first-boot/) | Create the virtual storage from the reference firmware, boot stock, and open the watch window. |
-| [OTA and recovery](/tooling/emulator-ota/) | Transfer an update over simulated Bluetooth and check the installed app after reboot. |
+| [Installation](/emulator/installation/) | Install the command line tools, download the QEMU and ROM archives, and check the host libraries. |
+| [First boot](/emulator/first-boot/) | Create the virtual storage from the reference firmware, boot stock, and open the watch window. |
+| [OTA and recovery](/emulator/ota-recovery/) | Transfer an update over simulated Bluetooth and check the installed app after reboot. |
 
 ## Profiles
 

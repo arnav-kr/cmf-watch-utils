@@ -85,7 +85,7 @@ uv run cmf-watch-utils emu doctor --qemu runtime/qemu-system-arm --rom runtime/c
 arm-none-eabi-gdb --version
 ```
 
-In [First boot](/tooling/emulator/first-boot/), use
+In [First boot](/emulator/first-boot/), use
 `--qemu runtime/qemu-system-arm`, omit `--runtime-dir C:/msys64/ucrt64/bin`,
 and keep `--gdb arm-none-eabi-gdb`. The viewer needs a graphical desktop;
 on Wayland, it also needs XWayland (`xorg-xwayland`). Audio playback needs a
@@ -112,6 +112,6 @@ uv run cmf-watch-utils emu doctor --qemu runtime/qemu-system-arm.exe --rom runti
 ```
 
 Look for `"machine": "ats3089c-wp2"` and `"viewer_available": true`. If only the
-viewer is missing, you can still run the headless check in [First boot](/tooling/emulator/first-boot/).
+viewer is missing, you can still run the headless check in [First boot](/emulator/first-boot/).
 
-Next, [prepare the watch's storage and boot stock firmware](/tooling/emulator/first-boot/).
+Next, [prepare the watch's storage and boot stock firmware](/emulator/first-boot/).

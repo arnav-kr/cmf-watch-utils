@@ -69,7 +69,7 @@ paths are the safest starting point.
 - A full 54 MB candidate flashed successfully; the watch reported `A041 01`, accepted the end
   ack, rebooted and booted the new resource partition.
 
-See [Emulator CLI](/tooling/emulator/) and [Actions SDK OTA](/tooling/actions-ota/) for scope and dependencies.
+See [Emulator CLI](/emulator/) and [Actions SDK OTA](/tooling/actions-ota/) for scope and dependencies.
 
 ## What the toolkit is not
 

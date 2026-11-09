@@ -5,7 +5,7 @@ description: Reference for cmf_watch.py and ota_client.py, the host-side tools t
 
 The existing stock scripts use [Bleak](https://github.com/hbldh/bleak). Physical tests ran
 on Windows. For the separate Actions SDK protocol, see [Actions SDK OTA](/tooling/actions-ota/).
-For OTA over a simulated radio, see [OTA and recovery](/tooling/emulator-ota/).
+For OTA over a simulated radio, see [OTA and recovery](/emulator/ota-recovery/).
 
 ```bash
 uv run python tools/cmf_watch.py --help

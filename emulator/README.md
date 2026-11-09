@@ -6,7 +6,7 @@ resources, virtual flash images, and the Android lab stay outside the archives.
 The checkout's firmware tools and local fixtures are still needed to run
 firmware tests. These builds do not establish hardware fidelity.
 
-Use the [Emulator CLI guide](https://cmf.arnv.dev/tooling/emulator/) for setup, profile
+Use the [Emulator CLI guide](https://cmf.arnv.dev/emulator/) for setup, profile
 selection and test commands. From the repository root, `uv sync --locked` and
 `uv run cmf-watch-utils emu profiles` list the two Watch Pro 2 baselines. Running
 the emulator also requires a matching compatibility ROM and prepared local virtual
@@ -48,7 +48,7 @@ after all build jobs pass.
 
 ## Arch Linux
 
-For prebuilt archives, follow the [Arch runtime setup](https://cmf.arnv.dev/tooling/emulator/installation/#arch-linux).
+For prebuilt archives, follow the [Arch runtime setup](https://cmf.arnv.dev/emulator/installation/#arch-linux).
 To compile QEMU locally, install the native build tools and libraries:
 
 ```bash

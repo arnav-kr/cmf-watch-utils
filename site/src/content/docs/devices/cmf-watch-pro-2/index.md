@@ -39,7 +39,7 @@ The detailed result table, with the evidence behind each entry, is on the
 
 **Emulator**
 
-- [Emulator CLI](/tooling/emulator/) for profiles, fixture setup, boot tests and virtual OTA
+- [Emulator CLI](/emulator/) for profiles, fixture setup, boot tests and virtual OTA
 - [Recovery & boot modes](/devices/cmf-watch-pro-2/internals/recovery/) for what the recovery model verifies
 
 **Protocol**

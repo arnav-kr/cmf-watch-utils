@@ -18,7 +18,7 @@ task you are doing.
 | Talk to a physical watch | A Watch Pro 2 and a Bluetooth LE adapter supported by Bleak |
 | Build the documentation | Node.js 22.22 or later and pnpm 12 |
 
-The [emulator guide](/tooling/emulator/) lists OS-specific runtime packages and
+The [emulator guide](/emulator/) lists OS-specific runtime packages and
 shows how to create the fixtures. A basic boot needs no Android emulator, Nothing X
 account, root access, or Bluetooth adapter.
 

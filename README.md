@@ -121,7 +121,7 @@ OTA reset, install staged app/SDFS data and restore a broken virtual app. The ph
 chain and real crown + charger recovery remain unverified. The Windows runtime was tested.
 Linux and macOS are build targets whose runtime integration remains unverified.
 
-- [Emulator setup and commands](https://cmf.arnv.dev/tooling/emulator/)
+- [Emulator setup and commands](https://cmf.arnv.dev/emulator/)
 - [Actions OTA reference](https://cmf.arnv.dev/tooling/actions-ota/)
 - [Recovery evidence and limits](https://cmf.arnv.dev/devices/cmf-watch-pro-2/internals/recovery/)
 

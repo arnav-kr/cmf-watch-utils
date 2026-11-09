@@ -47,7 +47,7 @@ uv run cmf-watch-utils emu preflight --image local/update.bin
 uv run cmf-watch-utils ota actions --image local/actions-update.bin
 ```
 
-These are offline commands. Continue with the [emulator overview](/tooling/emulator/)
+These are offline commands. Continue with the [emulator overview](/emulator/)
 for a virtual boot or OTA transfer. Before any physical OTA, review the
 [stock flash guide](/devices/cmf-watch-pro-2/guides/ota-flash/) or
 [Actions OTA reference](/tooling/actions-ota/) for the service your firmware exposes.

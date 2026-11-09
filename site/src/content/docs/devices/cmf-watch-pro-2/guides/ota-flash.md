@@ -7,7 +7,7 @@ This is the procedure that worked on a `1.0.0.73` / `JX402` unit. The prerequisi
 [AOTA OTA flow](/devices/cmf-watch-pro-2/protocol/ota/) and
 [Limitations & risks](/devices/cmf-watch-pro-2/limitations/). This procedure uses the stock
 CMF service. For the Actions service use [Actions SDK OTA](/tooling/actions-ota/). For
-a run without a physical watch use [Emulator CLI](/tooling/emulator/).
+a run without a physical watch use [Emulator CLI](/emulator/).
 
 ## 0. Rollback preparation
 

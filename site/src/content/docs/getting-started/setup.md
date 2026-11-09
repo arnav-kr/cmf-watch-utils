@@ -12,7 +12,7 @@ is missing. Open a terminal in the directory where you want the checkout.
 On Arch Linux, install the workspace tools with
 `sudo pacman -Syu --needed git git-lfs uv`, then use the Linux commands below.
 The emulator's additional libraries are listed under
-[Arch Linux installation](/tooling/emulator/installation/#arch-linux).
+[Arch Linux installation](/emulator/installation/#arch-linux).
 
 **Windows PowerShell**
 
@@ -64,7 +64,7 @@ Use a separate copy for edits.
 ## 3. Choose a task
 
 - **Inspect firmware** with the [quick start](/getting-started/quickstart/) and [fwkit reference](/tooling/fwkit/).
-- **Boot firmware without a watch** with the [emulator installation](/tooling/emulator/installation/). Start with a headless stock boot.
+- **Boot firmware without a watch** with the [emulator installation](/emulator/installation/). Start with a headless stock boot.
 - **Talk to your watch** with the [BLE tools](/tooling/ble-tools/). Start with `scan`. Pairing and OTA negotiation are live operations.
 - **Check an Actions OTA package** offline with the [Actions OTA guide](/tooling/actions-ota/).
 - **Build the docs** from `site/` with Node.js 22.22 or later and pnpm 12. Run `pnpm install --frozen-lockfile` and `pnpm build`. Use `pnpm dev` to preview.

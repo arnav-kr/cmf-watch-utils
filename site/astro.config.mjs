@@ -63,10 +63,10 @@ export default defineConfig({
         {
           label: 'Emulator',
           items: [
-            { label: 'Overview', slug: 'tooling/emulator' },
-            { label: 'Installation', slug: 'tooling/emulator/installation' },
-            { label: 'First boot', slug: 'tooling/emulator/first-boot' },
-            { label: 'OTA and recovery', slug: 'tooling/emulator-ota' },
+            { label: 'Overview', slug: 'emulator' },
+            { label: 'Installation', slug: 'emulator/installation' },
+            { label: 'First boot', slug: 'emulator/first-boot' },
+            { label: 'OTA and recovery', slug: 'emulator/ota-recovery' },
           ],
         },
         {

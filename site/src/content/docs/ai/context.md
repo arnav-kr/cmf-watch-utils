@@ -90,7 +90,7 @@ dumps/                  manifests and redacted notes (no binaries)
   used a local binding fixture. Keep virtual flash, device state and lab credentials
   out of commits and published logs.
 
-See [Emulator CLI](/tooling/emulator/), [Actions SDK OTA](/tooling/actions-ota/) and
+See [Emulator CLI](/emulator/), [Actions SDK OTA](/tooling/actions-ota/) and
 [Recovery & boot modes](/devices/cmf-watch-pro-2/internals/recovery/).
 
 ## Known unknowns

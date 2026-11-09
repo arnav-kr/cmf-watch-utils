@@ -3,7 +3,7 @@ title: OTA and recovery
 description: Transfer a firmware update between virtual devices and check what happens after reboot.
 ---
 
-Start with the [First boot](/tooling/emulator/first-boot/). This guide uses two
+Start with the [First boot](/emulator/first-boot/). This guide uses two
 local programs. QEMU runs the virtual watch. Netsim gives it a simulated
 Bluetooth radio so the OTA client can talk to it without a physical adapter.
 

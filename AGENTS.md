@@ -53,6 +53,7 @@ docs/index.mdx               project home and device matrix
 docs/about/                  project-wide documentation
 docs/getting-started/        host setup and first steps
 docs/tooling/                fwkit and BLE tool references
+docs/emulator/               emulator setup, boot, OTA and recovery
 docs/devices/<model>/        protocol, formats, internals, guides for one device
 docs/ai/                     agent-facing briefings
 docs/dumps/                  manifests and downloadable images

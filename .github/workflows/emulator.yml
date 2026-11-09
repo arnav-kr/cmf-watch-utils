@@ -133,7 +133,7 @@ jobs:
           sha256sum -- *.tar.gz > SHA256SUMS
           cat > "$RUNNER_TEMP/emulator-preview.md" <<'EOF'
           Preview for CMF Watch Pro 2 (JX402). Use the archive for your host plus the
-          shared ROM and NAND tools archive. See the [setup guide](https://cmf.arnv.dev/tooling/emulator/)
+          shared ROM and NAND tools archive. See the [setup guide](https://cmf.arnv.dev/emulator/)
           for runtime libraries, fixture preparation, and headless boot.
 
           Windows x64, Linux x64, and macOS ARM64 passed clean CLI setup, protocol
@@ -142,8 +142,8 @@ jobs:
           emulator's recovery model. Physical recovery remains unverified.
 
           The checkout includes the uv-managed emulator CLI, Watch Pro 2 model
-          profiles, and Actions SDK OTA. Follow [Installation](https://cmf.arnv.dev/tooling/emulator/installation/)
-          and [First boot](https://cmf.arnv.dev/tooling/emulator/first-boot/)
+          profiles, and Actions SDK OTA. Follow [Installation](https://cmf.arnv.dev/emulator/installation/)
+          and [First boot](https://cmf.arnv.dev/emulator/first-boot/)
           to prepare storage and open the viewer. Arch Linux runtime and source-build
           instructions are included; Arch-specific firmware boot is not yet tested.
 
