@@ -17,7 +17,10 @@ or simulate battery, motion, GPS and optical sensor readings.
 
 Use **Stop** to choose a firmware or watch-face preset before starting a new
 session. **Hard reset to stock** discards the running session and boots stock
-again. **Stock firmware override** accepts a prepared local folder for testing.
+again. **Stock firmware override** accepts individual files. The emulator uses
+the bundled stock files for any you leave out.
+Use the camera button to save the circular display as a transparent PNG.
+Turn on **Include frame in screenshots** under **Display** to include the case.
 
 Open **FMC watch faces** to browse the full Watch Pro 2 catalog. Search by
 title or creator and sort by newest, most downloaded, or most flashed. The

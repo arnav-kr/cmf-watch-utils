@@ -1,6 +1,5 @@
 import {downloadCatalogFace, setupFaceCatalog} from './catalog.mjs';
 import {installWatchFace} from './face.mjs';
-import {savedInput} from './storage.mjs';
 
 const $ = (id) => document.getElementById(id);
 const panel = $('panel');
@@ -8,11 +7,9 @@ const context = panel.getContext('2d', {alpha:false});
 const pixels = context.createImageData(466,466);
 const hosted = document.body.hasAttribute('data-hosted');
 const bundledStock = document.body.hasAttribute('data-stock-ready');
-const fixtureFolder = $('fixture-folder');
-const frameFolder = $('frame-folder');
-const folders = new Map([[fixtureFolder, 'fixtures'], [frameFolder, 'frames']]);
-const folderSelections = new Map();
-let pendingSave = Promise.resolve();
+const stockFiles = $('stock-files');
+const frameFile = $('frame-file');
+const frameOverrides = new Map();
 const bootPreset = $('boot-preset');
 const selectedCatalogFace = setupFaceCatalog($('face-catalog'));
 const requiredFixtures = ['nor.bin', 'nand-defaults.bin', 'nand-id.bin', 'compat.bin', 'app.bin'];
@@ -42,7 +39,7 @@ function guestStopped(message) {
 function bootStock() {
   const url = new URL(location.href);
   url.searchParams.set('recover', 'stock');
-  pendingSave.finally(() => location.replace(url.href));
+  location.replace(url.href);
 }
 
 $('recover').onclick = bootStock;
@@ -163,11 +160,17 @@ function render() {
 const frameColor = $('frame-color');
 const frameCase = $('case');
 let frameUrl;
+let frameImage;
 function loadFrame() {
   const color = frameColor.value;
   frameCase.dataset.color = color;
   if (frameUrl) URL.revokeObjectURL(frameUrl);
-  const file = folderSelections.get(frameFolder)?.files.find(file => file.name === color + '.png');
+  frameImage = undefined;
+  const file = frameOverrides.get(color);
+  const label = frameFile.parentElement.querySelector('.file-name');
+  label.textContent = file?.name || 'Select file';
+  label.title = file?.name || '';
+  frameFile.closest('.file-row').querySelector('.clear-file').hidden = !file;
   frameUrl = file ? URL.createObjectURL(file) : undefined;
   if (hosted && !bundledStock && !frameUrl) {
     delete frameCase.dataset.frame;
@@ -177,22 +180,26 @@ function loadFrame() {
   const image = new Image();
   image.onload = () => {
     if (frameColor.value !== color || frameUrl !== source) return;
+    frameImage = image;
     frameCase.dataset.frame = color;
     frameCase.style.setProperty('--frame-image', `url("${image.src}")`);
   };
   image.onerror = () => {
-    if (frameColor.value === color) delete frameCase.dataset.frame;
+    if (frameColor.value === color && frameUrl === source) delete frameCase.dataset.frame;
   };
   image.src = source || new URL(`./frames/${color}.png`, import.meta.url).href;
 }
-frameColor.addEventListener('change', loadFrame);
+frameColor.addEventListener('change', () => {
+  frameFile.value = '';
+  loadFrame();
+});
 {
   $('hosted-fixtures').hidden = false;
   $('hosted-fixtures').open = hosted && !bundledStock;
   $('hosted-frames').hidden = false;
   $('boot-presets').hidden = false;
-  if (bundledStock || !hosted) $('stock-file-hint').firstChild.textContent =
-    'Stock firmware is included. Select a prepared folder only to override it. ';
+  if (hosted && !bundledStock) $('stock-file-hint').textContent =
+    'Select app.bin, compat.bin, nor.bin, nand-defaults.bin and nand-id.bin. The texture index is optional.';
   if (hosted) document.querySelector('.wordmark').href = '../';
   const updatePreset = () => {
     const stock = bootPreset.value === 'stock';
@@ -275,25 +282,16 @@ for (const picker of document.querySelectorAll('.file-control input')) {
   const clear = picker.closest('.file-row').querySelector('.clear-file');
   picker.addEventListener('change', () => {
     const file = picker.files[0];
-    if (folders.has(picker)) {
-      const candidates = [...picker.files].filter(file => file.webkitRelativePath.split('/').length === 2);
-      const allowed = picker === fixtureFolder
-        ? [...requiredFixtures, 'wfc-index.txt']
-        : [...frameColor.options].map(option => option.value + '.png');
-      const files = candidates.filter(file => allowed.includes(file.name));
-      const selection = file ? {name: file.webkitRelativePath.split('/')[0], files} : null;
-      updateFolder(picker, selection);
-      if (!selection || (picker === fixtureFolder
-        ? requiredFixtures.every(name => files.some(file => file.name === name))
-        : files.length > 0)) {
-        pendingSave = Promise.all([pendingSave, savedInput(folders.get(picker), selection)])
-          .catch(() => {});
-      }
+    if (picker === frameFile) {
+      if (file) frameOverrides.set(frameColor.value, file);
+      else frameOverrides.delete(frameColor.value);
+      loadFrame();
       return;
     }
-    const name = file?.name;
-    label.textContent = name || 'Select file';
-    label.title = name || '';
+    const names = [...picker.files].map(item => item.name);
+    label.textContent = names.length > 1 ? `${names.length} files selected` :
+      names[0] || (picker.multiple ? 'Select files' : 'Select file');
+    label.title = names.join(', ');
     clear.hidden = !file;
     $('image-error').textContent = '';
   });
@@ -303,16 +301,6 @@ for (const picker of document.querySelectorAll('.file-control input')) {
     picker.dispatchEvent(new Event('change'));
     picker.focus();
   };
-}
-
-function updateFolder(picker, selection) {
-  folderSelections.set(picker, selection);
-  const label = picker.parentElement.querySelector('.file-name');
-  label.textContent = selection?.name || 'Select folder';
-  label.title = selection?.name || '';
-  picker.closest('.file-row').querySelector('.clear-file').hidden = !selection;
-  if (picker === frameFolder) loadFrame();
-  $('image-error').textContent = '';
 }
 
 let powerChanged = false;
@@ -502,12 +490,49 @@ $('reset-simulation').onclick = () => {
 
 $('capture').onclick = () => {
   if (!frames) return;
-  panel.toBlob(blob => {
+  const includeFrame = $('capture-frame').checked;
+  const snapshot = document.createElement('canvas');
+  const artwork = includeFrame && frameImage;
+  const size = includeFrame ? 1024 : panel.width;
+  snapshot.width = snapshot.height = size;
+  const draw = snapshot.getContext('2d');
+  const style = getComputedStyle(frameCase);
+  const centerY = artwork ? size * parseFloat(style.getPropertyValue('--bezel-center')) / 100 : size / 2;
+  let diameter = size;
+  if (artwork) {
+    const scale = size / Math.max(artwork.naturalWidth, artwork.naturalHeight);
+    const width = artwork.naturalWidth * scale, height = artwork.naturalHeight * scale;
+    draw.drawImage(artwork, (size - width) / 2, (size - height) / 2, width, height);
+    diameter = size * parseFloat(style.getPropertyValue('--bezel-width')) / 100;
+  } else if (includeFrame) {
+    const metal = draw.createLinearGradient(0, 0, size, size);
+    metal.addColorStop(0, '#666');
+    metal.addColorStop(.55, '#232323');
+    metal.addColorStop(1, '#555');
+    draw.fillStyle = metal;
+    draw.beginPath();
+    draw.arc(size / 2, centerY, size / 2, 0, 2 * Math.PI);
+    draw.fill();
+    diameter *= .96;
+  }
+  if (includeFrame) {
+    draw.fillStyle = '#000';
+    draw.beginPath();
+    draw.arc(size / 2, centerY, diameter / 2, 0, 2 * Math.PI);
+    draw.fill();
+    diameter *= parseFloat(style.getPropertyValue('--screen-width')) / 100;
+  }
+  draw.beginPath();
+  draw.arc(size / 2, centerY, diameter / 2, 0, 2 * Math.PI);
+  draw.clip();
+  draw.imageSmoothingEnabled = false;
+  draw.drawImage(panel, (size - diameter) / 2, centerY - diameter / 2, diameter, diameter);
+  snapshot.toBlob(blob => {
     if (!blob) return;
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'watch-pro-2.png';
+    link.download = includeFrame ? 'watch-pro-2-framed.png' : 'watch-pro-2.png';
     link.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   });
@@ -627,41 +652,45 @@ async function installFace(face, files) {
 }
 
 async function loadFixtures(nandOverride) {
-  if (folderSelections.get(fixtureFolder)) {
-    const selected = new Map(folderSelections.get(fixtureFolder).files.map(file => [file.name, file]));
-    const missing = requiredFixtures.filter(name => !selected.has(name));
-    if (missing.length) throw Error(`The selected folder is missing ${missing.join(', ')}.`);
-    const names = [...requiredFixtures];
-    if (selected.has('wfc-index.txt')) names.push('wfc-index.txt');
-    return Promise.all(names.map(async name => {
-      const file = name === 'nand-defaults.bin' && nandOverride ? nandOverride : selected.get(name);
-      return [name, new Uint8Array(await file.arrayBuffer())];
-    }));
+  const textureIndex = 'wfc-index.txt';
+  const nandName = 'nand-defaults.bin';
+  const selected = new Map();
+  for (const file of stockFiles.files) {
+    if (![...requiredFixtures, textureIndex].includes(file.name) || selected.has(file.name)) {
+      throw Error(`Unexpected or duplicate stock file: ${file.name}.`);
+    }
+    selected.set(file.name, file);
   }
-  if (bundledStock) {
-    return Promise.all([...requiredFixtures, 'wfc-index.txt'].map(async name => {
-      const isNand = name === 'nand-defaults.bin';
-      if (isNand && nandOverride) return [name, new Uint8Array(await nandOverride.arrayBuffer())];
-      const url = new URL(`./fixtures/${name}${isNand ? '.gz' : ''}`, import.meta.url);
+  if (nandOverride) selected.set(nandName, nandOverride);
+
+  let available = bundledStock ? [...requiredFixtures, textureIndex] : [];
+  if (!hosted) {
+    const response = await fetch('./fixtures/manifest.json');
+    if (!response.ok) throw Error('Prepare the local fixture manifest first.');
+    available = (await response.json()).files;
+  }
+  const missing = requiredFixtures.filter(name => !available.includes(name) && !selected.has(name));
+  if (missing.length) throw Error(`Select the missing stock files: ${missing.join(', ')}.`);
+
+  const names = [...requiredFixtures];
+  if (available.includes(textureIndex) || selected.has(textureIndex)) names.push(textureIndex);
+  return Promise.all(names.map(async name => {
+    const override = selected.get(name);
+    const compressed = bundledStock && name === nandName;
+    let data;
+    if (override) {
+      data = await override.arrayBuffer();
+    } else {
+      const url = new URL(`./fixtures/${name}${compressed ? '.gz' : ''}`, import.meta.url);
       const response = await fetch(url);
-      if (!response.ok) throw Error(`Could not download the stock firmware file ${name}.`);
-      const data = isNand
+      if (!response.ok) throw Error(`Could not load the stock file ${name}.`);
+      data = compressed
         ? await new Response(response.body.pipeThrough(new DecompressionStream('gzip'))).arrayBuffer()
         : await response.arrayBuffer();
-      if (isNand && data.byteLength !== 2112 * 65536) throw Error('The bundled virtual storage is incomplete.');
-      return [name, new Uint8Array(data)];
-    }));
-  }
-  const response = await fetch('./fixtures/manifest.json');
-  if (!response.ok) throw Error('Prepare the local fixture manifest first.');
-  const manifest = await response.json();
-  return Promise.all(manifest.files.map(async name => {
-    if (name === 'nand-defaults.bin' && nandOverride) {
-      return [name, new Uint8Array(await nandOverride.arrayBuffer())];
     }
-    const file = await fetch(`./fixtures/${name}`);
-    if (!file.ok) throw Error(`Missing ${name}`);
-    return [name, new Uint8Array(await file.arrayBuffer())];
+    const sizes = { [nandName]: 2112 * 65536, 'nor.bin': 0x400000, 'nand-id.bin': 790, 'compat.bin': 65536 };
+    if (name in sizes && data.byteLength !== sizes[name]) throw Error(`Invalid size for ${name}.`);
+    return [name, new Uint8Array(data)];
   }));
 }
 
@@ -671,16 +700,11 @@ $('stop').onclick=()=>{
   location.replace(url);
 };
 $('start').onclick=async()=>{
-  if (hosted && !bundledStock && !folderSelections.get(fixtureFolder)) {
-    $('image-error').textContent = 'Select your stock fixtures folder before pressing Play.';
-    fixtureFolder.focus();
-    return;
-  }
   $('start').disabled=true;
   try {
     if(!crossOriginIsolated)throw Error('Cross-origin isolation is required. Start the supplied local server.');
     $('image-error').textContent = '';
-    const pickers = ['fixture-folder', 'boot-preset', 'firmware-file', 'app-file', 'sdfs-file', 'face-file', 'nand-file']
+    const pickers = ['stock-files', 'boot-preset', 'firmware-file', 'app-file', 'sdfs-file', 'face-file', 'nand-file']
       .map($);
     pickers.push($('face-catalog').querySelector('fieldset'));
     for (const picker of pickers) picker.disabled = true;
@@ -688,7 +712,7 @@ $('start').onclick=async()=>{
     let overrides, files;
     try {
       overrides = await readBootOverrides();
-      status(bundledStock && !folderSelections.get(fixtureFolder)
+      status(bundledStock && !stockFiles.files.length
         ? 'Loading stock firmware and virtual storage…'
         : 'Loading the runtime and virtual storage…', false, 'loading');
       files = await loadFixtures(overrides.nand);
@@ -796,13 +820,4 @@ if (recoverStock) {
   history.replaceState(null, '', bootUrl);
   for (const picker of document.querySelectorAll('input[type=file]')) picker.value = '';
 }
-if (crossOriginIsolated) {
-  $('start').disabled = true;
-  Promise.allSettled([...folders].map(async ([picker, key]) => {
-    const selection = await savedInput(key);
-    if (!folderSelections.has(picker) && selection) updateFolder(picker, selection);
-  })).then(() => {
-    $('start').disabled = false;
-    if ((!idle && (bundledStock || !hosted)) || (recoverStock && folderSelections.get(fixtureFolder))) $('start').click();
-  });
-}
+if (crossOriginIsolated && !idle && (bundledStock || !hosted)) $('start').click();

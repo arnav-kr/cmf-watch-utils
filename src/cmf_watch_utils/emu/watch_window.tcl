@@ -11,6 +11,7 @@ set motionTimer {}
 set pressed 0
 set screenInset 16
 set showFrame 1
+set captureFrame 0
 set wheelStart {}
 set wheelMoved 0
 wm title . [lindex $argv 3]
@@ -43,13 +44,17 @@ for {set y 29} {$y <= 83} {incr y 6} {
 }
 .controls.wheel create line 31 19 36 14 41 19 -fill #d6d6d6 -width 2
 .controls.wheel create line 31 93 36 98 41 93 -fill #d6d6d6 -width 2
-foreach {name caption action} {frame {Hide frame} toggle_frame advanced {Advanced...} open_sensors} {
+foreach {name caption action} {frame {Hide frame} toggle_frame capture {Save PNG} save_snapshot advanced {Advanced...} open_sensors} {
     button .controls.$name -text $caption -command $action -width 13 -pady 5 -bd 0 \
         -background #2b2b2b -foreground #eeeeee -activebackground #3c3c3c \
         -activeforeground white -highlightbackground #1a1a1a -highlightcolor #b0b0b0
 }
 pack .controls.label .controls.crown .controls.wheel -in .controls.stack -pady 5
 pack .controls.frame -in .controls.stack -fill x -pady {15 4}
+checkbutton .controls.captureFrame -text {Include frame} -variable captureFrame \
+    -background #1a1a1a -foreground #eeeeee -activebackground #1a1a1a \
+    -activeforeground white -selectcolor #2b2b2b
+pack .controls.capture .controls.captureFrame -in .controls.stack -fill x -pady 2
 pack .controls.advanced -in .controls.stack -fill x -pady 4
 pack .controls.stack -expand 1
 grid .panel .controls -sticky nsew
@@ -68,6 +73,39 @@ proc toggle_frame {} {
     set showFrame [expr {!$showFrame}]
     .panel itemconfigure case -state [expr {$showFrame ? "normal" : "hidden"}]
     .controls.frame configure -text [expr {$showFrame ? "Hide frame" : "Show frame"}]
+}
+
+proc save_snapshot {} {
+    global captureFrame run screenInset
+    if {[image width watch_frame] != 466 || [image height watch_frame] != 466} {return}
+    set path [tk_getSaveFile -parent . -initialdir $run -initialfile watch-pro-2.png \
+        -defaultextension .png -filetypes {{{PNG image} {.png}}}]
+    if {$path eq {}} {return}
+    set inset [expr {$captureFrame ? $screenInset : 0}]
+    set size [expr {466 + 2 * $inset}]
+    set snapshot [image create photo -width $size -height $size]
+    try {
+        if {$captureFrame} {
+            foreach {radius color} {247 #525252 245 #303030 237 #050505} {
+                for {set y [expr {249 - $radius}]} {$y < 249 + $radius} {incr y} {
+                    set x [expr {int(sqrt($radius * $radius - ($y + 0.5 - 249) ** 2))}]
+                    $snapshot put $color -to [expr {249 - $x}] $y [expr {249 + $x}] [expr {$y + 1}]
+                }
+            }
+        }
+        for {set y 0} {$y < 466} {incr y} {
+            set half [expr {sqrt(233 * 233 - ($y - 232.5) ** 2)}]
+            set left [expr {int(ceil(232.5 - $half))}]
+            set right [expr {int(floor(232.5 + $half)) + 1}]
+            $snapshot copy watch_frame -from $left $y $right [expr {$y + 1}] \
+                -to [expr {$left + $inset}] [expr {$y + $inset}]
+        }
+        $snapshot write $path -format png
+    } on error {message} {
+        tk_messageBox -parent . -icon error -message $message
+    } finally {
+        image delete $snapshot
+    }
 }
 
 proc wheel_drag {y} {

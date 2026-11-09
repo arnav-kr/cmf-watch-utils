@@ -449,6 +449,8 @@ details[open] > summary::after { transform: rotate(90deg); }
 
 .frame-color { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 10px; font-size: 12px; }
 .frame-color select { max-width: 60%; }
+.case { --bezel-width: 51.75%; --bezel-center: 50.175%; --screen-width: 94%; }
+.case:is([data-color="blue"], [data-color="orange"]) { --bezel-width: 51.4%; }
 .case[data-frame]:not(.frameless) {
   position: relative;
   width: min(100%, 510px, 67vh);
@@ -459,12 +461,12 @@ details[open] > summary::after { transform: rotate(90deg); }
 }
 .case[data-frame]:not(.frameless) .bezel {
   position: absolute;
-  top: 50.175%;
+  top: var(--bezel-center);
   left: 50%;
-  width: 51.75%;
+  width: var(--bezel-width);
   transform: translate(-50%, -50%);
 }
-.case:is([data-frame="blue"], [data-frame="orange"]):not(.frameless) .bezel { width: 51.4%; }
+.case:not(.frameless) canvas { width: var(--screen-width); }
 .case:not([data-frame], .frameless)[data-color="light-grey"] { background: linear-gradient(145deg, #b1b1b1, #6b6b6b 55%, #939393); }
 .case:not([data-frame], .frameless)[data-color="blue"] { background: linear-gradient(145deg, #425b79, #25384e 55%, #526d90); }
 .case:not([data-frame], .frameless)[data-color="orange"] { background: linear-gradient(145deg, #e78b56, #a74d28 55%, #ce6b3c); }

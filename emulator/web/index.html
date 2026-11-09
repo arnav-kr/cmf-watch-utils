@@ -57,6 +57,7 @@
           <input id="brightness" type="range" min="0" max="100" value="100">
         </div>
         <label class="switch-label"><input id="show-frame" type="checkbox" checked> Show watch frame</label>
+        <label class="switch-label"><input id="capture-frame" type="checkbox"> Include frame in screenshots</label>
         <label class="frame-color">Watch color
           <select id="frame-color">
             <option value="dark-grey">Dark Grey</option>
@@ -68,10 +69,10 @@
         <details class="field" id="hosted-frames" hidden>
           <summary>Frame artwork override</summary>
           <div class="file-row">
-            <label class="file-control"><input id="frame-folder" type="file" webkitdirectory aria-label="Watch frame folder"><span class="file-name">Select folder</span></label>
+            <label class="file-control"><input id="frame-file" type="file" accept="image/png,image/webp,image/jpeg" aria-label="Watch frame image"><span class="file-name">Select file</span></label>
             <button class="clear-file" type="button" aria-label="Clear original frame artwork" hidden>×</button>
           </div>
-          <small>Optional. Select the local <code>frames</code> folder to use its watch renders.</small>
+          <small>Replace the artwork for the selected color.</small>
         </details>
       </details>
       <details class="settings-section" open>
@@ -125,10 +126,10 @@
       <details class="settings-section" id="hosted-fixtures" hidden>
         <summary>Stock firmware override</summary>
         <div class="file-row">
-          <label class="file-control"><input id="fixture-folder" type="file" webkitdirectory aria-label="Stock fixture folder"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h7l2 2h9v11H3z"/></svg><span class="file-name">Select folder</span></label>
-          <button class="clear-file" type="button" aria-label="Clear stock fixture folder" hidden><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 4 8 8m0-8-8 8"/></svg></button>
+          <label class="file-control"><input id="stock-files" type="file" multiple accept=".bin,.txt" aria-label="Stock override files"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m-4 4 4-4 4 4M4 15v5h16v-5"/></svg><span class="file-name">Select files</span></label>
+          <button class="clear-file" type="button" aria-label="Clear stock override files" hidden><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 4 8 8m0-8-8 8"/></svg></button>
         </div>
-        <small id="stock-file-hint">Choose a prepared stock firmware folder. This browser remembers it for future boots. <a href="../#browser-preview">Prepare stock files</a></small>
+        <small id="stock-file-hint">Select only the prepared stock files you want to override.</small>
       </details>
       <div id="boot-presets" class="field" hidden>
         <label for="boot-preset">Boot preset</label>

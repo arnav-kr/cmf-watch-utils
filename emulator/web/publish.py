@@ -14,7 +14,7 @@ args = parser.parse_args()
 
 web = Path(__file__).resolve().parent
 target = args.output / "emulator" / "watch-pro-2"
-scripts = ("watch.js", "style.css", "face.mjs", "catalog.mjs", "storage.mjs", "firmware-worker.js")
+scripts = ("watch.js", "style.css", "face.mjs", "catalog.mjs", "firmware-worker.js")
 root = web.parents[1]
 tools = (
     ("src", ("cmf_watch_utils/emu/image.py", "cmf_watch_utils/emu/profiles.py")),

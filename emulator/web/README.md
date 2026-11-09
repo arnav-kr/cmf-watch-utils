@@ -53,14 +53,15 @@ loopback and sends the cross-origin isolation headers needed by Wasm workers.
 Opening the HTML directly as a file will not work. A first boot can take tens
 of seconds; the watch log shows guest progress.
 
-You can select the staged `web-local/fixtures` folder as a stock override in
-the hosted preview. The browser remembers the override for future boots.
+You can select individual files from `web-local/fixtures` under
+**Stock firmware override**. The bundled stock files fill in any you leave out.
 The hosted preview accepts local firmware packages,
 application files and watch faces. Open **FMC watch faces** to browse community
 faces by name or author and sort by newest, downloads, or flashes. The same
 picker is available when serving local stock files. Select **Bad Apple** to
 provide your own built firmware. Under
-**Display**, you can select a local frame artwork folder.
+**Display**, you can choose a built-in frame color or replace its artwork with
+an image file.
 
 To preview the same versioned web bundle that Pages publishes, run
 `uv run python emulator/web/publish.py --runtime WASM_BUILD --stock web-local --output web-preview`
@@ -75,6 +76,8 @@ stock texture index and frame renders.
 - Use the crown arrows, the keyboard arrows, or scroll over the display to rotate.
 - **Show frame** toggles the surrounding bezel. The expand button enlarges the
   device view. Neither changes the guest's 466 x 466 display resolution.
+- The camera button saves the circular display as a transparent PNG. Turn on
+  **Include frame in screenshots** to include the selected watch frame.
 - **Stop & reset** reloads the page. Guest storage changes are discarded.
 - Open **Watch log** to inspect recent guest UART output or save the full captured UART log. Add `?debug` to the URL for
   verbose GPU/MMIO diagnostics; this increases logging and memory use.
