@@ -236,6 +236,7 @@ def build_qemu(args, sdk, output):
         "--without-default-features", "--without-default-devices",
         "--enable-fdt=system", "--disable-werror", "--disable-docs",
         "--disable-tools", "--disable-guest-agent", "--disable-plugins",
+        *(["--prefix=C:/qemu"] if os.name == "nt" else []),
         *[f"--enable-{backend}" for backend in args.audio], *library_paths, *args.configure_arg,
     ]
     stamp = build / "recipe.json"
