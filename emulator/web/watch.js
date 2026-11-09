@@ -50,6 +50,9 @@ const faceCatalog = setupFaceCatalog($('face-catalog'), nextFace, face => {
 const requiredFixtures = ['nor.bin', 'nand-defaults.bin', 'nand-id.bin', 'compat.bin', 'app.bin'];
 let runtime, timer, pointer=null, crownDown=false, frames=0, lastFrame=null;
 let lastFrameFile;
+const economyDisplay = matchMedia('(pointer: coarse)').matches || navigator.deviceMemory <= 4;
+let nextFrame = 0;
+let speaker, speakerOutput, audioCursor, audioEpoch, audioTime = 0, nextAudio = 0;
 let customApp = false;
 let runtimeLog='', halted=false, nextLog=0;
 const debug=new URLSearchParams(location.search).has('debug');
@@ -65,6 +68,7 @@ function status(text,error=false,state) {
 function guestStopped(message) {
   if (halted) return;
   halted = true;
+  if (speakerOutput) speakerOutput.gain.value = 0;
   status(message, true);
   for (const button of document.querySelectorAll('#crown, #up, #down')) {
     button.disabled = true;
@@ -160,22 +164,81 @@ function renderFrame() {
     if(data.length!==header.length+466*466*3)return;
     for(let i=0;i<header.length;i++)if(data[i]!==header.charCodeAt(i))throw Error('Unexpected panel format');
     lastFrameFile = version;
-    if(lastFrame&&data.every((v,i)=>v===lastFrame[i]))return;
-    lastFrame=data;
+    const words = new Uint32Array(data.buffer, data.byteOffset, data.length >>> 2);
+    if (lastFrame && words.every((word,i)=>word===lastFrame.words[i]) &&
+        data.subarray(words.byteLength).every((byte,i)=>byte===lastFrame.tail[i])) return;
+    lastFrame = {words, tail: data.subarray(words.byteLength)};
     for(let i=0,j=header.length;i<pixels.data.length;i+=4,j+=3){
       pixels.data[i]=data[j];pixels.data[i+1]=data[j+1];pixels.data[i+2]=data[j+2];pixels.data[i+3]=255;
     }
     context.putImageData(pixels,0,0);frames++;
-    if(frames===1 && !halted)faceCatalog.markApplied(bootedCatalogFace);
+    if(frames===1 && !halted) {
+      faceCatalog.markApplied(bootedCatalogFace);
+      status('Firmware is rendering locally.',false,'running');
+    }
     $('offline').hidden=true;
     $('capture').disabled = false;
-    if(!halted)status('Firmware is rendering locally.',false,'running');
   } catch(error) {
     if (error.name !== 'ErrnoError') {
       log(error.message);
       guestStopped('The browser could not read the emulated display.');
       cancelAnimationFrame(timer);
     }
+  }
+}
+const sound = $('watch-sound');
+sound.onchange = async () => {
+  if (!sound.checked) {
+    if (speakerOutput) speakerOutput.gain.value = 0;
+    return;
+  }
+  try {
+    if (!speaker) {
+      speaker = new AudioContext({latencyHint:'interactive'});
+      speakerOutput = speaker.createGain();
+      speakerOutput.connect(speaker.destination);
+    }
+    await speaker.resume();
+    speakerOutput.gain.value = Number(sound.checked && !halted);
+    audioCursor = undefined;
+  } catch {
+    sound.checked = false;
+  }
+};
+function renderAudio() {
+  if (!runtime || halted || !sound.checked || speaker?.state !== 'running') return;
+  try {
+    const data = runtime.FS.readFile('/watch/speaker.pcm');
+    if (data.length < 12 || data.length % 2) return;
+    const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
+    const rate = view.getUint32(0, true);
+    const end = view.getUint32(4, true);
+    const epoch = view.getUint32(8, true);
+    if (epoch !== audioEpoch || audioCursor === undefined) {
+      audioCursor = Math.max(0, end - Math.round(rate * .045));
+      audioEpoch = epoch;
+    }
+    const first = end - (data.length - 12) / 2;
+    const now = speaker.currentTime;
+    if (!rate || audioTime > now + .11 || audioCursor >= end) return;
+    if (audioTime < now) {
+      audioTime = now + .04;
+      audioCursor = Math.max(audioCursor, end - Math.round(rate * .07));
+    }
+    const start = Math.max(first, audioCursor);
+    const length = Math.min(end - start, Math.round(rate * .07));
+    if (length <= 0) return;
+    const buffer = speaker.createBuffer(1, length, rate);
+    const channel = buffer.getChannelData(0);
+    for (let i = 0; i < length; i++) channel[i] = view.getInt16(12 + (start - first + i) * 2, true) / 32768;
+    const source = speaker.createBufferSource();
+    source.buffer = buffer;
+    source.connect(speakerOutput);
+    source.start(audioTime);
+    audioTime += length / rate;
+    audioCursor = start + length;
+  } catch (error) {
+    if (error.name !== 'ErrnoError') sound.checked = false;
   }
 }
 function readLog(path,limit) {
@@ -189,9 +252,17 @@ function readLog(path,limit) {
 }
 function render() {
   timer = requestAnimationFrame(render);
-  renderFrame();
-  if(performance.now()<nextLog)return;
-  nextLog=performance.now()+500;
+  const now = performance.now();
+  if (now >= nextFrame) {
+    nextFrame = now + (economyDisplay ? 30 : 0);
+    renderFrame();
+  }
+  if (now >= nextAudio) {
+    nextAudio = now + 15;
+    renderAudio();
+  }
+  if(now<nextLog)return;
+  nextLog=now+500;
   try {
     const uart=readLog('/watch/uart.log',32000).split('\n').filter(line=>!line.includes('#CD:')).join('\n');
     let diagnostic='';
@@ -834,16 +905,19 @@ $('start').onclick=async()=>{
         '-icount','shift=3,align=off','-no-reboot'],
       preRun:[module=>{
         module.FS.mkdir('/watch');
-        for(const [name,data]of files)module.FS.writeFile(`/watch/${name}`,data);
+        for(const [name,data]of files)module.FS.writeFile(`/watch/${name}`,data,{canOwn:true});
+        files = null;
         module.FS.writeFile('/watch/input.txt','');
         Object.assign(module.ENV,{QEMU_WP2_NOR:'/watch/nor.bin',QEMU_WP2_NAND:'/watch/nand-defaults.bin',
           QEMU_WP2_FRAME:'/watch/frame.ppm',QEMU_WP2_INPUT:'/watch/input.txt',QEMU_WP2_LIVE_FRAME:'1',
+          QEMU_WP2_PCM_STREAM:'/watch/speaker.pcm',
           QEMU_WP2_LIVE_SENSORS:'1',QEMU_WP2_HOST_RTC:'1',QEMU_WP2_UNPLUGGED:'1'});
         if (!customApp) {
           module.ENV.QEMU_WP2_LIVE_HEALTH = '1';
           module.ENV.QEMU_WP2_STOCK_AWAKE = '1';
         }
-        if(files.some(([name]) => name === 'wfc-index.txt')&&!new URLSearchParams(location.search).has('no-textures'))module.ENV.QEMU_WP2_WFC_INDEX='/watch/wfc-index.txt';
+        if(economyDisplay)module.ENV.QEMU_WP2_ECONOMY_DISPLAY='1';
+        if(module.FS.analyzePath('/watch/wfc-index.txt').exists&&!new URLSearchParams(location.search).has('no-textures'))module.ENV.QEMU_WP2_WFC_INDEX='/watch/wfc-index.txt';
       }]
     });
     if (!halted) {

@@ -116,6 +116,8 @@ struct ActsState {
     QEMUSoundCard dac_card;
     SWVoiceOut *dac_voice;
     GByteArray *dac_host_pcm;
+    const char *dac_stream_path;
+    uint32_t dac_stream_end, dac_stream_pending, dac_stream_epoch;
     qemu_irq lcd_irq;
     qemu_irq vg_irq;
     qemu_irq sdma1_irq;
@@ -126,6 +128,7 @@ struct ActsState {
     qemu_irq gpio_irq, i2cmt_irq[2];
     QEMUTimer *panel_te_timer;
     QEMUTimer *frame_timer;
+    unsigned frame_interval_ms;
     const char *frame_path;
     unsigned panel_inset[466];
     bool panel_on, panel_te_enabled;
@@ -608,7 +611,8 @@ static void acts_panel_refresh(ActsState *s)
         acts_panel_publish(s);
     } else if (!timer_pending(s->frame_timer)) {
         /* Stock transfers multiple rectangular strips for one LCD frame. */
-        timer_mod(s->frame_timer, qemu_clock_get_ns(QEMU_CLOCK_REALTIME) + 16000000);
+        timer_mod(s->frame_timer, qemu_clock_get_ns(QEMU_CLOCK_REALTIME) +
+                  s->frame_interval_ms * 1000000);
     }
 }
 
@@ -1183,11 +1187,30 @@ static void acts_dac_audio_write(void *opaque, int available)
     }
 }
 
+static void acts_dac_stream_publish(ActsState *s)
+{
+    uint8_t header[12];
+    stl_le_p(header, s->dac_host_rate);
+    stl_le_p(header + 4, s->dac_stream_end);
+    stl_le_p(header + 8, s->dac_stream_epoch);
+    g_byte_array_prepend(s->dac_host_pcm, header, sizeof(header));
+    g_file_set_contents(s->dac_stream_path, (const char *)s->dac_host_pcm->data,
+                        s->dac_host_pcm->len, NULL);
+    g_byte_array_remove_range(s->dac_host_pcm, 0, sizeof(header));
+    s->dac_stream_pending = 0;
+}
+
 static void acts_dac_audio_stop(ActsState *s)
 {
     if (s->dac_voice) {
         AUD_set_active_out(s->dac_voice, 0);
         g_byte_array_set_size(s->dac_host_pcm, 0);
+    }
+    if (s->dac_stream_path) {
+        g_byte_array_set_size(s->dac_host_pcm, 0);
+        s->dac_stream_end = 0;
+        s->dac_stream_epoch++;
+        acts_dac_stream_publish(s);
     }
 }
 
@@ -1196,7 +1219,12 @@ static void acts_dac_audio_play(ActsState *s, unsigned rate, unsigned played)
     if (!s->dac_host_pcm) {
         return;
     }
-    if (!s->dac_voice || s->dac_host_rate != rate) {
+    if (s->dac_stream_path) {
+        if (s->dac_host_rate != rate) {
+            s->dac_host_rate = rate;
+            acts_dac_audio_stop(s);
+        }
+    } else if (!s->dac_voice || s->dac_host_rate != rate) {
         struct audsettings format = {
             .freq = rate, .nchannels = 1, .fmt = AUDIO_FORMAT_S16,
             .endianness = 0,
@@ -1225,7 +1253,15 @@ static void acts_dac_audio_play(ActsState *s, unsigned rate, unsigned played)
         g_byte_array_remove_range(s->dac_host_pcm, 0, total - limit);
     }
     g_byte_array_append(s->dac_host_pcm, pcm, played * 2);
-    AUD_set_active_out(s->dac_voice, 1);
+    if (s->dac_stream_path) {
+        s->dac_stream_end += played;
+        s->dac_stream_pending += played;
+        if (s->dac_stream_pending >= rate / 32) {
+            acts_dac_stream_publish(s);
+        }
+    } else {
+        AUD_set_active_out(s->dac_voice, 1);
+    }
 }
 
 static void acts_dac_irqs(ActsState *s)
@@ -1271,6 +1307,8 @@ static void acts_dac_tick(void *opaque)
     }
     if (s->dac_queued) {
         timer_mod(s->dac_timer, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + 1000000);
+    } else if (s->dac_stream_path && s->dac_stream_pending) {
+        acts_dac_stream_publish(s);
     }
     for (unsigned ch = 0; ch < 10; ch++) {
         uint32_t *dma = &s->regs[(0x1c100 + ch * 0x100) / 4];
@@ -2299,6 +2337,7 @@ static void acts_init(MachineState *machine)
     s->stk_enabled = s->input_path && g_getenv("QEMU_WP2_LIVE_SENSORS");
     s->health_hook = s->input_path && g_getenv("QEMU_WP2_LIVE_HEALTH");
     s->frame_path = g_getenv("QEMU_WP2_FRAME");
+    s->frame_interval_ms = g_getenv("QEMU_WP2_ECONOMY_DISPLAY") ? 33 : 16;
     if (s->frame_path && g_getenv("QEMU_WP2_LIVE_FRAME")) {
         s->frame_timer = timer_new_ns(QEMU_CLOCK_REALTIME, acts_panel_publish, s);
         for (int y = 0; y < 466; y++) {
@@ -2384,14 +2423,17 @@ static void acts_init(MachineState *machine)
     acts_ram(machine, &s->trace_ram, "acts.trace.ram",0x31000000,1024,false);
     const char *nand_path = g_getenv("QEMU_WP2_NAND");
     if (nand_path) {
-        g_autofree char *data = NULL;
-        gsize length = 0;
-        if (!g_file_get_contents(nand_path, &data, &length, NULL) ||
-            length != (size_t)NAND_PAGE * NAND_PAGES) {
+        FILE *nand_file = g_fopen(nand_path, "rb");
+        size_t length = (size_t)NAND_PAGE * NAND_PAGES;
+        if (!nand_file || fread(s->nand.data, 1, length, nand_file) != length ||
+            fgetc(nand_file) != EOF || ferror(nand_file)) {
             error_report("Invalid physical NAND image: %s", nand_path);
             exit(1);
         }
-        memcpy(s->nand.data, data, length);
+        fclose(nand_file);
+#ifdef __EMSCRIPTEN__
+        g_unlink(nand_path);
+#endif
     }
     s->nand_export = g_getenv("QEMU_WP2_NAND_EXPORT");
     s->ota_nand_snapshot = g_getenv("QEMU_WP2_OTA_NAND_SNAPSHOT");
@@ -2458,7 +2500,10 @@ static void acts_init(MachineState *machine)
     s->dac_fifo_irq = qdev_get_gpio_in(s->cpu, 55);
     s->dac_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, acts_dac_tick, s);
     const char *audiodev = g_getenv("QEMU_WP2_AUDIODEV");
-    if (audiodev) {
+    s->dac_stream_path = g_getenv("QEMU_WP2_PCM_STREAM");
+    if (s->dac_stream_path) {
+        s->dac_host_pcm = g_byte_array_new();
+    } else if (audiodev) {
         s->dac_card.state = audio_state_by_name(audiodev, &error_fatal);
         if (AUD_register_card("Watch Pro 2", &s->dac_card, &error_fatal)) {
             s->dac_host_pcm = g_byte_array_new();

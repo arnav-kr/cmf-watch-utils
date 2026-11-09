@@ -14,7 +14,7 @@ Wasm JIT produced guest faults on this Cortex-M workload.
 
 - A recent desktop browser with WebAssembly threads and SharedArrayBuffer support.
   Chromium is the tested browser; other browsers have not been verified.
-- Enough memory for a 768 MiB Wasm heap, virtual flash and browser overhead.
+- Enough memory for a 512 MiB Wasm heap, virtual flash and browser overhead.
   Allow at least 1.5 GiB free RAM for this prototype.
 - This repository's Python environment: `uv sync`.
 - Prepared stock fixtures and the matching 64 KiB compatibility ROM from the

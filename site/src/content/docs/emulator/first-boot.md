@@ -56,6 +56,10 @@ screen, repeat the storage preparation with `--profile wp2-onboarding`,
 then add that flag to your boot command. Every boot command needs a new output
 folder. Use a different name to keep older results.
 
+Windowed runs select an available speaker backend automatically. If you want
+to inspect audio without using your speakers, add `--wav`; it writes
+`audio.wav` to the output folder. Use `--audio none` for a silent run.
+
 ## Custom firmware
 
 Use `--app local/app.bin` to start an app you built. Add `--sdfs local/sdfs.bin`

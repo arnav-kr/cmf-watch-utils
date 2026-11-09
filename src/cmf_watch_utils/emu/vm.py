@@ -7,6 +7,7 @@ import re
 import shutil
 import socket
 import subprocess
+import sys
 import time
 
 from .image import require, verify_package
@@ -17,6 +18,18 @@ def executable(value, env=None):
     if resolved is None:
         raise ValueError(f"Executable not found: {value}")
     return str(Path(resolved).resolve())
+
+
+def audio_backend(qemu, env):
+    preferences = {"win32": ("dsound",), "darwin": ("coreaudio",),
+                   "linux": ("pa", "alsa")}
+    try:
+        result = subprocess.run([qemu, "-audiodev", "help"], env=env, text=True,
+                                capture_output=True, check=True, timeout=5)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    available = set((result.stdout + "\n" + result.stderr).split())
+    return next((name for name in preferences.get(sys.platform, ()) if name in available), None)
 
 
 def runtime_env(args, model, **values):
@@ -220,9 +233,12 @@ def run(args, profile):
         env[model.env_prefix + "NAND_EXPORT"] = str(output / "nand-export.bin")
     if args.ota_snapshot:
         env[model.env_prefix + "OTA_NAND_SNAPSHOT"] = str(output / "nand-staged.bin")
-    if args.wav or args.audio:
+    audio = args.audio
+    if audio == "auto":
+        audio = audio_backend(argv[0], env) if not args.headless and not args.wav else None
+    if args.wav or audio not in (None, "none"):
         env[model.env_prefix + "AUDIODEV"] = "wp2-audio"
-        driver = f"wav,id=wp2-audio,path={str(output / 'audio.wav').replace(',', ',,')}" if args.wav else f"{args.audio},id=wp2-audio"
+        driver = f"wav,id=wp2-audio,path={str(output / 'audio.wav').replace(',', ',,')}" if args.wav else f"{audio},id=wp2-audio"
         argv += ["-audiodev", driver]
 
     report = {"profile": profile.name, "version": version, "bootloader": "compatibility_rom"}

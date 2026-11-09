@@ -16,6 +16,8 @@ shows the guest's progress. Use the touchscreen and crown, change brightness,
 or simulate battery, motion, GPS and optical sensor readings.
 Stock starts at the highest manual brightness in the watch's own settings.
 The browser brightness slider adjusts the rendered display separately.
+Enable **Watch sound** under **Simulation → Display** to hear audio from the
+virtual speaker. Your browser keeps it muted until you turn it on.
 **Battery level** sets the reported percentage in stock firmware. With a
 custom app, the slider changes the simulated battery voltage and the app
 decides how to report it.
@@ -36,8 +38,14 @@ under **Watch face**, and start it again. To try your own build, select **Custom
 firmware**, then select a Watch Pro 2 AOTA
 under **Firmware package**, or select the application and companion SDFS
 separately under **Raw application files**. The **Bad Apple** preset accepts
-both formats. For Bluetooth OTA and recovery
-tests, use desktop QEMU.
+both formats. See the [Bad Apple case study](/devices/cmf-watch-pro-2/guides/bad-apple/)
+for an example of a custom Zephyr application. The
+[firmware repository](https://github.com/arnav-kr/firmware-wp2-badapple) is
+currently a private preview. For Bluetooth OTA and recovery tests, use desktop QEMU.
+
+On phones and devices that report limited memory, the browser limits display
+updates to about 30 fps to reduce work. The watch firmware still runs in software,
+so boot times and animation speed depend on the host device.
 
 ### Base firmware files
 
