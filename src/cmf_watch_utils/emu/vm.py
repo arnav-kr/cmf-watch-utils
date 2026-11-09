@@ -45,12 +45,12 @@ def runtime_env(args, model, **values):
     return env
 
 
-def command(args, model, output, env):
+def command(args, model, output, env, audio):
     require(args.rom.is_file(), f"Compatibility ROM not found: {args.rom}")
     argv = [executable(args.qemu, env), "-M", model.machine, "-bios", str(args.rom),
             "-display", "none", "-monitor", "none", "-serial", f"file:{output / 'uart0.log'}",
             "-serial", "null", "-serial", "null", "-icount",
-            "shift=3,align=off" if args.headless or not args.audio else "shift=3,align=on"]
+            "shift=3,align=on" if not args.headless and audio else "shift=3,align=off"]
     if args.hci_port:
         argv += ["-chardev", f"socket,id=wp2-hci,host=127.0.0.1,port={args.hci_port}"]
     if not args.allow_reboot:
@@ -167,7 +167,8 @@ def run(args, profile):
     require(not args.sdfs or args.app, "--sdfs requires --app")
     require(not args.ota_snapshot or args.allow_reboot, "--ota-snapshot requires --allow-reboot")
     require(not args.wav or args.headless, "--wav requires --headless")
-    require(not args.audio or not args.headless, "--audio is for live runs; use --wav for headless")
+    require(not args.headless or args.audio in (None, "auto", "none"),
+            "--audio is for live runs; use --wav for headless")
     stock = not (args.app or args.ota_image or args.nor)
     require(not (args.watch_face or args.fmc_face) or (stock and not args.nand and profile.live_health),
             "Watch-face import requires the stock watch-face profile and its default NAND")
@@ -217,7 +218,12 @@ def run(args, profile):
                       HOST_RTC=1, EXPLORATORY=0)
     if texture_index.is_file():
         env[model.env_prefix + "WFC_INDEX"] = str(texture_index)
-    argv = command(args, model, output, env)
+    audio = args.audio
+    if audio == "auto":
+        audio = audio_backend(executable(args.qemu, env), env) if not args.headless and not args.wav else None
+    if audio == "none":
+        audio = None
+    argv = command(args, model, output, env, audio)
     if not args.headless:
         env[model.env_prefix + "LIVE_FRAME"] = "1"
         env[model.env_prefix + "LIVE_SENSORS"] = "1"
@@ -233,10 +239,7 @@ def run(args, profile):
         env[model.env_prefix + "NAND_EXPORT"] = str(output / "nand-export.bin")
     if args.ota_snapshot:
         env[model.env_prefix + "OTA_NAND_SNAPSHOT"] = str(output / "nand-staged.bin")
-    audio = args.audio
-    if audio == "auto":
-        audio = audio_backend(argv[0], env) if not args.headless and not args.wav else None
-    if args.wav or audio not in (None, "none"):
+    if args.wav or audio:
         env[model.env_prefix + "AUDIODEV"] = "wp2-audio"
         driver = f"wav,id=wp2-audio,path={str(output / 'audio.wav').replace(',', ',,')}" if args.wav else f"{audio},id=wp2-audio"
         argv += ["-audiodev", driver]
