@@ -1,9 +1,19 @@
+import {downloadCatalogFace, setupFaceCatalog} from './catalog.mjs';
+import {installWatchFace} from './face.mjs';
+import {savedInput} from './storage.mjs';
+
 const $ = (id) => document.getElementById(id);
 const panel = $('panel');
 const context = panel.getContext('2d', {alpha:false});
 const pixels = context.createImageData(466,466);
 const hosted = document.body.hasAttribute('data-hosted');
 const fixtureFolder = $('fixture-folder');
+const frameFolder = $('frame-folder');
+const folders = new Map([[fixtureFolder, 'fixtures'], [frameFolder, 'frames']]);
+const folderSelections = new Map();
+let pendingSave = Promise.resolve();
+const bootPreset = $('boot-preset');
+const selectedCatalogFace = hosted ? setupFaceCatalog($('face-catalog')) : () => undefined;
 const requiredFixtures = ['nor.bin', 'nand-defaults.bin', 'nand-id.bin', 'compat.bin', 'app.bin'];
 let runtime, timer, pointer=null, crownDown=false, frames=0, lastFrame=null;
 let customApp = false;
@@ -30,7 +40,7 @@ function guestStopped(message) {
 function bootStock() {
   const url = new URL(location.href);
   url.searchParams.set('recover', 'stock');
-  location.replace(url.href);
+  pendingSave.finally(() => location.replace(url.href));
 }
 
 $('recover').onclick = bootStock;
@@ -139,26 +149,48 @@ function render() {
 }
 const frameColor = $('frame-color');
 const frameCase = $('case');
+let frameUrl;
 function loadFrame() {
   const color = frameColor.value;
+  frameCase.dataset.color = color;
+  if (frameUrl) URL.revokeObjectURL(frameUrl);
+  const file = folderSelections.get(frameFolder)?.files.find(file => file.name === color + '.png');
+  frameUrl = file ? URL.createObjectURL(file) : undefined;
+  if (hosted && !frameUrl) {
+    delete frameCase.dataset.frame;
+    return;
+  }
   const image = new Image();
   image.onload = () => {
-    if (frameColor.value !== color) return;
+    if (frameColor.value !== color || (hosted && image.src !== frameUrl)) return;
     frameCase.dataset.frame = color;
     frameCase.style.setProperty('--frame-image', `url("${image.src}")`);
   };
   image.onerror = () => {
     if (frameColor.value === color) delete frameCase.dataset.frame;
   };
-  image.src = `./frames/${color}.png`;
+  image.src = frameUrl || `./frames/${color}.png`;
 }
 frameColor.addEventListener('change', loadFrame);
 if (hosted) {
   $('hosted-fixtures').hidden = false;
-  $('firmware-package').hidden = true;
-  $('watch-face-upload').hidden = true;
-  frameColor.closest('label').hidden = true;
+  $('hosted-frames').hidden = false;
+  $('boot-presets').hidden = false;
   document.querySelector('.wordmark').href = '../';
+  const updatePreset = () => {
+    const stock = bootPreset.value === 'stock';
+    $('firmware-package').hidden = stock;
+    $('firmware-package').open = !stock;
+    $('raw-applications').hidden = stock;
+    $('raw-applications').open = bootPreset.value === 'custom';
+    $('bad-apple-guide').hidden = bootPreset.value !== 'bad-apple';
+    $('face-catalog').hidden = !stock;
+    $('watch-face-upload').hidden = !stock;
+    $('image-error').textContent = '';
+  };
+  bootPreset.onchange = updatePreset;
+  updatePreset();
+  loadFrame();
 } else {
   loadFrame();
 }
@@ -228,8 +260,24 @@ for (const picker of document.querySelectorAll('.file-control input')) {
   const clear = picker.closest('.file-row').querySelector('.clear-file');
   picker.addEventListener('change', () => {
     const file = picker.files[0];
-    const name = picker === fixtureFolder ? file?.webkitRelativePath.split('/')[0] : file?.name;
-    label.textContent = name || (picker === fixtureFolder ? 'Select folder' : 'Select file');
+    if (folders.has(picker)) {
+      const candidates = [...picker.files].filter(file => file.webkitRelativePath.split('/').length === 2);
+      const allowed = picker === fixtureFolder
+        ? [...requiredFixtures, 'wfc-index.txt']
+        : [...frameColor.options].map(option => option.value + '.png');
+      const files = candidates.filter(file => allowed.includes(file.name));
+      const selection = file ? {name: file.webkitRelativePath.split('/')[0], files} : null;
+      updateFolder(picker, selection);
+      if (!selection || (picker === fixtureFolder
+        ? requiredFixtures.every(name => files.some(file => file.name === name))
+        : files.length > 0)) {
+        pendingSave = Promise.all([pendingSave, savedInput(folders.get(picker), selection)])
+          .catch(() => {});
+      }
+      return;
+    }
+    const name = file?.name;
+    label.textContent = name || 'Select file';
     label.title = name || '';
     clear.hidden = !file;
     $('image-error').textContent = '';
@@ -240,6 +288,16 @@ for (const picker of document.querySelectorAll('.file-control input')) {
     picker.dispatchEvent(new Event('change'));
     picker.focus();
   };
+}
+
+function updateFolder(picker, selection) {
+  folderSelections.set(picker, selection);
+  const label = picker.parentElement.querySelector('.file-name');
+  label.textContent = selection?.name || 'Select folder';
+  label.title = selection?.name || '';
+  picker.closest('.file-row').querySelector('.clear-file').hidden = !selection;
+  if (picker === frameFolder) loadFrame();
+  $('image-error').textContent = '';
 }
 
 let powerChanged = false;
@@ -440,16 +498,38 @@ $('capture').onclick = () => {
   });
 };
 
+function validateHostedFirmware(bytes) {
+  const worker = new Worker('./firmware-worker.js');
+  let timeout;
+  return new Promise((resolve, reject) => {
+    timeout = setTimeout(() => reject(Error('The firmware validator timed out.')), 60000);
+    worker.onmessage = ({data}) => data.error ? reject(Error(data.error)) : resolve(data);
+    worker.onerror = () => reject(Error('The browser firmware validator could not start.'));
+    worker.postMessage(bytes, [bytes]);
+  }).finally(() => {
+    clearTimeout(timeout);
+    worker.terminate();
+  });
+}
+
 async function readBootOverrides() {
-  const firmware = $('firmware-file').files[0];
-  const app = $('app-file').files[0];
+  const useRawApp = !hosted || bootPreset.value !== 'stock';
+  const firmware = useRawApp ? $('firmware-file').files[0] : undefined;
+  const app = useRawApp ? $('app-file').files[0] : undefined;
   const nand = $('nand-file').files[0];
-  const face = $('face-file').files[0];
-  const sdfs = $('sdfs-file').files[0];
-  if (firmware && (app || sdfs || face)) {
+  const face = (!hosted || !useRawApp) ? $('face-file').files[0] : undefined;
+  const sdfs = useRawApp ? $('sdfs-file').files[0] : undefined;
+  const catalogFace = !useRawApp ? selectedCatalogFace() : undefined;
+  if (hosted && useRawApp && !firmware && (!app || (bootPreset.value === 'bad-apple' && !sdfs))) {
+    throw Error(bootPreset.value === 'bad-apple'
+      ? 'Choose the Bad Apple application and its companion SDFS file.'
+      : 'Choose a custom application image.');
+  }
+  if (face && catalogFace) throw Error('Clear the imported watch face or select “Use stock watch face” in the FMC picker.');
+  if (firmware && (app || sdfs || face || catalogFace)) {
     throw Error('Clear the raw application and watch-face inputs before using a firmware package.');
   }
-  if (face && (app || nand)) {
+  if ((face || catalogFace) && (app || nand)) {
     throw Error('Use the watch-face picker with the stock application and default NAND.');
   }
   if (sdfs && (!app || sdfs.size < 32 || sdfs.size > 0x10000 ||
@@ -471,6 +551,10 @@ async function readBootOverrides() {
       const hash = await crypto.subtle.digest('SHA-256', packageBytes);
       const digest = Array.from(new Uint8Array(hash), byte => byte.toString(16).padStart(2, '0')).join('');
       if (digest === '30903fc8ce6db4f8860bb554366635db3d2bcbb2d43827b3b50fbbac22b59353') return { nand };
+    }
+    if (hosted) {
+      const {app, sdfs} = await validateHostedFirmware(packageBytes);
+      return {app, sdfs: new Blob([sdfs]), nand};
     }
     let response;
     try {
@@ -499,7 +583,7 @@ async function readBootOverrides() {
       sdfs: new Blob([new Uint8Array(payload, 4 + length)]),
     };
   }
-  if (!app) return { nand, face };
+  if (!app) return { nand, face, catalogFace };
   if (app.size < 0x208 || app.size > 0x34b000) {
     throw Error('Application does not fit the Watch Pro 2 partition.');
   }
@@ -516,6 +600,18 @@ async function readBootOverrides() {
 }
 
 async function installFace(face, files) {
+  const nand = files.find(([name]) => name === 'nand-defaults.bin')[1];
+  if (hosted) {
+    const index = await installWatchFace(nand, new Uint8Array(await face.arrayBuffer()));
+    if (!index) return;
+    const existing = files.find(([name]) => name === 'wfc-index.txt');
+    if (existing) {
+      existing[1] = encoder.encode(new TextDecoder().decode(existing[1]) + '\n' + index);
+    } else {
+      files.push(['wfc-index.txt', encoder.encode(index)]);
+    }
+    return;
+  }
   const response = await fetch('./watch-face', {
     method: 'POST',
     headers: { 'Content-Type': 'application/octet-stream' },
@@ -525,7 +621,6 @@ async function installFace(face, files) {
   const patch = new Uint8Array(await response.arrayBuffer());
   const view = new DataView(patch.buffer);
   const indexSize = view.getUint32(0, true);
-  const nand = files.find(([name]) => name === 'nand-defaults.bin')[1];
   let cursor = 4 + indexSize;
   if (cursor > patch.length) throw Error('Invalid watch-face texture index.');
   while (cursor < patch.length) {
@@ -552,9 +647,7 @@ async function installFace(face, files) {
 
 async function loadFixtures(nandOverride) {
   if (hosted) {
-    const selected = new Map([...fixtureFolder.files]
-      .filter(file => file.webkitRelativePath.split('/').length === 2)
-      .map(file => [file.name, file]));
+    const selected = new Map(folderSelections.get(fixtureFolder).files.map(file => [file.name, file]));
     const missing = requiredFixtures.filter(name => !selected.has(name));
     if (missing.length) throw Error(`The selected folder is missing ${missing.join(', ')}.`);
     const names = [...requiredFixtures];
@@ -579,7 +672,7 @@ async function loadFixtures(nandOverride) {
 
 $('stop').onclick=()=>location.reload();
 $('start').onclick=async()=>{
-  if (hosted && !fixtureFolder.files.length) {
+  if (hosted && !folderSelections.get(fixtureFolder)) {
     $('image-error').textContent = 'Select your stock fixtures folder before pressing Play.';
     fixtureFolder.focus();
     return;
@@ -588,37 +681,33 @@ $('start').onclick=async()=>{
   try {
     if(!crossOriginIsolated)throw Error('Cross-origin isolation is required. Start the supplied local server.');
     $('image-error').textContent = '';
-    const pickers = ['fixture-folder', 'firmware-file', 'app-file', 'sdfs-file', 'face-file', 'nand-file'];
-    for (const id of pickers) $(id).disabled = true;
+    const pickers = ['fixture-folder', 'boot-preset', 'firmware-file', 'app-file', 'sdfs-file', 'face-file', 'nand-file']
+      .map($);
+    pickers.push($('face-catalog').querySelector('fieldset'));
+    for (const picker of pickers) picker.disabled = true;
     if ($('firmware-file').files.length) status('Checking firmware package...', false, 'loading');
     let overrides, files;
     try {
       overrides = await readBootOverrides();
       status('Loading the runtime and virtual storage...', false, 'loading');
       files = await loadFixtures(overrides.nand);
+      if (overrides.face || overrides.catalogFace) {
+        const face = overrides.face || await downloadCatalogFace(overrides.catalogFace);
+        await installFace(face, files);
+      }
     } catch (error) {
       $('image-error').textContent = error.message;
-      for (const id of pickers) $(id).disabled = false;
+      for (const picker of pickers) picker.disabled = false;
       status('Ready');
       $('start').disabled = false;
       return;
     }
     customApp = Boolean(overrides.app);
     for (const field of $('health-controls').querySelectorAll('input')) field.disabled = customApp;
-    $('firmware-label').textContent = customApp ? 'CUSTOM APPLICATION' : 'FIRMWARE 1.0.0.73';
+    $('firmware-label').textContent = customApp
+      ? (hosted && bootPreset.value === 'bad-apple' ? 'BAD APPLE' : 'CUSTOM APPLICATION')
+      : 'FIRMWARE 1.0.0.73';
     $('stop').disabled=false;
-    if (overrides.face) {
-      try {
-        await installFace(overrides.face, files);
-      } catch (error) {
-        $('image-error').textContent = error.message;
-        for (const id of pickers) $(id).disabled = false;
-        $('start').disabled = false;
-        $('stop').disabled = true;
-        status('Choose a watch face and try again.', false, 'ready');
-        return;
-      }
-    }
     if (customApp) {
       const nor = files.find(([name]) => name === 'nor.bin')[1];
       nor.fill(0xff, 0x24000, 0x36f000);
@@ -693,13 +782,21 @@ if (hosted && !crossOriginIsolated) {
   history.replaceState(null, '', bootUrl);
 }
 
-if (bootUrl.searchParams.get('recover') === 'stock') {
+const recoverStock = bootUrl.searchParams.get('recover') === 'stock';
+if (recoverStock) {
   bootUrl.searchParams.delete('recover');
   history.replaceState(null, '', bootUrl);
   for (const picker of document.querySelectorAll('input[type=file]')) picker.value = '';
-  if (hosted) {
-    $('image-error').textContent = 'Session reset. Select the stock fixtures folder again, then press Play.';
-  } else {
-    $('start').click();
-  }
+}
+if (hosted && crossOriginIsolated) {
+  $('start').disabled = true;
+  Promise.allSettled([...folders].map(async ([picker, key]) => {
+    const selection = await savedInput(key);
+    if (!folderSelections.has(picker) && selection) updateFolder(picker, selection);
+  })).then(() => {
+    $('start').disabled = false;
+    if (recoverStock && folderSelections.get(fixtureFolder)) $('start').click();
+  });
+} else if (!hosted && recoverStock) {
+  $('start').click();
 }

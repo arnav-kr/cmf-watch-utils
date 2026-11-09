@@ -27,9 +27,16 @@ brightness, or simulate battery, motion, GPS and optical sensor readings.
    **Boot images**, then press **Play**. Give stock firmware time to reach the
    watch face. **Watch log** shows its progress.
 
-The browser reads the selected files on your computer. Reloading or resetting
-starts a fresh session and asks you to select the folder again. For Bluetooth
-OTA and recovery tests, use desktop QEMU.
+The browser reads the selected files on your computer and remembers the folder
+for future boots. **Hard reset to stock** discards the running session and
+boots stock again from the remembered files.
+
+Open **FMC watch faces** to select a face by preview, title, or creator. The
+emulator installs the selected face into its virtual storage at boot. You can
+also load a local watch-face file. Choose **Custom firmware** to boot a local
+Watch Pro 2 AOTA package. The **Bad Apple** preset accepts your built package,
+or the application and companion SDFS files. For Bluetooth OTA and recovery
+tests, use desktop QEMU.
 
 ## Desktop emulator
 

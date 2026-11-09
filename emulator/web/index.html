@@ -65,6 +65,14 @@
             <option value="orange">Orange</option>
           </select>
         </label>
+        <div class="field" id="hosted-frames" hidden>
+          <label for="frame-folder">Original frame artwork</label>
+          <div class="file-row">
+            <label class="file-control"><input id="frame-folder" type="file" webkitdirectory aria-label="Watch frame folder"><span class="file-name">Select folder</span></label>
+            <button class="clear-file" type="button" aria-label="Clear original frame artwork" hidden>×</button>
+          </div>
+          <small>Optional. Select the local <code>frames</code> folder to use its watch renders.</small>
+        </div>
       </details>
       <details class="settings-section" open>
         <summary>Power</summary>
@@ -115,12 +123,21 @@
     <section id="boot-images" class="settings-group">
       <h2>Boot images</h2>
       <div class="field" id="hosted-fixtures" hidden>
-        <label for="fixture-folder">Stock fixtures</label>
+        <label for="fixture-folder">Stock firmware folder</label>
         <div class="file-row">
           <label class="file-control"><input id="fixture-folder" type="file" webkitdirectory aria-label="Stock fixture folder"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h7l2 2h9v11H3z"/></svg><span class="file-name">Select folder</span></label>
           <button class="clear-file" type="button" aria-label="Clear stock fixture folder" hidden><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 4 8 8m0-8-8 8"/></svg></button>
         </div>
-        <small>Choose your prepared fixtures folder, then press Play. Files stay on your computer. <a href="../#browser-preview">Prepare fixtures</a></small>
+        <small id="stock-file-hint">Choose the prepared <code>fixtures</code> folder that contains the watch’s firmware and virtual storage. This browser remembers it for future boots. <a href="../#browser-preview">Prepare stock files</a></small>
+      </div>
+      <div id="boot-presets" class="field" hidden>
+        <label for="boot-preset">Boot preset</label>
+        <select id="boot-preset">
+          <option value="stock">Stock firmware</option>
+          <option value="bad-apple">Bad Apple</option>
+          <option value="custom">Custom firmware</option>
+        </select>
+        <small id="bad-apple-guide" hidden>Choose your Bad Apple AOTA package, or use the built application and its companion SDFS file. <a href="../../devices/cmf-watch-pro-2/guides/bad-apple/">Bad Apple build guide</a></small>
       </div>
       <details class="settings-section" id="firmware-package" open>
         <summary>Firmware package</summary>
@@ -134,7 +151,7 @@
         </div>
         <small>Watch Pro 2 AOTA package.</small>
       </details>
-      <details class="settings-section">
+      <details class="settings-section" id="raw-applications">
         <summary>Raw application files</summary>
         <div class="field">
           <label for="app-file">Application image</label>
@@ -145,7 +162,7 @@
             </button>
           </div>
         </div>
-        <small>Leave empty for stock.</small>
+        <small>Use the built <code>app.bin</code> or <code>zephyr.bin</code>.</small>
         <div class="field">
           <label for="sdfs-file">Application resources</label>
           <div class="file-row">
@@ -156,6 +173,15 @@
           </div>
         </div>
         <small>Companion sdfs.bin.</small>
+      </details>
+      <details class="settings-section" id="face-catalog" hidden>
+        <summary>FMC watch faces</summary>
+        <fieldset>
+          <button type="button">Use stock watch face</button>
+          <p role="status"></p>
+          <ul class="catalog-options"></ul>
+        </fieldset>
+        <small>The selected face replaces Activity Mood for this session.</small>
       </details>
       <details class="settings-section" id="watch-face-upload">
         <summary>Watch face</summary>

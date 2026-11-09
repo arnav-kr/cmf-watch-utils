@@ -465,6 +465,9 @@ details[open] > summary::after { transform: rotate(90deg); }
   transform: translate(-50%, -50%);
 }
 .case:is([data-frame="blue"], [data-frame="orange"]):not(.frameless) .bezel { width: 51.4%; }
+.case:not([data-frame], .frameless)[data-color="light-grey"] { background: linear-gradient(145deg, #b1b1b1, #6b6b6b 55%, #939393); }
+.case:not([data-frame], .frameless)[data-color="blue"] { background: linear-gradient(145deg, #425b79, #25384e 55%, #526d90); }
+.case:not([data-frame], .frameless)[data-color="orange"] { background: linear-gradient(145deg, #e78b56, #a74d28 55%, #ce6b3c); }
 .device-card:is(:fullscreen, .expanded) .case[data-frame]:not(.frameless) {
   width: min(100%, 90vh, 800px);
 }
@@ -493,6 +496,31 @@ details[open] > summary::after { transform: rotate(90deg); }
 .settings-section { margin-top: 15px; padding-top: 8px; border-top: 1px solid var(--line); font-size: 12px; }
 .settings-section > summary { padding: 4px 0; }
 .settings-section .field:first-of-type { margin-top: 6px; }
+#face-catalog fieldset { margin: 6px 0 0; padding: 0; border: 0; min-width: 0; }
+#face-catalog [role=status]:empty { display: none; }
+.catalog-options {
+  display: grid;
+  gap: 4px;
+  max-height: 245px;
+  overflow: auto;
+  scrollbar-width: thin;
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0 4px 0 0;
+}
+.catalog-options button {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  text-align: left;
+}
+.catalog-options button:is(:hover, [aria-pressed=true]) { background: #242424; }
+.catalog-options img { width: 34px; height: 34px; border-radius: 50%; object-fit: contain; background: #080808; }
+.catalog-options strong, .catalog-options small { overflow-wrap: anywhere; }
+.catalog-options small { margin-top: 0; }
 .sensor-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 8px; }
 .sensor-fields label { display: grid; gap: 4px; }
 .sensor-fields input { width: 100%; min-width: 0; padding: 4px; border: 1px solid var(--line); background: #121212; color: var(--text); }

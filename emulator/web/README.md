@@ -53,9 +53,11 @@ Opening the HTML directly as a file will not work. A first boot can take tens
 of seconds; the watch log shows guest progress.
 
 You can also select the staged `web-local/fixtures` folder directly in the
-hosted preview. The hosted build serves the emulator runtime and reads
-firmware from the selected folder. Use the local server for firmware package
-and watch-face uploads.
+hosted preview. The hosted build reads the selected firmware files and keeps
+them in browser storage for future boots. It accepts local firmware packages,
+application files and watch faces. Open **FMC watch faces** to browse community
+faces, or select **Bad Apple** and provide your own built firmware. Under
+**Display**, you can select a local frame artwork folder.
 
 ## Controls
 
