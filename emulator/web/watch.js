@@ -59,7 +59,7 @@ window.addEventListener('keydown',event=>{
 window.addEventListener('keyup',event=>{if(event.code==='Space'){event.preventDefault();crown(false);}});
 window.addEventListener('blur',release);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)release();});
-function render() {
+function renderFrame() {
   try {
     const data=runtime.FS.readFile('/watch/frame.ppm');
     const header='P6\n466 466\n255\n';
@@ -74,6 +74,9 @@ function render() {
     $('frames').textContent=`${frames} changed frames`;
     status('Stock firmware is rendering.');
   } catch(error) {if(error.name!=='ErrnoError'){log(error.message);clearInterval(timer);}}
+}
+function render() {
+  renderFrame();
   try {
     const uart=runtime.FS.readFile('/watch/uart.log',{encoding:'utf8'});
     let diagnostic='';
@@ -111,7 +114,8 @@ $('start').onclick=async()=>{
         module.FS.writeFile('/watch/input.txt','');
         Object.assign(module.ENV,{QEMU_WP2_NOR:'/watch/nor.bin',QEMU_WP2_NAND:'/watch/nand-defaults.bin',
           QEMU_WP2_FRAME:'/watch/frame.ppm',QEMU_WP2_INPUT:'/watch/input.txt',QEMU_WP2_LIVE_FRAME:'1',
-          QEMU_WP2_LIVE_SENSORS:'1',QEMU_WP2_LIVE_HEALTH:'1',QEMU_WP2_STOCK_AWAKE:'1',QEMU_WP2_HOST_RTC:'1'});
+          QEMU_WP2_LIVE_SENSORS:'1',QEMU_WP2_LIVE_HEALTH:'1',QEMU_WP2_STOCK_AWAKE:'1',QEMU_WP2_HOST_RTC:'1',QEMU_WP2_UNPLUGGED:'1'});
+        if(manifest.files.includes('wfc-index.txt'))module.ENV.QEMU_WP2_WFC_INDEX='/watch/wfc-index.txt';
       }]
     });
     for(const id of ['stop','crown','up','down'])$(id).disabled=false;

@@ -18,6 +18,8 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
+      - name: Test vector path rendering
+        run: cc -Wall -Wextra -Werror emulator/tests/vg_path.c -lm -o /tmp/vg-path-test && /tmp/vg-path-test
       - uses: actions/checkout@v4
         with:
           repository: ktock/qemu-wasm

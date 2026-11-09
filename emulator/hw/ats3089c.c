@@ -585,6 +585,30 @@ static bool acts_vg_resource_packed(uint32_t src, unsigned w, unsigned h)
 /* WFC textures have no resource-cache header. */
 static bool acts_vg_wfc_packed(const uint8_t *data, unsigned w, unsigned h)
 {
+    static GHashTable *local_textures;
+    if (!local_textures) {
+        local_textures = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
+        const char *file = g_getenv("QEMU_WP2_WFC_INDEX");
+        if (file) {
+            g_autofree char *contents = NULL;
+            if (!g_file_get_contents(file, &contents, NULL, NULL)) {
+                error_report("Cannot read WFC texture index %s", file);
+                exit(1);
+            }
+            g_auto(GStrv) lines = g_strsplit(contents, "\n", -1);
+            for (unsigned i = 0; lines[i]; i++) {
+                unsigned tw, th;
+                char hash[65], extra;
+                if (!*lines[i]) continue;
+                if (sscanf(lines[i], "%u:%u:%64[0123456789abcdef]%c", &tw, &th, hash, &extra) != 3 ||
+                    !tw || !th || tw > 466 || th > 466 || strlen(hash) != 64) {
+                    error_report("Invalid WFC texture index line %u", i + 1);
+                    exit(1);
+                }
+                g_hash_table_add(local_textures, g_strdup(lines[i]));
+            }
+        }
+    }
     static const struct {
         unsigned w, h;
         const char *sha256;
@@ -592,6 +616,11 @@ static bool acts_vg_wfc_packed(const uint8_t *data, unsigned w, unsigned h)
 #include "wp2_wfc_index.h"
     };
     g_autofree char *digest = NULL;
+    if (g_hash_table_size(local_textures)) {
+        digest = g_compute_checksum_for_data(G_CHECKSUM_SHA256, data, w * h * 3);
+        g_autofree char *key = g_strdup_printf("%u:%u:%s", w, h, digest);
+        if (g_hash_table_contains(local_textures, key)) return true;
+    }
     for (unsigned i = 0; i < ARRAY_SIZE(textures); i++) {
         if (w == textures[i].w && h == textures[i].h) {
             if (!digest) {
