@@ -48,6 +48,8 @@ For Bluetooth OTA and recovery tests, use desktop QEMU.
 On phones and devices that report limited memory, the browser limits display
 updates to about 30 fps to reduce work. The watch firmware still runs in software,
 so boot times and animation speed depend on the host device.
+The bundled Bad Apple preset uses a clock setting tuned for playback. Use a
+custom firmware boot or desktop QEMU for tests that depend on guest timing.
 
 ### Base firmware files
 

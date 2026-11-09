@@ -250,7 +250,7 @@ function renderAudio() {
     } else if (end !== audioClockEnd && now - audioClockTime >= .3) {
       const pace = (end - audioClockEnd) / (rate * (now - audioClockTime));
       if (pace > .12) {
-        const target = Math.min(1.12, Math.max(.25, pace * .99));
+        const target = Math.abs(pace - 1) < .04 ? 1 : Math.min(1.12, Math.max(.25, pace * .99));
         if (audioPaceReady) audioSpeed += (target - audioSpeed) * (target < audioSpeed ? .65 : .25);
         else audioSpeed = target;
         audioPaceReady = true;
@@ -949,6 +949,8 @@ $('start').onclick=async()=>{
     const runtimeURL = new URL('./runtime/', import.meta.url);
     const scriptURL = new URL('qemu-system-arm.js', runtimeURL).href;
     const {default:createQemu} = await import(scriptURL);
+    const clock = builtInPresets.has('bad-apple') && bootPreset.value === 'bad-apple'
+      ? 'shift=6,align=on' : 'shift=3,align=off';
     runtime=await createQemu({
       mainScriptUrlOrBlob:scriptURL,
       locateFile:name=>new URL(name, runtimeURL).href,
@@ -958,7 +960,7 @@ $('start').onclick=async()=>{
         ...(!customApp ? ['-kernel', '/watch/app.bin'] : []),
         ...(debug?['-d','unimp','-D','/watch/qemu.log']:[]),
         '-display','none','-monitor','none','-serial','file:/watch/uart.log','-serial','null','-serial','null',
-        '-icount','shift=3,align=off','-no-reboot'],
+        '-icount',clock,'-no-reboot'],
       preRun:[module=>{
         module.FS.mkdir('/watch');
         for(const [name,data]of files)module.FS.writeFile(`/watch/${name}`,data,{canOwn:true});
