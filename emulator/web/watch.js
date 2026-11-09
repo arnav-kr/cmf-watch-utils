@@ -50,7 +50,8 @@ let runtime, timer, pointer=null, crownDown=false, frames=0, lastFrame=null;
 let lastFrameFile;
 const economyDisplay = matchMedia('(pointer: coarse)').matches || navigator.deviceMemory <= 4;
 let nextFrame = 0;
-let speaker, speakerOutput, audioCursor, audioEpoch, audioTime = 0, nextAudio = 0;
+let speaker, speakerOutput, audioCursor, audioEpoch, audioTime = 0;
+let audioFile, audioData, audioChanged = 0;
 let customApp = false;
 let runtimeLog='', halted=false, nextLog=0;
 const debug=new URLSearchParams(location.search).has('debug');
@@ -186,50 +187,74 @@ function renderFrame() {
   }
 }
 const sound = $('watch-sound');
-sound.onchange = async () => {
-  if (!sound.checked) {
-    if (speakerOutput) speakerOutput.gain.value = 0;
-    return;
-  }
+try { sound.checked = sessionStorage.getItem('wp2-watch-sound') !== 'off'; } catch {}
+function prepareSpeaker() {
+  if (!sound.checked || halted) return;
   try {
     if (!speaker) {
       speaker = new AudioContext({latencyHint:'interactive'});
       speakerOutput = speaker.createGain();
       speakerOutput.connect(speaker.destination);
     }
-    await speaker.resume();
-    speakerOutput.gain.value = Number(sound.checked && !halted);
-    audioCursor = undefined;
+    speakerOutput.gain.value = 1;
   } catch {
     sound.checked = false;
   }
+}
+function unlockSpeaker() {
+  prepareSpeaker();
+  if (sound.checked && !halted && speaker?.state === 'suspended') speaker.resume().catch(() => {});
+}
+sound.onchange = () => {
+  try { sessionStorage.setItem('wp2-watch-sound', sound.checked ? 'on' : 'off'); } catch {}
+  if (sound.checked) {
+    audioCursor = undefined;
+    unlockSpeaker();
+  } else if (speakerOutput) {
+    speakerOutput.gain.value = 0;
+  }
 };
+window.addEventListener('pointerup', unlockSpeaker, {capture: true, passive: true});
+window.addEventListener('keydown', unlockSpeaker, {capture: true, passive: true});
+prepareSpeaker();
 function renderAudio() {
   if (!runtime || halted || !sound.checked || speaker?.state !== 'running') return;
   try {
-    const data = runtime.FS.readFile('/watch/speaker.pcm');
+    const path = '/watch/speaker.pcm';
+    const {ino, mtime} = runtime.FS.stat(path);
+    const version = `${ino}:${mtime.getTime()}`;
+    if (version !== audioFile) {
+      audioData = runtime.FS.readFile(path);
+      audioFile = version;
+      audioChanged = performance.now();
+    }
+    const data = audioData;
     if (data.length < 12 || data.length % 2) return;
     const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
     const rate = view.getUint32(0, true);
     const end = view.getUint32(4, true);
     const epoch = view.getUint32(8, true);
-    if (epoch !== audioEpoch || audioCursor === undefined) {
-      audioCursor = Math.max(0, end - Math.round(rate * .045));
-      audioEpoch = epoch;
-    }
     const first = end - (data.length - 12) / 2;
     const now = speaker.currentTime;
-    if (!rate || audioTime > now + .11 || audioCursor >= end) return;
-    if (audioTime < now) {
-      audioTime = now + .04;
-      audioCursor = Math.max(audioCursor, end - Math.round(rate * .07));
+    const delay = economyDisplay ? .28 : .18;
+    if (!rate || end <= first || audioTime > now + delay) return;
+    if (epoch !== audioEpoch || audioCursor === undefined || audioCursor < first) {
+      audioCursor = Math.max(first, end - Math.round(rate * delay));
+      audioEpoch = epoch;
     }
-    const start = Math.max(first, audioCursor);
-    const length = Math.min(end - start, Math.round(rate * .07));
+    const restarting = audioTime < now;
+    if (restarting && (end - audioCursor) / rate < delay &&
+        performance.now() - audioChanged < 140) return;
+    if (restarting) audioTime = now + .02;
+    const start = audioCursor;
+    const length = Math.min(end - start, Math.round(rate * (delay - (audioTime - now) + .04)));
     if (length <= 0) return;
     const buffer = speaker.createBuffer(1, length, rate);
     const channel = buffer.getChannelData(0);
-    for (let i = 0; i < length; i++) channel[i] = view.getInt16(12 + (start - first + i) * 2, true) / 32768;
+    for (let i = 0; i < length; i++) {
+      const gain = restarting ? Math.min(1, i / (rate * .005)) : 1;
+      channel[i] = gain * view.getInt16(12 + (start - first + i) * 2, true) / 32768;
+    }
     const source = speaker.createBufferSource();
     source.buffer = buffer;
     source.connect(speakerOutput);
@@ -237,9 +262,13 @@ function renderAudio() {
     audioTime += length / rate;
     audioCursor = start + length;
   } catch (error) {
-    if (error.name !== 'ErrnoError') sound.checked = false;
+    if (error.name !== 'ErrnoError') {
+      sound.checked = false;
+      speakerOutput.gain.value = 0;
+    }
   }
 }
+setInterval(renderAudio, 20);
 function readLog(path,limit) {
   const length=runtime.FS.stat(path).size;
   const stream=runtime.FS.open(path,'r');
@@ -255,10 +284,6 @@ function render() {
   if (now >= nextFrame) {
     nextFrame = now + (economyDisplay ? 30 : 0);
     renderFrame();
-  }
-  if (now >= nextAudio) {
-    nextAudio = now + 15;
-    renderAudio();
   }
   if(now<nextLog)return;
   nextLog=now+500;

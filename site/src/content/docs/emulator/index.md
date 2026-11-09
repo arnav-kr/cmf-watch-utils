@@ -16,8 +16,9 @@ shows the guest's progress. Use the touchscreen and crown, change brightness,
 or simulate battery, motion, GPS and optical sensor readings.
 Stock starts at the highest manual brightness in the watch's own settings.
 The browser brightness slider adjusts the rendered display separately.
-Enable **Watch sound** under **Simulation → Display** to hear audio from the
-virtual speaker. Your browser keeps it muted until you turn it on.
+The virtual speaker is on by default. If your browser blocks autoplay, tap or
+click the emulator to start audio. Use **Watch sound** under **Simulation →
+Display** to mute it.
 **Battery level** sets the reported percentage in stock firmware. With a
 custom app, the slider changes the simulated battery voltage and the app
 decides how to report it.

@@ -1190,6 +1190,11 @@ static void acts_dac_audio_write(void *opaque, int available)
 static void acts_dac_stream_publish(ActsState *s)
 {
     uint8_t header[12];
+    unsigned limit = s->dac_host_rate * 3 / 2;
+    if (s->dac_host_pcm->len > limit) {
+        g_byte_array_remove_range(s->dac_host_pcm, 0,
+                                  (s->dac_host_pcm->len - limit + 1) & ~1u);
+    }
     stl_le_p(header, s->dac_host_rate);
     stl_le_p(header + 4, s->dac_stream_end);
     stl_le_p(header + 8, s->dac_stream_epoch);
@@ -1249,7 +1254,7 @@ static void acts_dac_audio_play(ActsState *s, unsigned rate, unsigned played)
     /* Bound host backlog independently of guest DMA and sample counters. */
     unsigned limit = (rate / 5) * 2;
     unsigned total = s->dac_host_pcm->len + played * 2;
-    if (total > limit) {
+    if (!s->dac_stream_path && total > limit) {
         g_byte_array_remove_range(s->dac_host_pcm, 0, total - limit);
     }
     g_byte_array_append(s->dac_host_pcm, pcm, played * 2);
