@@ -84,6 +84,12 @@ class Qmp:
             if "return" in reply:
                 return reply["return"]
 
+    def quit(self):
+        try:
+            self.request("quit")
+        except (EOFError, ConnectionResetError, BrokenPipeError):
+            pass
+
 
 def headless(args, argv, env, output):
     with socket.socket() as listener:
@@ -111,7 +117,7 @@ def headless(args, argv, env, output):
                 require(process.poll() is None, "QEMU stopped during the boot observation")
                 qmp.request("stop")
                 registers = qmp.request("human-monitor-command", **{"command-line": "info registers"})
-                qmp.request("quit")
+                qmp.quit()
                 require(process.wait(timeout=8) == 0, "QEMU exited with an error")
     return registers
 

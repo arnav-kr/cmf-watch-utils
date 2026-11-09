@@ -30,7 +30,7 @@ def pair_fixture(args, profile):
             asyncio.run(provision(args.hci_port, args.name))
             qmp.request("stop")
             qmp.request("pmemsave", val=0x11000000, size=profile.model.nor_bytes, filename=str(args.output))
-            qmp.request("quit")
+            qmp.quit()
     require(args.output.is_file() and args.output.stat().st_size == profile.model.nor_bytes,
             "QEMU did not export a complete virtual NOR")
     profile.stock_app(args.output.read_bytes())

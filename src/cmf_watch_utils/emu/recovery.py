@@ -46,7 +46,7 @@ def capture_reset(port, target, size, timeout):
             reason = qmp.request("human-monitor-command", **{"command-line": "xp /1wx 0x4000c03c"})
             require("0x42520002" in reason, "Guest reset was not an OTA reboot")
             qmp.request("pmemsave", val=0x11000000, size=size, filename=str(target))
-            qmp.request("quit")
+            qmp.quit()
 
 
 def read_temp(args, profile, nor, nand, nand_id, output):

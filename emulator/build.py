@@ -169,7 +169,10 @@ def smoke(binary, work):
                 def request(command, **arguments):
                     stream.write(json.dumps({"execute": command, "arguments": arguments}).encode() + b"\n")
                     while True:
-                        reply = json.loads(stream.readline())
+                        line = stream.readline()
+                        if not line:
+                            raise EOFError("QEMU closed the monitor")
+                        reply = json.loads(line)
                         if "error" in reply:
                             raise RuntimeError(reply["error"])
                         if "return" in reply:
@@ -185,7 +188,10 @@ def smoke(binary, work):
                     time.sleep(0.05)
                 else:
                     raise RuntimeError("Synthetic ROM handoff did not execute the ARM guest")
-                request("quit")
+                try:
+                    request("quit")
+                except (EOFError, ConnectionResetError, BrokenPipeError):
+                    pass
             process.wait(timeout=6)
             if process.returncode != 0:
                 raise RuntimeError(f"Synthetic boot exited with {process.returncode}")
@@ -209,19 +215,28 @@ def build_qemu(args, sdk, output):
     integrate(source, sdk, args.wfc_dir)
     build = work / "qemu-build"
     build.mkdir(exist_ok=True)
+    library_paths = []
+    if sys.platform == "darwin" and (brew := shutil.which("brew")):
+        dtc = Path(subprocess.check_output([brew, "--prefix", "dtc"], text=True).strip())
+        if (dtc / "include/libfdt.h").is_file():
+            library_paths = [f"--extra-cflags=-I{dtc / 'include'}",
+                             f"--extra-ldflags=-L{dtc / 'lib'}"]
     configure = [
         "--target-list=arm-softmmu", "--with-devices-arm=wp2", "--enable-tcg",
         "--without-default-features", "--without-default-devices",
         "--enable-fdt=system", "--disable-werror", "--disable-docs",
         "--disable-tools", "--disable-guest-agent", "--disable-plugins",
-        *[f"--enable-{backend}" for backend in args.audio], *args.configure_arg,
+        *[f"--enable-{backend}" for backend in args.audio], *library_paths, *args.configure_arg,
     ]
     stamp = build / "recipe.json"
     recipe = json.dumps(configure)
     if (build / "build.ninja").is_file() and (not stamp.is_file() or stamp.read_text() != recipe):
         raise ValueError("Configure options changed. Select a fresh --work-dir.")
     if not (build / "build.ninja").is_file():
-        run("bash", "../" + QEMU + "/configure", *configure, cwd=build)
+        bash = os.environ.get("WP2_BUILD_BASH") or shutil.which("bash")
+        if not bash:
+            raise ValueError("QEMU configure requires Bash. On Windows use the MSYS2 UCRT64 shell.")
+        run(bash, "../" + QEMU + "/configure", *configure, cwd=build)
         stamp.write_text(recipe, encoding="utf-8")
     binary = "qemu-system-arm" + (".exe" if os.name == "nt" else "")
     run("ninja", "-j", str(args.jobs), binary, cwd=build)
