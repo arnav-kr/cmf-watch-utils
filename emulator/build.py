@@ -116,6 +116,10 @@ def texture_index(faces):
 
 def integrate(source, sdk, faces):
     arm = source / "hw/arm"
+    mkvenv = source / "python/scripts/mkvenv.py"
+    original = mkvenv.read_bytes()
+    fixed = original.replace(b'f"file://{str(wheels_dir)}"', b"Path(wheels_dir).resolve().as_uri()")
+    write_if_changed(mkvenv, fixed)
     jpeg = arm / "wp2-jpeg"
     jpeg.mkdir(exist_ok=True)
     for path in (ROOT / "hw").iterdir():
