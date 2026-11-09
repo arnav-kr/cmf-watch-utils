@@ -281,7 +281,12 @@ bind . <KeyPress-space> {crown 1; break}
 bind . <KeyRelease-space> {crown 0; break}
 bind . <KeyPress-Up> {send_event "r -80"; break}
 bind . <KeyPress-Down> {send_event "r 80"; break}
-bind . <MouseWheel> {send_event "r [expr {%D > 0 ? 80 : -80}]"; break}
+bind . <MouseWheel> {
+    if {%D != 0} {send_event "r [expr {%D > 0 ? -80 : 80}]"}
+    break
+}
+bind . <Button-4> {send_event "r -80"; break}
+bind . <Button-5> {send_event "r 80"; break}
 bind . <FocusOut> {crown 0}
 focus .panel
 
