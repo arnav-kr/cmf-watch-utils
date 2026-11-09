@@ -499,7 +499,7 @@ $('capture').onclick = () => {
 };
 
 function validateHostedFirmware(bytes) {
-  const worker = new Worker('./firmware-worker.js');
+  const worker = new Worker(new URL('./firmware-worker.js', import.meta.url));
   let timeout;
   return new Promise((resolve, reject) => {
     timeout = setTimeout(() => reject(Error('The firmware validator timed out.')), 60000);
@@ -717,10 +717,12 @@ $('start').onclick=async()=>{
         nor.set(new Uint8Array(await overrides.sdfs.arrayBuffer()), 0x3d3000);
       }
     }
-    const {default:createQemu}=await import('./runtime/qemu-system-arm.js');
+    const runtimeURL = new URL('./runtime/', import.meta.url);
+    const scriptURL = new URL('qemu-system-arm.js', runtimeURL).href;
+    const {default:createQemu} = await import(scriptURL);
     runtime=await createQemu({
-      mainScriptUrlOrBlob:new URL('./runtime/qemu-system-arm.js',location.href).href,
-      locateFile:name=>new URL(`./runtime/${name}`,location.href).href,
+      mainScriptUrlOrBlob:scriptURL,
+      locateFile:name=>new URL(name, runtimeURL).href,
       print:log,printErr:log,onAbort:reason=>guestStopped(reason ? `Runtime aborted: ${reason}` : 'Runtime aborted. See the watch log.'),
       onExit:code=>guestStopped(`Emulator exited (${code}). See the watch log.`),
       arguments:['-M','ats3089c-wp2','-bios','/watch/compat.bin',
