@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CMF Watch Pro 2 — browser prototype</title>
+<style>
+  :root{color-scheme:dark;font:15px system-ui;background:#131313;color:#eee}
+  body{max-width:950px;margin:32px auto;padding:0 24px}h1{font-size:24px;font-weight:600}
+  p{color:#aaa;line-height:1.6}button{background:#292929;color:#eee;border:1px solid #555;border-radius:8px;padding:12px 18px;cursor:pointer}
+  button:disabled{opacity:.5;cursor:default}button:focus-visible,canvas:focus-visible{outline:2px solid #f36c36;outline-offset:4px}
+  .watch{display:flex;align-items:center;justify-content:center;gap:26px;margin:32px 0;padding:24px;background:#1a1a1a;border-radius:20px}
+  canvas{width:min(62vw,466px);height:auto;aspect-ratio:1;border-radius:50%;background:#000;touch-action:none}
+  .controls{display:grid;gap:12px;justify-items:center}.crown{border-radius:50%;width:58px;height:58px;padding:0}.dot{display:block;width:8px;height:8px;background:#f36c36;border-radius:50%;margin:auto}
+  pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:220px;overflow:auto;font:12px monospace;color:#bcbcbc;background:#191919;padding:14px;border-radius:8px}
+  #status[data-error]{color:#ff9379}small{color:#999}.toolbar{display:flex;gap:12px;align-items:center}
+</style>
+<h1>CMF Watch Pro 2</h1>
+<p>Experimental browser emulator using the existing watch hardware model. Firmware and virtual storage are loaded from this local prototype server.</p>
+<div class="toolbar"><button id="start">Start stock firmware</button><button id="stop" disabled>Stop</button><small id="frames">No frames</small></div>
+<p id="status" role="status">Ready to load the browser runtime.</p>
+<div class="watch">
+  <canvas id="panel" width="466" height="466" tabindex="0" aria-label="Watch touchscreen"></canvas>
+  <div class="controls">
+    <small>CROWN</small>
+    <button class="crown" id="crown" aria-label="Press crown" disabled><span class="dot"></span></button>
+    <button id="up" aria-label="Rotate crown up" disabled>↑</button>
+    <button id="down" aria-label="Rotate crown down" disabled>↓</button>
+  </div>
+</div>
+<p>Drag on the screen to swipe. Use Space for the crown button and ↑/↓ or the mouse wheel to rotate it. Reloading starts from the original storage.</p>
+<details><summary>Boot log</summary><pre id="log"></pre></details>
+<script type="module" src="./watch.js"></script>
+</html>
