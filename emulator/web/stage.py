@@ -20,7 +20,7 @@ if len(rom) != 65536:
     raise ValueError("Expected a 64 KiB compatibility ROM")
 args.output.mkdir(parents=True, exist_ok=False)
 web = Path(__file__).resolve().parent
-for name in ("index.html", "watch.js"):
+for name in ("index.html", "watch.js", "style.css"):
     shutil.copyfile(web / name, args.output / name)
 fixtures = args.output / "fixtures"
 fixtures.mkdir()
@@ -42,7 +42,7 @@ if args.wfc_dir:
                 textures.add(f"{entry.w}:{entry.h}:{hashlib.sha256(pixels).hexdigest()}")
     if not textures:
         raise ValueError("No packed WFC textures found")
-    (fixtures / "wfc-index.txt").write_text("\n".join(sorted(textures)) + "\n", encoding="ascii")
+    (fixtures / "wfc-index.txt").write_text("\n".join(sorted(textures)) + "\n", encoding="ascii", newline="\n")
     files.append("wfc-index.txt")
 (fixtures / "manifest.json").write_text(json.dumps({"files": files}), encoding="utf-8")
 print(args.output.resolve())

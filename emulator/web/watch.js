@@ -3,19 +3,22 @@ const panel = $('panel');
 const context = panel.getContext('2d', {alpha:false});
 const pixels = context.createImageData(466,466);
 let runtime, timer, pointer=null, crownDown=false, frames=0, lastFrame=null;
-let runtimeLog='';
+let runtimeLog='', halted=false, nextLog=0;
+const debug=new URLSearchParams(location.search).has('debug');
 const encoder = new TextEncoder();
-function status(text,error=false) {
+function status(text,error=false,state) {
   $('status').textContent=text;
   $('status').toggleAttribute('data-error',error);
+  if(error)state='error';
+  if(state){$('state-dot').dataset.state=state;$('state-label').textContent=({running:'Running',loading:'Starting',error:'Stopped',ready:'Ready'})[state];}
 }
 function log(text) {
   runtimeLog=(runtimeLog+'\n'+text).slice(-8000);
   $('log').textContent=runtimeLog;
-  $('log').scrollTop=$('log').scrollHeight;
+  if(/stopped on unimplemented|Unsupported|Aborted|Invalid WFC|Cannot read WFC/.test(text)){halted=true;status('Emulation stopped. See the boot log.',true);}
 }
 function input(line) {
-  if (!runtime) return;
+  if (!runtime||halted) return;
   const bytes=encoder.encode(line+'\n');
   const stream=runtime.FS.open('/watch/input.txt','a');
   try {runtime.FS.write(stream,bytes,0,bytes.length);} finally {runtime.FS.close(stream);}
@@ -48,13 +51,14 @@ panel.addEventListener('pointermove',event=>{
 for(const name of ['pointerup','pointercancel','lostpointercapture']) panel.addEventListener(name,release);
 $('crown').addEventListener('pointerdown',event=>{event.preventDefault();$('crown').setPointerCapture(event.pointerId);crown(true);});
 for(const name of ['pointerup','pointercancel','lostpointercapture']) $('crown').addEventListener(name,()=>crown(false));
-$('up').onclick=()=>input('r -80');$('down').onclick=()=>input('r 80');
-panel.addEventListener('wheel',event=>{if(runtime){event.preventDefault();input(`r ${event.deltaY>0?80:-80}`);}},{passive:false});
+$('up').onclick=()=>input('r 80');$('down').onclick=()=>input('r -80');
+panel.addEventListener('wheel',event=>{if(runtime){event.preventDefault();input(`r ${event.deltaY>0?-80:80}`);}},{passive:false});
 window.addEventListener('keydown',event=>{
-  if(!runtime||!['Space','ArrowUp','ArrowDown'].includes(event.code))return;
+  if(!runtime||halted||event.ctrlKey||event.altKey||event.metaKey||!['Space','ArrowUp','ArrowDown'].includes(event.code))return;
+  if(event.target.closest('button,input,summary,a'))return;
   event.preventDefault();
   if(event.code==='Space')crown(true);
-  else input(`r ${event.code==='ArrowUp'?-80:80}`);
+  else input(`r ${event.code==='ArrowUp'?80:-80}`);
 });
 window.addEventListener('keyup',event=>{if(event.code==='Space'){event.preventDefault();crown(false);}});
 window.addEventListener('blur',release);
@@ -71,27 +75,54 @@ function renderFrame() {
       pixels.data[i]=data[j];pixels.data[i+1]=data[j+1];pixels.data[i+2]=data[j+2];pixels.data[i+3]=255;
     }
     context.putImageData(pixels,0,0);frames++;
-    $('frames').textContent=`${frames} changed frames`;
-    status('Stock firmware is rendering.');
+    $('frames').textContent=frames.toLocaleString();
+    $('offline').hidden=true;
+    if(!halted)status('Stock firmware is rendering locally.',false,'running');
   } catch(error) {if(error.name!=='ErrnoError'){log(error.message);clearInterval(timer);}}
+}
+function readLog(path,limit) {
+  const length=runtime.FS.stat(path).size;
+  const stream=runtime.FS.open(path,'r');
+  try {
+    const bytes=new Uint8Array(Math.min(length,limit));
+    runtime.FS.read(stream,bytes,0,bytes.length,Math.max(0,length-limit));
+    return new TextDecoder().decode(bytes);
+  } finally {runtime.FS.close(stream);}
 }
 function render() {
   renderFrame();
+  if(performance.now()<nextLog)return;
+  nextLog=performance.now()+500;
   try {
-    const uart=runtime.FS.readFile('/watch/uart.log',{encoding:'utf8'});
+    const uart=readLog('/watch/uart.log',32000).split('\n').filter(line=>!line.includes('#CD:')).join('\n');
     let diagnostic='';
-    try {diagnostic=runtime.FS.readFile('/watch/qemu.log',{encoding:'utf8'}).slice(-12000);} catch {}
-    $('log').textContent=runtimeLog+'\n'+diagnostic+'\n'+uart.split('\n').filter(line=>!line.includes('#CD:')).join('\n').slice(0,48000);
-    if(uart.includes('ZEPHYR FATAL ERROR'))status('Stock firmware stopped with a fatal error. See the boot log.',true);
-    if(runtimeLog.includes('stopped on unimplemented'))status('Emulation stopped on an unsupported operation. See the boot log.',true);
+    if(debug)try{diagnostic=readLog('/watch/qemu.log',12000);}catch{}
+    $('log').textContent=runtimeLog+'\n'+diagnostic+'\n'+uart;
+    if(uart.includes('ZEPHYR FATAL ERROR')){halted=true;status('Stock firmware stopped with a fatal error. See the boot log.',true);}
   } catch {}
 }
+$('show-frame').onchange=event=>$('case').classList.toggle('frameless',!event.target.checked);
+$('fullscreen').onclick=async()=>{
+  try {
+    if(document.fullscreenElement)await document.exitFullscreen();
+    else await document.querySelector('.device-card').requestFullscreen();
+  }catch(error){log(error.message);}
+};
+document.addEventListener('fullscreenchange',()=>{
+  $('fullscreen').setAttribute('aria-label',document.fullscreenElement?'Exit expanded watch view':'Expand watch view');
+});
+$('save-log').onclick=()=>{
+  const url=URL.createObjectURL(new Blob([$('log').textContent],{type:'text/plain'}));
+  const link=document.createElement('a');link.href=url;link.download='wp2-browser.log';link.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+};
 $('stop').onclick=()=>location.reload();
 $('start').onclick=async()=>{
   $('start').disabled=true;
   try {
     if(!crossOriginIsolated)throw Error('Cross-origin isolation is required. Start the supplied local server.');
-    status('Loading the runtime and stock storage…');
+    status('Loading the runtime and stock storage...',false,'loading');
+    $('stop').disabled=false;
     const response=await fetch('./fixtures/manifest.json');
     if(!response.ok)throw Error('Prepare the local fixture manifest first.');
     const manifest=await response.json();
@@ -103,9 +134,10 @@ $('start').onclick=async()=>{
     runtime=await createQemu({
       mainScriptUrlOrBlob:new URL('./runtime/qemu-system-arm.js',location.href).href,
       locateFile:name=>new URL(`./runtime/${name}`,location.href).href,
-      print:log,printErr:log,onAbort:reason=>status(`Runtime aborted: ${reason}`,true),
+      print:log,printErr:log,onAbort:reason=>{halted=true;status(`Runtime aborted: ${reason}`,true);},
+      onExit:code=>{halted=true;status(`Emulator exited (${code}). See the boot log.`,true);},
       arguments:['-M','ats3089c-wp2','-bios','/watch/compat.bin','-kernel','/watch/app.bin',
-        '-d','unimp','-D','/watch/qemu.log',
+        ...(debug?['-d','unimp','-D','/watch/qemu.log']:[]),
         '-display','none','-monitor','none','-serial','file:/watch/uart.log','-serial','null','-serial','null',
         '-icount','shift=3,align=off','-no-reboot'],
       preRun:[module=>{
@@ -115,11 +147,11 @@ $('start').onclick=async()=>{
         Object.assign(module.ENV,{QEMU_WP2_NOR:'/watch/nor.bin',QEMU_WP2_NAND:'/watch/nand-defaults.bin',
           QEMU_WP2_FRAME:'/watch/frame.ppm',QEMU_WP2_INPUT:'/watch/input.txt',QEMU_WP2_LIVE_FRAME:'1',
           QEMU_WP2_LIVE_SENSORS:'1',QEMU_WP2_LIVE_HEALTH:'1',QEMU_WP2_STOCK_AWAKE:'1',QEMU_WP2_HOST_RTC:'1',QEMU_WP2_UNPLUGGED:'1'});
-        if(manifest.files.includes('wfc-index.txt'))module.ENV.QEMU_WP2_WFC_INDEX='/watch/wfc-index.txt';
+        if(manifest.files.includes('wfc-index.txt')&&!new URLSearchParams(location.search).has('no-textures'))module.ENV.QEMU_WP2_WFC_INDEX='/watch/wfc-index.txt';
       }]
     });
     for(const id of ['stop','crown','up','down'])$(id).disabled=false;
-    status('Runtime started; waiting for the stock display.');timer=setInterval(render,50);
+    status('Waiting for the stock display...',false,'loading');timer=setInterval(render,50);
   }catch(error){status(error.message,true);log(error.stack);}
 };
 
