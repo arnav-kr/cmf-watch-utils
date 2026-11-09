@@ -7,6 +7,7 @@ const panel = $('panel');
 const context = panel.getContext('2d', {alpha:false});
 const pixels = context.createImageData(466,466);
 const hosted = document.body.hasAttribute('data-hosted');
+const bundledStock = document.body.hasAttribute('data-stock-ready');
 const fixtureFolder = $('fixture-folder');
 const frameFolder = $('frame-folder');
 const folders = new Map([[fixtureFolder, 'fixtures'], [frameFolder, 'frames']]);
@@ -16,6 +17,7 @@ const bootPreset = $('boot-preset');
 const selectedCatalogFace = hosted ? setupFaceCatalog($('face-catalog')) : () => undefined;
 const requiredFixtures = ['nor.bin', 'nand-defaults.bin', 'nand-id.bin', 'compat.bin', 'app.bin'];
 let runtime, timer, pointer=null, crownDown=false, frames=0, lastFrame=null;
+let lastFrameFile;
 let customApp = false;
 let runtimeLog='', halted=false, nextLog=0;
 const debug=new URLSearchParams(location.search).has('debug');
@@ -103,10 +105,14 @@ window.addEventListener('blur',release);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)release();});
 function renderFrame() {
   try {
+    const {ino, mtime} = runtime.FS.stat('/watch/frame.ppm');
+    const version = `${ino}:${mtime.getTime()}`;
+    if (version === lastFrameFile) return;
     const data=runtime.FS.readFile('/watch/frame.ppm');
     const header='P6\n466 466\n255\n';
     if(data.length!==header.length+466*466*3)return;
     for(let i=0;i<header.length;i++)if(data[i]!==header.charCodeAt(i))throw Error('Unexpected panel format');
+    lastFrameFile = version;
     if(lastFrame&&data.every((v,i)=>v===lastFrame[i]))return;
     lastFrame=data;
     for(let i=0,j=header.length;i<pixels.data.length;i+=4,j+=3){
@@ -116,7 +122,13 @@ function renderFrame() {
     $('offline').hidden=true;
     $('capture').disabled = false;
     if(!halted)status('Firmware is rendering locally.',false,'running');
-  } catch(error) {if(error.name!=='ErrnoError'){log(error.message);clearInterval(timer);}}
+  } catch(error) {
+    if (error.name !== 'ErrnoError') {
+      log(error.message);
+      guestStopped('The browser could not read the emulated display.');
+      cancelAnimationFrame(timer);
+    }
+  }
 }
 function readLog(path,limit) {
   const length=runtime.FS.stat(path).size;
@@ -128,6 +140,7 @@ function readLog(path,limit) {
   } finally {runtime.FS.close(stream);}
 }
 function render() {
+  timer = requestAnimationFrame(render);
   renderFrame();
   if(performance.now()<nextLog)return;
   nextLog=performance.now()+500;
@@ -156,26 +169,30 @@ function loadFrame() {
   if (frameUrl) URL.revokeObjectURL(frameUrl);
   const file = folderSelections.get(frameFolder)?.files.find(file => file.name === color + '.png');
   frameUrl = file ? URL.createObjectURL(file) : undefined;
-  if (hosted && !frameUrl) {
+  if (hosted && !bundledStock && !frameUrl) {
     delete frameCase.dataset.frame;
     return;
   }
+  const source = frameUrl;
   const image = new Image();
   image.onload = () => {
-    if (frameColor.value !== color || (hosted && image.src !== frameUrl)) return;
+    if (frameColor.value !== color || frameUrl !== source) return;
     frameCase.dataset.frame = color;
     frameCase.style.setProperty('--frame-image', `url("${image.src}")`);
   };
   image.onerror = () => {
     if (frameColor.value === color) delete frameCase.dataset.frame;
   };
-  image.src = frameUrl || `./frames/${color}.png`;
+  image.src = source || new URL(`./frames/${color}.png`, import.meta.url).href;
 }
 frameColor.addEventListener('change', loadFrame);
 if (hosted) {
   $('hosted-fixtures').hidden = false;
+  $('hosted-fixtures').open = !bundledStock;
   $('hosted-frames').hidden = false;
   $('boot-presets').hidden = false;
+  if (bundledStock) $('stock-file-hint').firstChild.textContent =
+    'Stock firmware is included. Select a prepared folder only to override it. ';
   document.querySelector('.wordmark').href = '../';
   const updatePreset = () => {
     const stock = bootPreset.value === 'stock';
@@ -646,7 +663,7 @@ async function installFace(face, files) {
 }
 
 async function loadFixtures(nandOverride) {
-  if (hosted) {
+  if (hosted && folderSelections.get(fixtureFolder)) {
     const selected = new Map(folderSelections.get(fixtureFolder).files.map(file => [file.name, file]));
     const missing = requiredFixtures.filter(name => !selected.has(name));
     if (missing.length) throw Error(`The selected folder is missing ${missing.join(', ')}.`);
@@ -655,6 +672,20 @@ async function loadFixtures(nandOverride) {
     return Promise.all(names.map(async name => {
       const file = name === 'nand-defaults.bin' && nandOverride ? nandOverride : selected.get(name);
       return [name, new Uint8Array(await file.arrayBuffer())];
+    }));
+  }
+  if (bundledStock) {
+    return Promise.all([...requiredFixtures, 'wfc-index.txt'].map(async name => {
+      const isNand = name === 'nand-defaults.bin';
+      if (isNand && nandOverride) return [name, new Uint8Array(await nandOverride.arrayBuffer())];
+      const url = new URL(`./fixtures/${name}${isNand ? '.gz' : ''}`, import.meta.url);
+      const response = await fetch(url);
+      if (!response.ok) throw Error(`Could not download the stock firmware file ${name}.`);
+      const data = isNand
+        ? await new Response(response.body.pipeThrough(new DecompressionStream('gzip'))).arrayBuffer()
+        : await response.arrayBuffer();
+      if (isNand && data.byteLength !== 2112 * 65536) throw Error('The bundled virtual storage is incomplete.');
+      return [name, new Uint8Array(data)];
     }));
   }
   const response = await fetch('./fixtures/manifest.json');
@@ -670,9 +701,17 @@ async function loadFixtures(nandOverride) {
   }));
 }
 
-$('stop').onclick=()=>location.reload();
+$('stop').onclick=()=>{
+  if (!bundledStock) {
+    location.reload();
+    return;
+  }
+  const url = new URL(location.href);
+  url.searchParams.set('idle', '1');
+  location.replace(url);
+};
 $('start').onclick=async()=>{
-  if (hosted && !folderSelections.get(fixtureFolder)) {
+  if (hosted && !bundledStock && !folderSelections.get(fixtureFolder)) {
     $('image-error').textContent = 'Select your stock fixtures folder before pressing Play.';
     fixtureFolder.focus();
     return;
@@ -689,7 +728,9 @@ $('start').onclick=async()=>{
     let overrides, files;
     try {
       overrides = await readBootOverrides();
-      status('Loading the runtime and virtual storage...', false, 'loading');
+      status(bundledStock && !folderSelections.get(fixtureFolder)
+        ? 'Loading stock firmware and virtual storage…'
+        : 'Loading the runtime and virtual storage…', false, 'loading');
       files = await loadFixtures(overrides.nand);
       if (overrides.face || overrides.catalogFace) {
         const face = overrides.face || await downloadCatalogFace(overrides.catalogFace);
@@ -756,7 +797,7 @@ $('start').onclick=async()=>{
         if (!halted && !frames) status('No display frame after 90 seconds. Check the watch log.', false, 'timeout');
       }, 90000);
     }
-    timer = setInterval(render, 50);
+    timer = requestAnimationFrame(render);
   }catch(error){log(error.stack);guestStopped(error.message);}
 };
 
@@ -785,6 +826,11 @@ if (hosted && !crossOriginIsolated) {
 }
 
 const recoverStock = bootUrl.searchParams.get('recover') === 'stock';
+const idle = bootUrl.searchParams.has('idle');
+if (idle) {
+  bootUrl.searchParams.delete('idle');
+  history.replaceState(null, '', bootUrl);
+}
 if (recoverStock) {
   bootUrl.searchParams.delete('recover');
   history.replaceState(null, '', bootUrl);
@@ -797,7 +843,7 @@ if (hosted && crossOriginIsolated) {
     if (!folderSelections.has(picker) && selection) updateFolder(picker, selection);
   })).then(() => {
     $('start').disabled = false;
-    if (recoverStock && folderSelections.get(fixtureFolder)) $('start').click();
+    if ((bundledStock && !idle) || (recoverStock && folderSelections.get(fixtureFolder))) $('start').click();
   });
 } else if (!hosted && recoverStock) {
   $('start').click();

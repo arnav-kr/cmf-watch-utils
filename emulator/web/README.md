@@ -1,8 +1,9 @@
 # Watch Pro 2 in the browser
 
 The [browser preview](https://cmf.arnv.dev/emulator/watch-pro-2/) runs stock 1.0.0.73 using
-our existing ATS3089C model and compatibility ROM. Firmware is supplied locally;
-the browser runtime does not contain stock firmware or artwork.
+our existing ATS3089C model and compatibility ROM. The hosted preview downloads
+stock storage generated from the published firmware and includes the four
+Watch Pro 2 frame renders. Local builds can use their own prepared fixtures.
 
 Stock boot, touchscreen taps and swipes, crown presses, and crown rotation have
 been exercised in Chromium. This is a display-and-input preview, not a replacement
@@ -52,9 +53,9 @@ loopback and sends the cross-origin isolation headers needed by Wasm workers.
 Opening the HTML directly as a file will not work. A first boot can take tens
 of seconds; the watch log shows guest progress.
 
-You can also select the staged `web-local/fixtures` folder directly in the
-hosted preview. The hosted build reads the selected firmware files and keeps
-them in browser storage for future boots. It accepts local firmware packages,
+You can select the staged `web-local/fixtures` folder as a stock override in
+the hosted preview. The browser remembers the override for future boots.
+The hosted preview accepts local firmware packages,
 application files and watch faces. Open **FMC watch faces** to browse community
 faces, or select **Bad Apple** and provide your own built firmware. Under
 **Display**, you can select a local frame artwork folder.
@@ -78,8 +79,8 @@ recovery, electrical behavior or freedom from crashes. TCI execution is slower
 than native QEMU and does not reproduce device performance or power consumption.
 
 Sound, browser OTA, Nothing X pairing, persistent storage and other watch models
-are not implemented in this browser milestone. The stock firmware and resource
-files stay outside the browser build and deployment artifacts.
+are not implemented in this browser milestone. The Pages build generates its
+stock files from the public firmware package and keeps binaries out of Git.
 
 ## Development checks
 

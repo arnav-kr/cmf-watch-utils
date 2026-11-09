@@ -1608,6 +1608,7 @@ static uint64_t acts_read(void *opaque, hwaddr addr, unsigned size)
         if(addr==0x4214) return s->battery_mv * 1024 / 300;
         if(addr==0x4218) return s->charger_present ? 3412 : 0;
         if(addr==0x4224) return 1023; /* no resistor key pressed */
+        if (addr == 0x422c) return s->regs[0x420c / 4] & (1u << 5) ? 480 : 1000;
         return 0;
     }
     if (addr == 0x28004) {

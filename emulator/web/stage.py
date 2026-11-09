@@ -11,7 +11,9 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--fixtures", type=Path, required=True)
 parser.add_argument("--rom", type=Path, required=True)
 parser.add_argument("--output", type=Path, required=True)
-parser.add_argument("--wfc-dir", type=Path)
+texture_source = parser.add_mutually_exclusive_group()
+texture_source.add_argument("--wfc-dir", type=Path)
+texture_source.add_argument("--stock-image", type=Path, help="Generate the texture index from the published stock image")
 parser.add_argument("--frames-dir", type=Path, help="Directory with the four Nothing X front renders")
 args = parser.parse_args()
 profile = PROFILES["wp2-stock"]
@@ -38,12 +40,23 @@ for path, name in ((nor, "nor.bin"), (nand, "nand-defaults.bin"), (nand_id, "nan
 (fixtures / "compat.bin").write_bytes(rom)
 (fixtures / "app.bin").write_bytes(profile.stock_app(nor.read_bytes()))
 files = ["nor.bin", "nand-defaults.bin", "nand-id.bin", "compat.bin", "app.bin"]
-if args.wfc_dir:
+if args.wfc_dir or args.stock_image:
     from fwkit import lz4, wfdl
+    if args.stock_image:
+        from cmf_watch_utils.emu.prepare import STOCK_SHA256
+        from fwkit import Image, sdfs
+
+        stock = args.stock_image.read_bytes()
+        if hashlib.sha256(stock).hexdigest() != STOCK_SHA256:
+            parser.error("--stock-image needs the published Watch Pro 2 1.0.0.73 image")
+        fonts = sdfs.unpack(Image(stock).decompressed("fonts.bin"))
+        faces = (data for name, data in fonts.items() if name.endswith(".wfc"))
+    else:
+        faces = (path.read_bytes() for path in args.wfc_dir.glob("*_local*.wfc"))
 
     textures = set()
-    for face in args.wfc_dir.glob("*_local*.wfc"):
-        for entry in wfdl.parse(face.read_bytes()).resources:
+    for face in faces:
+        for entry in wfdl.parse(face).resources:
             if entry.cf == 5:
                 pixels = lz4.decompress(entry.data, entry.raw_size)
                 if len(pixels) != entry.w * entry.h * 3:

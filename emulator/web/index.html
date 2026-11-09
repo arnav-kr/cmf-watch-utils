@@ -65,14 +65,14 @@
             <option value="orange">Orange</option>
           </select>
         </label>
-        <div class="field" id="hosted-frames" hidden>
-          <label for="frame-folder">Original frame artwork</label>
+        <details class="field" id="hosted-frames" hidden>
+          <summary>Frame artwork override</summary>
           <div class="file-row">
             <label class="file-control"><input id="frame-folder" type="file" webkitdirectory aria-label="Watch frame folder"><span class="file-name">Select folder</span></label>
             <button class="clear-file" type="button" aria-label="Clear original frame artwork" hidden>×</button>
           </div>
           <small>Optional. Select the local <code>frames</code> folder to use its watch renders.</small>
-        </div>
+        </details>
       </details>
       <details class="settings-section" open>
         <summary>Power</summary>
@@ -122,14 +122,14 @@
     </section>
     <section id="boot-images" class="settings-group">
       <h2>Boot images</h2>
-      <div class="field" id="hosted-fixtures" hidden>
-        <label for="fixture-folder">Stock firmware folder</label>
+      <details class="settings-section" id="hosted-fixtures" hidden>
+        <summary>Stock firmware override</summary>
         <div class="file-row">
           <label class="file-control"><input id="fixture-folder" type="file" webkitdirectory aria-label="Stock fixture folder"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h7l2 2h9v11H3z"/></svg><span class="file-name">Select folder</span></label>
           <button class="clear-file" type="button" aria-label="Clear stock fixture folder" hidden><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 4 8 8m0-8-8 8"/></svg></button>
         </div>
-        <small id="stock-file-hint">Choose the prepared <code>fixtures</code> folder that contains the watch’s firmware and virtual storage. This browser remembers it for future boots. <a href="../#browser-preview">Prepare stock files</a></small>
-      </div>
+        <small id="stock-file-hint">Choose a prepared stock firmware folder. This browser remembers it for future boots. <a href="../#browser-preview">Prepare stock files</a></small>
+      </details>
       <div id="boot-presets" class="field" hidden>
         <label for="boot-preset">Boot preset</label>
         <select id="boot-preset">

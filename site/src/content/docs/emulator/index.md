@@ -10,26 +10,14 @@ without a physical watch.
 ## Browser preview
 
 [Open the Watch Pro 2 browser emulator](/emulator/watch-pro-2/) in a recent
-desktop version of Chrome or Edge. Use the touchscreen and crown, change
-brightness, or simulate battery, motion, GPS and optical sensor readings.
+desktop version of Chrome or Edge. Stock firmware starts automatically.
+The first boot downloads the virtual storage and can take a moment. **Watch log**
+shows the guest's progress. Use the touchscreen and crown, change brightness,
+or simulate battery, motion, GPS and optical sensor readings.
 
-1. Follow [Installation](/emulator/installation/) and the
-   [Prepare the storage](/emulator/first-boot/#prepare-the-storage) section to
-   create the three stock storage files.
-2. From the repository root, prepare them for the browser. Use an output
-   folder that does not exist yet.
-
-   ```sh
-   uv run python emulator/web/stage.py --fixtures fixtures --rom runtime/compat.bin --output web-local
-   ```
-
-3. Open the browser emulator, select the `web-local/fixtures` folder under
-   **Boot images**, then press **Play**. Give stock firmware time to reach the
-   watch face. **Watch log** shows its progress.
-
-The browser reads the selected files on your computer and remembers the folder
-for future boots. **Hard reset to stock** discards the running session and
-boots stock again from the remembered files.
+Use **Stop** to choose a firmware or watch-face preset before starting a new
+session. **Hard reset to stock** discards the running session and boots stock
+again. **Stock firmware override** accepts a prepared local folder for testing.
 
 Open **FMC watch faces** to select a face by preview, title, or creator. The
 emulator installs the selected face into its virtual storage at boot. You can

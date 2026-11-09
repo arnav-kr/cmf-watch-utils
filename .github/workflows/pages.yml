@@ -27,7 +27,7 @@ jobs:
 
   build:
     needs: wasm
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
 
@@ -54,8 +54,18 @@ jobs:
           name: wp2-wasm-experimental
           path: wasm-output
 
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: '3.12'
+
+      - name: Prepare stock firmware for the browser
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends gdb-multiarch libglib2.0-0 libpixman-1-0 libfdt1 libpulse0
+          bash emulator/web/prepare-stock.sh
+
       - name: Add browser emulator
-        run: python3 emulator/web/publish.py --runtime wasm-output --output site/dist
+        run: python3 emulator/web/publish.py --runtime wasm-output --stock browser-stock/staged --output site/dist
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
