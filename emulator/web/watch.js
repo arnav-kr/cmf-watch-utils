@@ -11,6 +11,16 @@ const stockFiles = $('stock-files');
 const frameFile = $('frame-file');
 const frameOverrides = new Map();
 const bootPreset = $('boot-preset');
+const builtInPresets = new Map();
+if (document.body.hasAttribute('data-demo-ready')) {
+  builtInPresets.set('display-demo', 'display-demo.bin');
+  bootPreset.querySelector('[value="display-demo"]').hidden = false;
+}
+if (document.body.hasAttribute('data-bad-apple-ready')) {
+  builtInPresets.set('bad-apple', 'bad-apple-app.bin');
+} else {
+  bootPreset.querySelector('[value="bad-apple"]').textContent = 'Bad Apple (use your build)';
+}
 const firmwareInputs = ['firmware-file', 'app-file', 'sdfs-file'].map($);
 let bootInProgress = false;
 let nextFace;
@@ -58,7 +68,7 @@ function restartFor(preset, face) {
     }
   }
   url.searchParams.set('preset', preset);
-  if (preset !== 'stock') url.searchParams.set('idle', '1');
+  if (preset !== 'stock' && !builtInPresets.has(preset)) url.searchParams.set('idle', '1');
   location.replace(url.href);
 }
 
@@ -227,7 +237,7 @@ frameColor.addEventListener('change', () => {
   if (hosted) document.querySelector('.wordmark').href = '../';
   $('face-catalog').hidden = false;
   bootPreset.onchange = () => {
-    if (bootInProgress) {
+    if (bootInProgress || builtInPresets.has(bootPreset.value)) {
       restartFor(bootPreset.value);
       return;
     }
@@ -591,6 +601,20 @@ async function readBootOverrides() {
   const face = $('face-file').files[0];
   const sdfs = $('sdfs-file').files[0];
   const catalogFace = selectedCatalogFace();
+  const builtIn = builtInPresets.get(bootPreset.value);
+  if (builtIn && !firmware && !app && !sdfs) {
+    const load = async name => {
+      const response = await fetch(new URL(`./presets/${name}`, import.meta.url));
+      if (!response.ok) throw Error('The selected firmware preset could not be loaded.');
+      return response.blob();
+    };
+    const appImage = await load(builtIn);
+    return {
+      app: new Uint8Array(await appImage.arrayBuffer()),
+      sdfs: bootPreset.value === 'bad-apple' ? await load('bad-apple-sdfs.bin') : undefined,
+      nand,
+    };
+  }
   if (bootPreset.value !== 'stock' && !firmware && (!app || (bootPreset.value === 'bad-apple' && !sdfs))) {
     throw Error(bootPreset.value === 'bad-apple'
       ? 'Choose the Bad Apple application and its companion SDFS file.'
@@ -743,7 +767,7 @@ $('start').onclick=async()=>{
     let overrides, files;
     try {
       overrides = await readBootOverrides();
-      status(bundledStock && !stockFiles.files.length
+      status(bundledStock && !stockFiles.files.length && !overrides.app
         ? 'Loading stock firmware and virtual storage…'
         : 'Loading the runtime and virtual storage…', false, 'loading');
       files = await loadFixtures(overrides.nand);
@@ -762,7 +786,7 @@ $('start').onclick=async()=>{
     customApp = Boolean(overrides.app);
     for (const field of $('health-controls').querySelectorAll('input')) field.disabled = customApp;
     $('firmware-label').textContent = customApp
-      ? (bootPreset.value === 'bad-apple' ? 'BAD APPLE' : 'CUSTOM APPLICATION')
+      ? ({'bad-apple': 'BAD APPLE', 'display-demo': 'DISPLAY TEST'}[bootPreset.value] || 'CUSTOM APPLICATION')
       : 'FIRMWARE 1.0.0.73';
     $('stop').disabled=false;
     if (customApp) {
@@ -848,7 +872,10 @@ if (crossOriginIsolated && (idle || requestedPreset)) {
   bootUrl.searchParams.delete('preset');
   history.replaceState(null, '', bootUrl);
 }
-if (requestedPreset === 'bad-apple' || requestedPreset === 'custom') {
+if (builtInPresets.has(requestedPreset)) {
+  bootPreset.value = requestedPreset;
+  $('display-demo-guide').hidden = requestedPreset !== 'display-demo';
+} else if (requestedPreset === 'bad-apple' || requestedPreset === 'custom') {
   bootPreset.value = requestedPreset;
   bootPreset.onchange();
 }

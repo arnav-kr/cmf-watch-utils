@@ -64,10 +64,19 @@ provide your own built firmware. Under
 an image file.
 
 To preview the same versioned web bundle that Pages publishes, run
-`uv run python emulator/web/publish.py --runtime WASM_BUILD --stock web-local --output web-preview`
+`uv run python emulator/web/prepare-presets.py --output web-presets` with Arm
+GNU tools on PATH, followed by
+`uv run python emulator/web/publish.py --runtime WASM_BUILD --stock web-local --presets web-presets --output web-preview`
 and serve `web-preview`. Open `http://127.0.0.1:8090/emulator/watch-pro-2/`.
 For this layout, stage with `--stock-image` and `--frames-dir` to include the
 stock texture index and frame renders.
+
+The Display test preset is built from source for the virtual watch. A local
+preview can also bundle a verified Bad Apple package with
+`prepare-presets.py --output web-presets --bad-apple PATH`. For a public
+deployment after publishing that build, set the Pages repository variables
+`WP2_BAD_APPLE_TAG` and `WP2_BAD_APPLE_SHA256` to the public firmware release
+tag and the hash of its `wp2-badapple-ota.bin` asset, then rerun Pages.
 
 ## Controls
 

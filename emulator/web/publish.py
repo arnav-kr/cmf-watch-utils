@@ -10,6 +10,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--runtime", type=Path, required=True)
 parser.add_argument("--output", type=Path, required=True)
 parser.add_argument("--stock", type=Path, help="Staged browser stock image and watch frames")
+parser.add_argument("--presets", type=Path, help="Prepared browser firmware presets")
 args = parser.parse_args()
 
 web = Path(__file__).resolve().parent
@@ -27,6 +28,12 @@ runtime_files = (
 )
 digest = sha256()
 stock_files = []
+preset_files = []
+if args.presets:
+    preset_files = [args.presets / "display-demo.bin"]
+    bad_apple = [args.presets / name for name in ("bad-apple-app.bin", "bad-apple-sdfs.bin")]
+    if any(path.exists() for path in bad_apple):
+        preset_files.extend(bad_apple)
 if args.stock:
     stock_files = [args.stock / "fixtures" / name for name in (
         "app.bin", "compat.bin", "nand-defaults.bin", "nand-id.bin", "nor.bin", "wfc-index.txt",
@@ -38,6 +45,7 @@ for path in (
     *(args.runtime / name for name, _ in runtime_files),
     *(root / base / name for base, files in tools for name in files),
     *stock_files,
+    *preset_files,
 ):
     with path.open("rb") as stream:
         for chunk in iter(lambda: stream.read(1024 * 1024), b""):
@@ -50,13 +58,23 @@ for name in scripts:
     shutil.copyfile(web / name, assets / name)
 shutil.copyfile(web / "isolation-worker.js", target / "isolation-worker.js")
 html = (web / "index.html").read_text(encoding="utf-8")
-body = "<body data-hosted data-stock-ready>" if args.stock else "<body data-hosted>"
-html = html.replace("<body>", body, 1)
+body = ["data-hosted"]
+if args.stock:
+    body.append("data-stock-ready")
+if preset_files:
+    body.append("data-demo-ready")
+if len(preset_files) == 3:
+    body.append("data-bad-apple-ready")
+html = html.replace("<body>", f"<body {' '.join(body)}>", 1)
 for name in ("watch.js", "style.css"):
     html = html.replace(f'"./{name}"', f'"./{asset_path}/{name}"', 1)
 (target / "index.html").write_text(html, encoding="utf-8")
 for source, name in runtime_files:
     shutil.copyfile(args.runtime / source, runtime / name)
+if preset_files:
+    (assets / "presets").mkdir(exist_ok=True)
+    for source in preset_files:
+        shutil.copyfile(source, assets / "presets" / source.name)
 for source in stock_files:
     destination = assets / source.relative_to(args.stock)
     destination.parent.mkdir(parents=True, exist_ok=True)

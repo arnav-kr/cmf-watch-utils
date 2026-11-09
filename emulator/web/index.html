@@ -135,9 +135,11 @@
         <label for="boot-preset">Boot preset</label>
         <select id="boot-preset">
           <option value="stock">Stock firmware</option>
+          <option value="display-demo" hidden>Display test</option>
           <option value="bad-apple">Bad Apple</option>
           <option value="custom">Custom firmware</option>
         </select>
+        <small id="display-demo-guide" hidden>Press the crown to change the test pattern’s color.</small>
         <small id="bad-apple-guide" hidden>Choose your Bad Apple AOTA package, or use the built application and its companion SDFS file. <a href="../../devices/cmf-watch-pro-2/guides/bad-apple/">Bad Apple build guide</a></small>
       </div>
       <details class="settings-section" id="firmware-package" open>

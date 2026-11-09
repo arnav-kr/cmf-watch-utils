@@ -61,11 +61,25 @@ jobs:
       - name: Prepare stock firmware for the browser
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends gdb-multiarch libglib2.0-0 libpixman-1-0 libfdt1 libpulse0
+          sudo apt-get install -y --no-install-recommends gdb-multiarch gcc-arm-none-eabi libglib2.0-0 libpixman-1-0 libfdt1 libpulse0
           bash emulator/web/prepare-stock.sh
 
+      - name: Prepare firmware presets
+        env:
+          BAD_APPLE_TAG: ${{ vars.WP2_BAD_APPLE_TAG }}
+          BAD_APPLE_SHA256: ${{ vars.WP2_BAD_APPLE_SHA256 }}
+        run: |
+          args=()
+          if [[ -n "$BAD_APPLE_TAG$BAD_APPLE_SHA256" ]]; then
+            [[ "$BAD_APPLE_TAG" =~ ^[A-Za-z0-9._-]+$ && "$BAD_APPLE_SHA256" =~ ^[a-f0-9]{64}$ ]]
+            curl -fLsS --retry 3 "https://github.com/arnav-kr/firmware-wp2-badapple/releases/download/$BAD_APPLE_TAG/wp2-badapple-ota.bin" -o browser-stock/bad-apple.bin
+            printf '%s  %s\n' "$BAD_APPLE_SHA256" browser-stock/bad-apple.bin | sha256sum -c
+            args+=(--bad-apple browser-stock/bad-apple.bin)
+          fi
+          uv run --locked python emulator/web/prepare-presets.py --output browser-stock/presets "${args[@]}"
+
       - name: Add browser emulator
-        run: python3 emulator/web/publish.py --runtime wasm-output --stock browser-stock/staged --output site/dist
+        run: python3 emulator/web/publish.py --runtime wasm-output --stock browser-stock/staged --presets browser-stock/presets --output site/dist
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
