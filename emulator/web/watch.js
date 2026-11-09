@@ -53,6 +53,7 @@ let nextFrame = 0;
 let speaker, speakerOutput, audioCursor, audioEpoch, audioTime = 0;
 let audioFile, audioData, audioChanged = 0;
 let audioClockTime = 0, audioClockEnd = 0, audioSpeed = 1;
+let audioPaceReady = false;
 let customApp = false;
 let runtimeLog='', halted=false, nextLog=0;
 const debug=new URLSearchParams(location.search).has('debug');
@@ -243,11 +244,14 @@ function renderAudio() {
       audioClockTime = now;
       audioClockEnd = end;
       audioSpeed = 1;
+      audioPaceReady = false;
     } else if (end !== audioClockEnd && now - audioClockTime >= .3) {
       const pace = (end - audioClockEnd) / (rate * (now - audioClockTime));
       if (pace > .12) {
         const target = Math.min(1.12, Math.max(.25, pace * .99));
-        audioSpeed += (target - audioSpeed) * (target < audioSpeed ? .65 : .25);
+        if (audioPaceReady) audioSpeed += (target - audioSpeed) * (target < audioSpeed ? .65 : .25);
+        else audioSpeed = target;
+        audioPaceReady = true;
       }
       audioClockTime = now;
       audioClockEnd = end;
@@ -260,7 +264,7 @@ function renderAudio() {
     const restarting = audioTime < now;
     const backlog = (end - audioCursor) / rate + Math.max(0, audioTime - now) * audioSpeed;
     const speed = Math.min(1.15, audioSpeed * (backlog > delay + .18 ? 1.07 : 1));
-    if (restarting && (end - audioCursor) / (rate * speed) < delay &&
+    if (restarting && (!audioPaceReady || (end - audioCursor) / (rate * speed) < delay) &&
         performance.now() - audioChanged < 140) return;
     if (restarting) audioTime = now + .02;
     const start = audioCursor;
