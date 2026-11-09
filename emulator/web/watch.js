@@ -52,6 +52,7 @@ const economyDisplay = matchMedia('(pointer: coarse)').matches || navigator.devi
 let nextFrame = 0;
 let speaker, speakerOutput, audioCursor, audioEpoch, audioTime = 0;
 let audioFile, audioData, audioChanged = 0;
+let audioClockTime = 0, audioClockEnd = 0, audioSpeed = 1;
 let customApp = false;
 let runtimeLog='', halted=false, nextLog=0;
 const debug=new URLSearchParams(location.search).has('debug');
@@ -237,17 +238,33 @@ function renderAudio() {
     const first = end - (data.length - 12) / 2;
     const now = speaker.currentTime;
     const delay = economyDisplay ? .28 : .18;
-    if (!rate || end <= first || audioTime > now + delay) return;
+    if (!rate || end <= first) return;
+    if (epoch !== audioEpoch) {
+      audioClockTime = now;
+      audioClockEnd = end;
+      audioSpeed = 1;
+    } else if (end !== audioClockEnd && now - audioClockTime >= .3) {
+      const pace = (end - audioClockEnd) / (rate * (now - audioClockTime));
+      if (pace > .12) {
+        const target = Math.min(1.12, Math.max(.25, pace * .99));
+        audioSpeed += (target - audioSpeed) * (target < audioSpeed ? .65 : .25);
+      }
+      audioClockTime = now;
+      audioClockEnd = end;
+    }
+    if (audioTime > now + delay) return;
     if (epoch !== audioEpoch || audioCursor === undefined || audioCursor < first) {
-      audioCursor = Math.max(first, end - Math.round(rate * delay));
+      audioCursor = Math.max(first, end - Math.round(rate * delay * audioSpeed));
       audioEpoch = epoch;
     }
     const restarting = audioTime < now;
-    if (restarting && (end - audioCursor) / rate < delay &&
+    const backlog = (end - audioCursor) / rate + Math.max(0, audioTime - now) * audioSpeed;
+    const speed = Math.min(1.15, audioSpeed * (backlog > delay + .18 ? 1.07 : 1));
+    if (restarting && (end - audioCursor) / (rate * speed) < delay &&
         performance.now() - audioChanged < 140) return;
     if (restarting) audioTime = now + .02;
     const start = audioCursor;
-    const length = Math.min(end - start, Math.round(rate * (delay - (audioTime - now) + .04)));
+    const length = Math.min(end - start, Math.round(rate * speed * (delay - (audioTime - now) + .04)));
     if (length <= 0) return;
     const buffer = speaker.createBuffer(1, length, rate);
     const channel = buffer.getChannelData(0);
@@ -257,9 +274,10 @@ function renderAudio() {
     }
     const source = speaker.createBufferSource();
     source.buffer = buffer;
+    source.playbackRate.value = speed;
     source.connect(speakerOutput);
     source.start(audioTime);
-    audioTime += length / rate;
+    audioTime += length / (rate * speed);
     audioCursor = start + length;
   } catch (error) {
     if (error.name !== 'ErrnoError') {
