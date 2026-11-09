@@ -128,6 +128,7 @@ struct ActsState {
     const char *frame_path;
     unsigned panel_inset[466];
     bool panel_on, panel_te_enabled;
+    uint8_t panel_brightness, viewer_brightness;
     bool panel_de_active;
     uint32_t vg_state[4096];
     uint8_t panel[466*466*3];
@@ -418,6 +419,8 @@ static void acts_gps_tick(ActsState *s, int64_t now)
     acts_gps_irq(s);
 }
 
+static void acts_panel_refresh(ActsState *s);
+
 static void acts_input_tick(void *opaque)
 {
     ActsState *s = opaque;
@@ -504,6 +507,13 @@ static void acts_input_tick(void *opaque)
             s->regs[0x4114 / 4] |= down ? 4 : 8;
             acts_pmu_irq(s);
         }
+    } else if (sscanf(line, "b %u", &x) == 1 && x <= 100) {
+        if (s->viewer_brightness != x) {
+            s->viewer_brightness = x;
+            if (s->panel_frames) {
+                acts_panel_refresh(s);
+            }
+        }
     } else if (sscanf(line, "g %u %d %d", &down, &ax, &ay) == 3 &&
                down <= 1 && ax >= -90000000 && ax <= 90000000 &&
                ay >= -180000000 && ay <= 180000000) {
@@ -556,26 +566,38 @@ static void acts_panel_publish(void *opaque)
 {
     ActsState *s = opaque;
     GString *ppm=g_string_new("P6\n466 466\n255\n");
-    if (s->frame_timer) {
-        size_t header = ppm->len;
+    unsigned brightness = s->panel_brightness * s->viewer_brightness;
+    size_t header = ppm->len;
+    if (brightness == 25500 && !s->frame_timer) {
+        g_string_append_len(ppm, (char *)s->panel, sizeof(s->panel));
+    } else {
+        uint8_t levels[256];
+        for (unsigned i = 0; i < ARRAY_SIZE(levels); i++) {
+            levels[i] = (i * brightness + 12750) / 25500;
+        }
         g_string_set_size(ppm, header + sizeof(s->panel));
         for (unsigned y = 0; y < 466; y++) {
-            unsigned pad = s->panel_inset[y] * 3;
+            unsigned pad = s->frame_timer ? s->panel_inset[y] * 3 : 0;
             char *row = ppm->str + header + y * 466 * 3;
+            const uint8_t *source = s->panel + y * 466 * 3;
+            unsigned end = 466 * 3 - pad;
             memset(row, 24, pad);
-            memcpy(row + pad, s->panel + y * 466 * 3 + pad, 466 * 3 - 2 * pad);
-            memset(row + 466 * 3 - pad, 24, pad);
+            if (brightness == 25500) {
+                memcpy(row + pad, source + pad, end - pad);
+            } else {
+                for (unsigned x = pad; x < end; x++) {
+                    row[x] = levels[source[x]];
+                }
+            }
+            memset(row + end, 24, pad);
         }
-    } else {
-        g_string_append_len(ppm,(char *)s->panel,sizeof(s->panel));
     }
     g_file_set_contents(s->frame_path,ppm->str,ppm->len,NULL);
     g_string_free(ppm,true);
 }
 
-static void acts_panel_save(ActsState *s)
+static void acts_panel_refresh(ActsState *s)
 {
-    s->panel_frames++;
     if (!s->frame_path) {
         return;
     }
@@ -585,6 +607,12 @@ static void acts_panel_save(ActsState *s)
         /* Stock transfers multiple rectangular strips for one LCD frame. */
         timer_mod(s->frame_timer, qemu_clock_get_ns(QEMU_CLOCK_REALTIME) + 16000000);
     }
+}
+
+static void acts_panel_save(ActsState *s)
+{
+    s->panel_frames++;
+    acts_panel_refresh(s);
 }
 static void acts_panel_te_tick(void *opaque)
 {
@@ -942,6 +970,13 @@ static void acts_lcd_write(ActsState *s,unsigned addr,uint32_t value)
         qemu_log_mask(LOG_UNIMP,"PANEL command %02x data=%08x len=%u\n",cmd,value,(s->regs[0x6402c/4]>>18)&63);
         if(cmd==0x2a) {s->panel_x0=value>>16;s->panel_x1=value&65535;}
         if(cmd==0x2b) {s->panel_y0=value>>16;s->panel_y1=value&65535;}
+        if (cmd == 0x51 && (s->regs[0x64034 / 4] >> 24) == 0x02 &&
+            s->panel_brightness != (uint8_t)value) {
+            s->panel_brightness = value;
+            if (s->panel_frames) {
+                acts_panel_refresh(s);
+            }
+        }
         if (cmd == 0x29 || cmd == 0x28 || cmd == 0x10 ||
             cmd == 0x35 || cmd == 0x34) {
             if (cmd == 0x29) {
@@ -2116,6 +2151,7 @@ static void acts_reset(void *opaque)
     s->de_palette_index = 0;
     memset(s->panel, 0, sizeof(s->panel));
     s->panel_on = s->panel_te_enabled = s->panel_de_active = false;
+    s->panel_brightness = 255;
     s->panel_x0 = 8;
     s->panel_x1 = 473;
     s->panel_y0 = 0;
@@ -2203,6 +2239,7 @@ static void acts_init(MachineState *machine)
     s->host_rtc = g_strcmp0(g_getenv("QEMU_WP2_HOST_RTC"), "1") == 0;
     s->stock_awake = g_strcmp0(g_getenv("QEMU_WP2_STOCK_AWAKE"), "1") == 0;
     s->input_path = g_getenv("QEMU_WP2_INPUT");
+    s->viewer_brightness = 100;
     s->stk_enabled = s->input_path && g_getenv("QEMU_WP2_LIVE_SENSORS");
     s->health_hook = s->input_path && g_getenv("QEMU_WP2_LIVE_HEALTH");
     s->frame_path = g_getenv("QEMU_WP2_FRAME");
