@@ -48,7 +48,7 @@ Start the local server:
 uv run python emulator/web/serve.py web-local
 ```
 
-Open `http://127.0.0.1:8090/` and select **Start emulation**. The server binds to
+Open `http://127.0.0.1:8090/` to start stock automatically. The server binds to
 loopback and sends the cross-origin isolation headers needed by Wasm workers.
 Opening the HTML directly as a file will not work. A first boot can take tens
 of seconds; the watch log shows guest progress.
@@ -57,8 +57,16 @@ You can select the staged `web-local/fixtures` folder as a stock override in
 the hosted preview. The browser remembers the override for future boots.
 The hosted preview accepts local firmware packages,
 application files and watch faces. Open **FMC watch faces** to browse community
-faces, or select **Bad Apple** and provide your own built firmware. Under
+faces by name or author and sort by newest, downloads, or flashes. The same
+picker is available when serving local stock files. Select **Bad Apple** to
+provide your own built firmware. Under
 **Display**, you can select a local frame artwork folder.
+
+To preview the same versioned web bundle that Pages publishes, run
+`uv run python emulator/web/publish.py --runtime WASM_BUILD --stock web-local --output web-preview`
+and serve `web-preview`. Open `http://127.0.0.1:8090/emulator/watch-pro-2/`.
+For this layout, stage with `--stock-image` and `--frames-dir` to include the
+stock texture index and frame renders.
 
 ## Controls
 
@@ -102,8 +110,8 @@ With the local Python server running, select a single Watch Pro 2 face
 (`.wfdl`, `.wfc`, or `.bin`) under **Boot images â†’ Watch face**, then press Play.
 The import replaces Activity Mood for that stock session. If the face needs
 more room, the importer uses the Prismatic Time slot to keep the original
-Activity Mood available. The server builds a patch in memory and the browser
-applies it to its copy of the prepared NAND. Reload to start from stock again.
+Activity Mood available. The browser changes its in-memory copy of the prepared
+NAND. Use **Hard reset to stock** to start over.
 
 For a custom firmware session, open **Boot images** and select its Watch Pro 2 ACTH `app.bin` under
 **Application image** and its matching `sdfs.bin`, if provided, under

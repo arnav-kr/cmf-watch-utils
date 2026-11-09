@@ -11,7 +11,7 @@ from cmf_watch_utils.emu.image import verify_package
 from cmf_watch_utils.emu.prepare import STOCK_SHA256
 from cmf_watch_utils.emu.profiles import WP2
 
-from face import MAX_FACE, face_patch
+from cmf_watch_utils.emu.watchface import MAX_FACE, face_patch
 
 
 class Handler(SimpleHTTPRequestHandler):

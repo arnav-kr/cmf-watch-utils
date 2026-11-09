@@ -19,7 +19,8 @@ Use **Stop** to choose a firmware or watch-face preset before starting a new
 session. **Hard reset to stock** discards the running session and boots stock
 again. **Stock firmware override** accepts a prepared local folder for testing.
 
-Open **FMC watch faces** to select a face by preview, title, or creator. The
+Open **FMC watch faces** to browse the full Watch Pro 2 catalog. Search by
+title or creator and sort by newest, most downloaded, or most flashed. The
 emulator installs the selected face into its virtual storage at boot. You can
 also load a local watch-face file. Choose **Custom firmware** to boot a local
 Watch Pro 2 AOTA package. The **Bad Apple** preset accepts your built package,
@@ -33,6 +34,11 @@ tests, use desktop QEMU.
 | [Installation](/emulator/installation/) | Install the command line tools, download the QEMU and ROM archives, and check the host libraries. |
 | [First boot](/emulator/first-boot/) | Create the virtual storage from the reference firmware, boot stock, and open the watch window. |
 | [OTA and recovery](/emulator/ota-recovery/) | Transfer an update over simulated Bluetooth and check the installed app after reboot. |
+
+Run `uv run cmf-watch-utils emu faces --search "LCD" --sort downloads` to
+browse FMC from the desktop CLI. Copy the face's `id` and add
+`--fmc-face ID` to your stock `emu run` command. For a file on your computer,
+use `--watch-face FILE`. Both replace Activity Mood for that run.
 
 ## Profiles
 

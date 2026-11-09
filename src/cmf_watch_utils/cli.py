@@ -119,6 +119,12 @@ def cmd_run(args):
     emit(vm.run(args, PROFILES[args.profile]))
 
 
+def cmd_faces(args):
+    from .emu.watchface import catalog
+
+    emit(catalog(args.search, args.sort))
+
+
 def cmd_recover(args):
     result = recovery.recover(args, PROFILES[args.profile])
     emit(result, args.output / "recovery.json")
@@ -225,6 +231,10 @@ def parser():
     preflight.add_argument("--image", type=absolute, required=True)
     preflight.add_argument("--output", type=absolute)
     preflight.set_defaults(handler=cmd_preflight)
+    faces = emu_commands.add_parser("faces", help="List community Watch Pro 2 faces from FMC")
+    faces.add_argument("--search", default="", help="Find faces by name or author")
+    faces.add_argument("--sort", choices=("newest", "downloads", "flashes"), default="newest")
+    faces.set_defaults(handler=cmd_faces)
     run = emu_commands.add_parser("run", help="Launch the interactive viewer or a bounded boot test")
     fixtures(run)
     runtime(run)
@@ -233,6 +243,9 @@ def parser():
     source.add_argument("--ota-image", type=absolute)
     source.add_argument("--nor", type=absolute)
     run.add_argument("--nand", type=absolute)
+    face = run.add_mutually_exclusive_group()
+    face.add_argument("--watch-face", type=absolute, help="Replace Activity Mood with a local Watch Pro 2 face for this run")
+    face.add_argument("--fmc-face", help="Replace Activity Mood with a face ID from emu faces")
     run.add_argument("--sdfs", type=absolute)
     run.add_argument("--wish")
     run.add_argument("--output", type=absolute, required=True, help="New run directory")

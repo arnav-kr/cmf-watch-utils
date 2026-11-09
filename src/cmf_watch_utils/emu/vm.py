@@ -156,6 +156,8 @@ def run(args, profile):
     require(not args.wav or args.headless, "--wav requires --headless")
     require(not args.audio or not args.headless, "--audio is for live runs; use --wav for headless")
     stock = not (args.app or args.ota_image or args.nor)
+    require(not (args.watch_face or args.fmc_face) or (stock and not args.nand and profile.live_health),
+            "Watch-face import requires the stock watch-face profile and its default NAND")
     data = bytearray((args.nor or base).read_bytes())
     require(len(data) == model.nor_bytes, "Invalid virtual NOR size")
     if args.ota_image:
@@ -182,9 +184,26 @@ def run(args, profile):
     nor.write_bytes(data)
     shutil.copyfile(nand_id, output / "nand-id.bin")
     (output / "input.txt").touch()
+    texture_index = args.fixtures / "wfc-index.txt"
+    if args.watch_face or args.fmc_face:
+        from .watchface import PAGE, download_face, prepare_face
+
+        face = args.watch_face.read_bytes() if args.watch_face else download_face(args.fmc_face)
+        image = bytearray(nand.read_bytes())
+        pages, packed, index = prepare_face(image, face)
+        for offset, page in zip(pages, range(0, len(packed), PAGE)):
+            chunk = packed[page:page + PAGE]
+            image[offset:offset + len(chunk)] = chunk
+        nand = output / "nand.bin"
+        nand.write_bytes(image)
+        existing = texture_index.read_bytes() if texture_index.is_file() else b""
+        texture_index = output / "wfc-index.txt"
+        texture_index.write_bytes(existing + b"\n" + index)
     env = runtime_env(args, model, NOR=nor, NAND=nand, FRAME=output / "frame.ppm",
                       INPUT=output / "input.txt", UNPLUGGED=int(not args.charger_connected),
                       HOST_RTC=1, EXPLORATORY=0)
+    if texture_index.is_file():
+        env[model.env_prefix + "WFC_INDEX"] = str(texture_index)
     argv = command(args, model, output, env)
     if not args.headless:
         env[model.env_prefix + "LIVE_FRAME"] = "1"

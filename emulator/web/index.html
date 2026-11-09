@@ -177,9 +177,19 @@
       <details class="settings-section" id="face-catalog" hidden>
         <summary>FMC watch faces</summary>
         <fieldset>
-          <button type="button">Use stock watch face</button>
-          <p role="status"></p>
-          <ul class="catalog-options"></ul>
+          <div class="catalog-filters">
+            <input type="search" aria-label="Search watch faces" placeholder="Search names or authors">
+            <select aria-label="Sort watch faces">
+              <option value="newest">Newest</option>
+              <option value="downloads">Most downloaded</option>
+              <option value="flashes">Most flashed</option>
+            </select>
+          </div>
+          <div class="catalog-actions">
+            <span role="status"></span>
+            <button class="catalog-clear" type="button">Use stock face</button>
+          </div>
+          <ul class="catalog-options" aria-label="FMC watch faces"></ul>
         </fieldset>
         <small>The selected face replaces Activity Mood for this session.</small>
       </details>
