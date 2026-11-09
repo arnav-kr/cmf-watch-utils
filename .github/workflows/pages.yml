@@ -9,8 +9,13 @@ on:
       - '.github/workflows/emulator-wasm.yml'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
+    inputs:
+      wasm_run_id:
+        description: Reuse a verified WebAssembly artifact from a previous run
+        type: string
 
 permissions:
+  actions: read
   contents: read
   pages: write
   id-token: write
@@ -21,12 +26,14 @@ concurrency:
 
 jobs:
   wasm:
+    if: ${{ !inputs.wasm_run_id }}
     uses: ./.github/workflows/emulator-wasm.yml
     permissions:
       contents: read
 
   build:
     needs: wasm
+    if: ${{ !cancelled() && (needs.wasm.result == 'success' || inputs.wasm_run_id) }}
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
@@ -53,6 +60,8 @@ jobs:
         with:
           name: wp2-wasm-experimental
           path: wasm-output
+          github-token: ${{ inputs.wasm_run_id && github.token || '' }}
+          run-id: ${{ inputs.wasm_run_id || github.run_id }}
 
       - uses: astral-sh/setup-uv@v5
         with:
