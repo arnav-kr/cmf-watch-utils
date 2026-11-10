@@ -27,7 +27,7 @@ image create photo watch_frame
 .panel create oval 5 5 493 493 -outline #303030 -width 8 -tags case
 .panel create oval 3 3 495 495 -outline #5e5e5e -width 1 -tags case
 .panel create oval 12 12 486 486 -outline #050505 -width 8 -tags case
-label .status -text $version -background #181818 -foreground white
+label .status -text "$version    Motor: off" -background #181818 -foreground #bdbdbd
 frame .controls -background #1a1a1a -padx 16 -pady 20
 frame .controls.stack -background #1a1a1a
 label .controls.label -text "CROWN" -background #1a1a1a -foreground #c4c4c4
@@ -47,21 +47,76 @@ for {set y 29} {$y <= 83} {incr y 6} {
 }
 .controls.wheel create line 31 19 36 14 41 19 -fill #d6d6d6 -width 2
 .controls.wheel create line 31 93 36 98 41 93 -fill #d6d6d6 -width 2
-foreach {name caption action} {frame {Hide frame} toggle_frame capture {Save PNG} save_snapshot advanced {Advanced...} open_sensors} {
-    button .controls.$name -text $caption -command $action -width 13 -pady 5 -bd 0 \
-        -background #2b2b2b -foreground #eeeeee -activebackground #3c3c3c \
-        -activeforeground white -highlightbackground #1a1a1a -highlightcolor #b0b0b0
+proc round_rect {canvas x1 y1 x2 y2 radius args} {
+    $canvas create polygon \
+        [expr {$x1 + $radius}] $y1 [expr {$x2 - $radius}] $y1 $x2 $y1 $x2 [expr {$y1 + $radius}] \
+        $x2 [expr {$y2 - $radius}] $x2 $y2 [expr {$x2 - $radius}] $y2 [expr {$x1 + $radius}] $y2 \
+        $x1 $y2 $x1 [expr {$y2 - $radius}] $x1 [expr {$y1 + $radius}] $x1 $y1 -smooth 1 {*}$args
 }
+
+proc pill {w caption action} {
+    canvas $w -width 168 -height 36 -background #1a1a1a -highlightthickness 0 -cursor hand2
+    round_rect $w 2 2 166 34 12 -fill #2a2a2a -outline #3a3a3a -width 1 -tags body
+    $w create text 84 18 -text $caption -fill #e8e8e8 -font {TkDefaultFont 12} -tags label
+    bind $w <Enter> {%W itemconfigure body -fill #343434 -outline #5a5a5a}
+    bind $w <Leave> {%W itemconfigure body -fill #2a2a2a -outline #3a3a3a}
+    bind $w <ButtonPress-1> {%W itemconfigure body -fill #404040}
+    bind $w <ButtonRelease-1> [list pill_release %W %x %y $action]
+}
+
+proc pill_release {w x y action} {
+    $w itemconfigure body -fill #343434
+    if {$x >= 0 && $y >= 0 && $x < [winfo width $w] && $y < [winfo height $w]} {
+        uplevel #0 $action
+    }
+}
+
+proc toggle_draw {} {
+    global captureFrame
+    set w .controls.captureFrame
+    $w itemconfigure box -fill [expr {$captureFrame ? "#ff6a2b" : "#2a2a2a"}] \
+        -outline [expr {$captureFrame ? "#ff6a2b" : "#5a5a5a"}]
+    $w itemconfigure tick -state [expr {$captureFrame ? "normal" : "hidden"}]
+}
+
+foreach {name caption action} {frame {Hide frame} toggle_frame capture {Save PNG} save_snapshot advanced {Advanced...} open_sensors} {
+    pill .controls.$name $caption $action
+}
+canvas .controls.captureFrame -width 168 -height 26 -background #1a1a1a -highlightthickness 0 -cursor hand2
+round_rect .controls.captureFrame 18 5 34 21 4 -width 1 -tags box
+.controls.captureFrame create line 22 13 25 17 31 9 -fill white -width 2 -tags tick
+.controls.captureFrame create text 44 13 -text {Include frame} -anchor w -fill #d8d8d8 -font {TkDefaultFont 12}
+bind .controls.captureFrame <ButtonRelease-1> {set captureFrame [expr {!$captureFrame}]; toggle_draw}
+toggle_draw
 pack .controls.label .controls.crown .controls.wheel -in .controls.stack -pady 5
-pack .controls.frame -in .controls.stack -fill x -pady {15 4}
-checkbutton .controls.captureFrame -text {Include frame} -variable captureFrame \
-    -background #1a1a1a -foreground #eeeeee -activebackground #1a1a1a \
-    -activeforeground white -selectcolor #2b2b2b
-pack .controls.capture .controls.captureFrame -in .controls.stack -fill x -pady 2
-pack .controls.advanced -in .controls.stack -fill x -pady 4
+pack .controls.frame -in .controls.stack -pady {15 4}
+pack .controls.capture .controls.captureFrame -in .controls.stack -pady 2
+pack .controls.advanced -in .controls.stack -pady 4
 pack .controls.stack -expand 1
+
+set logSections {uart {Watch log (UART)} uart0.log motor {Motor} motor.log qemu {QEMU} qemu.log}
+set openLog {}
+set tick 0
+frame .logs -background #141414
+foreach {key caption file} $logSections {
+    set offset($key) 0
+    set logFile($key) $file
+    label .logs.head$key -text "\u25b8  $caption" -anchor w -padx 14 -pady 7 -cursor hand2 \
+        -background #202020 -foreground #d8d8d8 -font {TkDefaultFont 12}
+    bind .logs.head$key <Enter> {%W configure -background #2a2a2a}
+    bind .logs.head$key <Leave> {%W configure -background #202020}
+    bind .logs.head$key <ButtonRelease-1> [list toggle_log $key]
+    frame .logs.body$key -background #101010
+    text .logs.body$key.text -height 14 -wrap none -borderwidth 0 -highlightthickness 0 \
+        -background #101010 -foreground #c8c8c8 -insertbackground #c8c8c8 \
+        -selectbackground #3a3a3a -font {TkFixedFont 11} -padx 12 -pady 6
+    bindtags .logs.body$key.text [list .logs.body$key.text Text all]
+    pack .logs.body$key.text -fill both -expand 1
+    pack .logs.head$key -fill x -pady {1 0}
+}
 grid .panel .controls -sticky nsew
 grid configure .panel -padx 12 -pady 12
+grid .logs -columnspan 2 -sticky ew
 grid .status -columnspan 2 -sticky ew -ipady 5
 raise .
 after 1500 {wm attributes . -topmost 0}
@@ -75,7 +130,7 @@ proc toggle_frame {} {
     global showFrame
     set showFrame [expr {!$showFrame}]
     .panel itemconfigure case -state [expr {$showFrame ? "normal" : "hidden"}]
-    .controls.frame configure -text [expr {$showFrame ? "Hide frame" : "Show frame"}]
+    .controls.frame itemconfigure label -text [expr {$showFrame ? "Hide frame" : "Show frame"}]
 }
 
 proc save_snapshot {} {
@@ -316,6 +371,47 @@ proc motor_status {} {
     }
 }
 
+proc toggle_log {key} {
+    global openLog offset
+    if {$openLog ne {}} {
+        pack forget .logs.body$openLog
+        .logs.head$openLog configure -text "\u25b8[string range [.logs.head$openLog cget -text] 1 end]"
+    }
+    if {$openLog eq $key} {
+        set openLog {}
+        return
+    }
+    set openLog $key
+    .logs.head$key configure -text "\u25be[string range [.logs.head$key cget -text] 1 end]"
+    pack .logs.body$key -after .logs.head$key -fill both -expand 1
+    .logs.body$key.text delete 1.0 end
+    set offset($key) 0
+    poll_log
+}
+
+proc poll_log {} {
+    global logFile openLog offset run
+    if {$openLog eq {}} {return}
+    set file [file join $run $logFile($openLog)]
+    if {[catch {set size [file size $file]}] || $size == $offset($openLog)} {return}
+    if {$size < $offset($openLog)} {set offset($openLog) 0}
+    set start [expr {max($offset($openLog), $size - 65536)}]
+    if {[catch {
+        set stream [open $file rb]
+        try {
+            seek $stream $start
+            set chunk [read $stream]
+        } finally {close $stream}
+    }]} {return}
+    set offset($openLog) $size
+    set view .logs.body$openLog.text
+    set follow [expr {[lindex [$view yview] 1] >= 0.999}]
+    $view insert end [string map {"\r" ""} [encoding convertfrom utf-8 $chunk]]
+    set excess [expr {int([$view index end]) - 3000}]
+    if {$excess > 0} {$view delete 1.0 $excess.0}
+    if {$follow} {$view see end}
+}
+
 proc refresh {} {
     global frame run last
     if {![catch {
@@ -332,6 +428,8 @@ proc refresh {} {
         return
     }
     motor_status
+    global tick
+    if {[incr tick] % 15 == 0} {poll_log}
     after 16 refresh
 }
 refresh
