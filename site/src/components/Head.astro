@@ -8,17 +8,16 @@ const isHome = Astro.url.pathname === '/';
 
 const siteName = 'CMF Watch Utils';
 const tagline =
-  'A browser emulator, firmware tools, and Bluetooth research for the CMF Watch Pro 2.';
+  'Tooling and documentation for the CMF Watch Pro 2: firmware container toolkit, BLE tooling and reverse-engineering notes.';
 const authorName = 'Arnav Kumar';
 const authorUrl = 'https://github.com/arnav-kr';
 const homepage = 'https://arnv.dev';
 const repoUrl = 'https://github.com/arnav-kr/cmf-watch-utils';
 
-const pageTitle = isHome || !data.title ? siteName : `${data.title} · ${siteName}`;
+const pageTitle = data.title ? `${data.title} · ${siteName}` : `${siteName} — CMF Watch Pro 2 firmware tooling and BLE research`;
 const description = data.description ?? tagline;
 const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://cmf.arnv.dev');
-const ogImage = new URL('/og-emulator-screenshot.png', Astro.site ?? 'https://cmf.arnv.dev');
-const ogImageAlt = 'Watch Pro 2 browser emulator running the green LCD Giant watch face by Egor Kolesnikov.';
+const ogImage = new URL('/og-banner.png', Astro.site ?? 'https://cmf.arnv.dev');
 const pageUrl = canonical.href;
 const acronyms: Record<string, string> = {
   cmf: 'CMF',
@@ -146,16 +145,17 @@ const gaId = 'G-N2Z43EJVZV';
 <meta property="og:image:type" content="image/png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
-<meta property="og:image:alt" content={ogImageAlt} />
+<meta property="og:image:alt" content="CMF Watch Utils" />
 <meta property="article:author" content={authorUrl} />
 
 <meta name="twitter:title" content={pageTitle} />
 <meta name="twitter:description" content={description} />
 <meta name="twitter:image" content={ogImage.href} />
-<meta name="twitter:image:alt" content={ogImageAlt} />
+<meta name="twitter:image:alt" content="CMF Watch Utils" />
 <meta name="twitter:site" content="@arnav_kr" />
 <meta name="twitter:creator" content="@arnav_kr" />
 
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
 <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
 <link rel="manifest" href="/site.webmanifest" />

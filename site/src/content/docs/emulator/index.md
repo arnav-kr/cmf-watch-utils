@@ -1,6 +1,6 @@
 ---
 title: Watch Pro 2 emulator
-description: Run Watch Pro 2 firmware in your browser or use desktop QEMU for virtual Bluetooth OTA and recovery tests.
+description: What the QEMU preview supports and where to start.
 ---
 
 The emulator runs CMF Watch Pro 2 firmware on your computer. You can use
