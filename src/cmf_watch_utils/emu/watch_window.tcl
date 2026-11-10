@@ -2,6 +2,9 @@ set run [lindex $argv 0]
 set stock [expr {[lindex $argv 1] ne "custom"}]
 set version [lindex $argv 2]
 set frame [file join $run frame.ppm]
+set motorLog [file join $run motor.log]
+set motorText {Motor: off}
+set motorSize 0
 set events [open [file join $run input.txt] a]
 fconfigure $events -buffering line -translation lf -encoding ascii
 set last {}
@@ -290,6 +293,29 @@ bind . <Button-5> {send_event "r 80"; break}
 bind . <FocusOut> {crown 0}
 focus .panel
 
+proc motor_status {} {
+    global motorLog motorText motorSize version
+    if {[catch {set size [file size $motorLog]}] || $size == $motorSize} {return}
+    set motorSize $size
+    if {[catch {
+        set stream [open $motorLog r]
+        try {
+            if {$size > 64} {seek $stream -64 end}
+            set lines [split [string trim [read $stream]] "\n"]
+        } finally {close $stream}
+        lassign [lindex $lines end] ms duty freq
+        if {$duty eq {} || $duty == 0} {
+            set text {Motor: off}
+        } else {
+            set text [format {Motor: %d%% %d Hz} [expr {$duty / 10}] $freq]
+        }
+    }]} {return}
+    if {$text ne $motorText} {
+        set motorText $text
+        .status configure -text "$version    $text"
+    }
+}
+
 proc refresh {} {
     global frame run last
     if {![catch {
@@ -305,6 +331,7 @@ proc refresh {} {
         .panel create text 249 249 -text "QEMU stopped\n[file tail $run]/qemu.log" -fill white
         return
     }
+    motor_status
     after 16 refresh
 }
 refresh

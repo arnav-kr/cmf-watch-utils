@@ -130,6 +130,8 @@ struct ActsState {
     QEMUTimer *frame_timer;
     unsigned frame_interval_ms;
     const char *frame_path;
+    FILE *motor_log;
+    unsigned motor_duty, motor_freq;
     unsigned panel_inset[466];
     bool panel_on, panel_te_enabled;
     uint8_t panel_brightness, viewer_brightness;
@@ -1537,6 +1539,29 @@ static bool acts_storage_reg(hwaddr addr)
            addr == 0x14000 || addr == 0x18000 || addr == 0x18094;
 }
 
+static void acts_motor_update(ActsState *s)
+{
+    uint32_t ctl = s->regs[0x60000 / 4];
+    uint32_t period = s->regs[0x60014 / 4] & 0xffff;
+    uint32_t pulse = s->regs[0x60018 / 4] & 0xffff;
+    uint32_t clock = s->regs[0x1068 / 4];
+    uint32_t source = (clock & 0x200) ? 32000000 : 32000;
+    unsigned duty = 0, freq = 0;
+
+    if ((ctl & 0x18) == 0x18 && period) {
+        duty = MIN(pulse, period) * 1000 / period;
+        freq = duty ? source / ((clock & 0x1ff) + 1) / period : 0;
+    }
+    if (!s->motor_log || (duty == s->motor_duty && freq == s->motor_freq)) {
+        return;
+    }
+    s->motor_duty = duty;
+    s->motor_freq = freq;
+    fprintf(s->motor_log, "%" PRId64 " %u %u\n",
+            qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) / 1000000, duty, freq);
+    fflush(s->motor_log);
+}
+
 static uint64_t acts_read(void *opaque, hwaddr addr, unsigned size)
 {
     ActsState *s = opaque;
@@ -2127,6 +2152,9 @@ static void acts_write(void *opaque, hwaddr addr, uint64_t value, unsigned size)
         acts_unknown(s, addr, true, value);
     }
     s->regs[addr / 4] = value;
+    if ((addr >= 0x60000 && addr <= 0x60018) || addr == 0x1068) {
+        acts_motor_update(s);
+    }
 }
 
 static const MemoryRegionOps acts_ops = {
@@ -2342,6 +2370,9 @@ static void acts_init(MachineState *machine)
     s->stk_enabled = s->input_path && g_getenv("QEMU_WP2_LIVE_SENSORS");
     s->health_hook = s->input_path && g_getenv("QEMU_WP2_LIVE_HEALTH");
     s->frame_path = g_getenv("QEMU_WP2_FRAME");
+    if (g_getenv("QEMU_WP2_MOTOR")) {
+        s->motor_log = fopen(g_getenv("QEMU_WP2_MOTOR"), "w");
+    }
     s->frame_interval_ms = g_getenv("QEMU_WP2_ECONOMY_DISPLAY") ? 33 : 16;
     if (s->frame_path && g_getenv("QEMU_WP2_LIVE_FRAME")) {
         s->frame_timer = timer_new_ns(QEMU_CLOCK_REALTIME, acts_panel_publish, s);
