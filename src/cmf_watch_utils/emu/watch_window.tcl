@@ -71,23 +71,68 @@ proc pill_release {w x y action} {
     }
 }
 
-proc toggle_draw {} {
-    global captureFrame
-    set w .controls.captureFrame
-    $w itemconfigure box -fill [expr {$captureFrame ? "#ff6a2b" : "#2a2a2a"}] \
-        -outline [expr {$captureFrame ? "#ff6a2b" : "#5a5a5a"}]
-    $w itemconfigure tick -state [expr {$captureFrame ? "normal" : "hidden"}]
+proc check {w caption var} {
+    canvas $w -width 280 -height 26 -background #1a1a1a -highlightthickness 0 -cursor hand2
+    round_rect $w 4 5 20 21 4 -width 1 -tags box
+    $w create line 8 13 11 17 17 9 -fill white -width 2 -tags tick
+    $w create text 30 13 -text $caption -anchor w -fill #d8d8d8 -font {TkDefaultFont 12}
+    bind $w <ButtonRelease-1> [list check_toggle $w $var]
+    check_draw $w $var
+}
+
+proc check_toggle {w var} {
+    upvar #0 $var value
+    set value [expr {!$value}]
+    check_draw $w $var
+}
+
+proc check_draw {w var} {
+    upvar #0 $var value
+    $w itemconfigure box -fill [expr {$value ? "#ff6a2b" : "#2a2a2a"}] \
+        -outline [expr {$value ? "#ff6a2b" : "#5a5a5a"}]
+    $w itemconfigure tick -state [expr {$value ? "normal" : "hidden"}]
+}
+
+ttk::style theme use clam
+ttk::style configure Dark.Horizontal.TScale -background #6a6a6a -troughcolor #2a2a2a \
+    -bordercolor #1a1a1a -lightcolor #6a6a6a -darkcolor #6a6a6a -gripcount 0
+ttk::style map Dark.Horizontal.TScale -background {active #ff6a2b pressed #ff6a2b} \
+    -lightcolor {active #ff6a2b pressed #ff6a2b} -darkcolor {active #ff6a2b pressed #ff6a2b}
+
+proc slider {w caption var from to resolution {command {}}} {
+    upvar #0 $var value
+    frame $w -background #1a1a1a
+    label $w.caption -text $caption -anchor w -background #1a1a1a -foreground #d8d8d8 \
+        -font {TkDefaultFont 12}
+    label $w.value -textvariable $var -anchor e -background #1a1a1a -foreground #ff6a2b \
+        -font {TkDefaultFont 12}
+    ttk::scale $w.scale -style Dark.Horizontal.TScale -orient horizontal -length 300 \
+        -from $from -to $to -value $value \
+        -command [list slider_moved $var $resolution $command]
+    grid $w.caption $w.value -sticky ew -pady {0 2}
+    grid $w.scale -columnspan 2 -sticky ew
+    grid columnconfigure $w 0 -weight 1
+}
+
+proc slider_moved {var resolution command position} {
+    upvar #0 $var value
+    set rounded [expr {int(round($position / double($resolution)) * $resolution)}]
+    if {$rounded == $value} {return}
+    set value $rounded
+    if {$command ne {}} {uplevel #0 [list {*}$command $rounded]}
+}
+
+proc group {w caption} {
+    labelframe $w -text $caption -background #1a1a1a -foreground #a8a8a8 \
+        -font {TkDefaultFont 11} -borderwidth 1 -relief solid -padx 8 -pady 6 \
+        -highlightthickness 0
 }
 
 foreach {name caption action} {frame {Hide frame} toggle_frame capture {Save PNG} save_snapshot advanced {Advanced...} open_sensors} {
     pill .controls.$name $caption $action
 }
-canvas .controls.captureFrame -width 168 -height 26 -background #1a1a1a -highlightthickness 0 -cursor hand2
-round_rect .controls.captureFrame 18 5 34 21 4 -width 1 -tags box
-.controls.captureFrame create line 22 13 25 17 31 9 -fill white -width 2 -tags tick
-.controls.captureFrame create text 44 13 -text {Include frame} -anchor w -fill #d8d8d8 -font {TkDefaultFont 12}
-bind .controls.captureFrame <ButtonRelease-1> {set captureFrame [expr {!$captureFrame}]; toggle_draw}
-toggle_draw
+check .controls.captureFrame {Include frame} captureFrame
+.controls.captureFrame configure -width 168
 pack .controls.label .controls.crown .controls.wheel -in .controls.stack -pady 5
 pack .controls.frame -in .controls.stack -pady {15 4}
 pack .controls.capture .controls.captureFrame -in .controls.stack -pady 2
@@ -272,46 +317,44 @@ proc open_sensors {} {
         raise .advanced
         return
     }
-    toplevel .advanced
+    toplevel .advanced -background #1a1a1a -padx 16 -pady 12
     wm title .advanced "Advanced - Virtual sensors"
     wm transient .advanced .
     wm resizable .advanced 0 0
-    scale .advanced.brightness -orient horizontal -length 280 -from 0 -to 100 \
-        -label "Brightness (%)" -variable brightness -command {send_brightness}
-    pack .advanced.brightness -fill x -padx 12 -pady 4
+    slider .advanced.brightness "Brightness (%)" brightness 0 100 1 send_brightness
     foreach axis {X Y Z} {
-        scale .advanced.accel$axis -orient horizontal -length 280 -from -2000 -to 2000 \
-            -resolution 10 -label "$axis acceleration (mg)" -variable accel$axis
-        pack .advanced.accel$axis -fill x -padx 12 -pady 4
+        slider .advanced.accel$axis "$axis acceleration (mg)" accel$axis -2000 2000 10
     }
-    scale .advanced.battery -orient horizontal -length 280 -from 3300 -to 4400 \
-        -resolution 10 -label "Battery voltage (mV)" -variable battery
-    checkbutton .advanced.charger -text "Charger connected" -variable charging
-    pack .advanced.battery .advanced.charger -padx 12 -pady 5
+    slider .advanced.battery "Battery voltage (mV)" battery 3300 4400 10
+    check .advanced.charger "Charger connected" charging
+    pack .advanced.brightness .advanced.accelX .advanced.accelY .advanced.accelZ .advanced.battery \
+        -fill x -pady 5
+    pack .advanced.charger -fill x -pady {4 8}
     if {$stock} {
-        labelframe .advanced.health -text "Simulated optical results"
-        checkbutton .advanced.health.enabled -text "Enable simulated readings" -variable virtualHealth
-        scale .advanced.health.hr -orient horizontal -length 280 -from 30 -to 220 \
-            -label "Heart rate (bpm)" -variable heartRate
-        scale .advanced.health.spo2 -orient horizontal -length 280 -from 70 -to 100 \
-            -label "Blood oxygen (%)" -variable spo2
-        pack .advanced.health.enabled .advanced.health.hr .advanced.health.spo2 -fill x -padx 4
-        pack .advanced.health -padx 12 -pady 5
+        group .advanced.health "Simulated optical results"
+        check .advanced.health.enabled "Enable simulated readings" virtualHealth
+        slider .advanced.health.hr "Heart rate (bpm)" heartRate 30 220 1
+        slider .advanced.health.spo2 "Blood oxygen (%)" spo2 70 100 1
+        pack .advanced.health.enabled .advanced.health.hr .advanced.health.spo2 -fill x -pady 3
+        pack .advanced.health -fill x -pady 6
     }
-    labelframe .advanced.gps -text "GPS"
-    checkbutton .advanced.gps.enabled -text "Simulate a GPS fix" -variable virtualGps
+    group .advanced.gps "GPS"
+    check .advanced.gps.enabled "Simulate a GPS fix" virtualGps
     grid .advanced.gps.enabled -columnspan 2 -sticky w
     foreach {axis variable} {Latitude gpsLatitude Longitude gpsLongitude} {
-        label .advanced.gps.label$axis -text $axis
-        entry .advanced.gps.value$axis -textvariable $variable -width 15
-        grid .advanced.gps.label$axis .advanced.gps.value$axis -sticky w -padx 4 -pady 2
+        label .advanced.gps.label$axis -text $axis -background #1a1a1a -foreground #d8d8d8 \
+            -font {TkDefaultFont 12}
+        entry .advanced.gps.value$axis -textvariable $variable -width 15 -relief flat \
+            -background #2a2a2a -foreground #e8e8e8 -insertbackground white \
+            -highlightthickness 1 -highlightbackground #3a3a3a -highlightcolor #ff6a2b
+        grid .advanced.gps.label$axis .advanced.gps.value$axis -sticky w -padx 4 -pady 3
     }
-    pack .advanced.gps -fill x -padx 12 -pady 5
-    frame .advanced.buttons
-    button .advanced.buttons.apply -text Apply -command apply_sensors
-    button .advanced.buttons.close -text Close -command {destroy .advanced}
+    pack .advanced.gps -fill x -pady 6
+    frame .advanced.buttons -background #1a1a1a
+    pill .advanced.buttons.apply Apply apply_sensors
+    pill .advanced.buttons.close Close {destroy .advanced}
     pack .advanced.buttons.apply .advanced.buttons.close -side left -padx 4
-    pack .advanced.buttons -padx 12 -pady 5
+    pack .advanced.buttons -pady {10 2}
 }
 
 proc send_brightness {value} {
