@@ -1539,18 +1539,26 @@ static bool acts_storage_reg(hwaddr addr)
            addr == 0x14000 || addr == 0x18000 || addr == 0x18094;
 }
 
+static uint32_t acts_pwm_clock(uint32_t reg)
+{
+    static const uint32_t sources[4] = { 32000, 32000000, 64000000, 0 };
+    uint32_t field = reg & 0x1ff;
+    uint32_t divider = field < 256 ? field + 1 : field <= 260 ? 512u << (field - 256) : 0;
+
+    return divider ? sources[(reg >> 9) & 3] / divider : 0;
+}
+
 static void acts_motor_update(ActsState *s)
 {
     uint32_t ctl = s->regs[0x60000 / 4];
     uint32_t period = s->regs[0x60014 / 4] & 0xffff;
     uint32_t pulse = s->regs[0x60018 / 4] & 0xffff;
-    uint32_t clock = s->regs[0x1068 / 4];
-    uint32_t source = (clock & 0x200) ? 32000000 : 32000;
+    uint32_t clock = acts_pwm_clock(s->regs[0x1068 / 4]);
     unsigned duty = 0, freq = 0;
 
     if ((ctl & 0x18) == 0x18 && period) {
         duty = MIN(pulse, period) * 1000 / period;
-        freq = duty ? source / ((clock & 0x1ff) + 1) / period : 0;
+        freq = duty ? clock / period : 0;
     }
     if (!s->motor_log || (duty == s->motor_duty && freq == s->motor_freq)) {
         return;
