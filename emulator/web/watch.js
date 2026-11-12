@@ -317,15 +317,15 @@ const vibration = $('watch-vibration');
 const canVibrate = typeof navigator.vibrate === 'function';
 $('vibration-control').hidden = !canVibrate;
 let motorOffset = 0, motorRemainder = '', nextMotorPoll = 0;
-const motorBufferMs = 100, motorLeaseMs = 250;
+const motorPatternGapMs = 100, maxVibrationMs = 10000;
 const motorPulses = [];
-let motorPulse, liveMotorPulse, vibratingUntil = 0, skipMotorPlayback = false;
+let motorStart, vibratingUntil = 0, skipMotorPlayback = false;
 let lastMotorEnd;
 
 function stopVibration() {
   if (vibratingUntil > performance.now()) navigator.vibrate(0);
   motorPulses.length = 0;
-  motorPulse = liveMotorPulse = undefined;
+  motorStart = undefined;
   lastMotorEnd = undefined;
   vibratingUntil = 0;
 }
@@ -341,44 +341,28 @@ document.addEventListener('visibilitychange', () => {
 window.addEventListener('pagehide', stopVibration);
 
 function playMotor(now) {
-  if (liveMotorPulse) {
-    const {playedAt, start, end} = liveMotorPulse;
-    const stopAt = end === undefined ? Infinity : playedAt + end - start;
-    if (now >= stopAt) {
-      if (vibratingUntil > now) navigator.vibrate(0);
-      vibratingUntil = now;
-      lastMotorEnd = end;
-      liveMotorPulse = undefined;
-    } else if (now >= vibratingUntil - 35 && stopAt > vibratingUntil) {
-      const duration = Math.min(motorLeaseMs, Math.ceil(stopAt - now));
-      navigator.vibrate(duration);
-      vibratingUntil = now + duration;
-    }
-  }
-  if (liveMotorPulse || !motorPulses.length) return;
-  const gapFromLast = motorPulses[0].start - lastMotorEnd;
-  const earliest = vibratingUntil + (gapFromLast > 0 && gapFromLast <= motorBufferMs ? gapFromLast : 0);
-  if (now < Math.max(earliest, motorPulses[0].due)) return;
-  const first = motorPulses.shift();
-  if (first.end === undefined || first.end - first.start > 10000) {
-    first.playedAt = now;
-    liveMotorPulse = first;
-    navigator.vibrate(motorLeaseMs);
-    vibratingUntil = now + motorLeaseMs;
-    return;
-  }
-  const pattern = [first.end - first.start];
+  const first = motorPulses[0];
+  if (!first) return;
+  const gapFromLast = lastMotorEnd === undefined ? 0 : Math.max(0, first.start - lastMotorEnd);
+  const earliest = vibratingUntil + gapFromLast;
+  if (now < earliest) return;
+  motorPulses.shift();
+  const pattern = [Math.min(first.end - first.start, maxVibrationMs)];
   let end = first.end;
-  while (pattern.length < 9 && motorPulses[0]?.end !== undefined) {
+  while (pattern.length < 9 && motorPulses.length) {
     const next = motorPulses[0];
     const gap = next.start - end;
-    if (gap < 0 || gap > motorBufferMs || next.end - next.start > 10000) break;
+    if (gap < 0 || gap > motorPatternGapMs) break;
     motorPulses.shift();
-    pattern.push(gap, next.end - next.start);
+    if (gap === 0) {
+      pattern[pattern.length - 1] = Math.min(pattern.at(-1) + next.end - next.start, maxVibrationMs);
+    } else {
+      pattern.push(gap, Math.min(next.end - next.start, maxVibrationMs));
+    }
     end = next.end;
   }
   navigator.vibrate(pattern);
-  vibratingUntil = now + end - first.start;
+  vibratingUntil = now + pattern.reduce((total, duration) => total + duration, 0);
   lastMotorEnd = end;
 }
 
@@ -406,19 +390,12 @@ function pollMotor(now) {
         const log = $('motor-log');
         log.textContent = 'Virtual ms | Duty ‰ | Hz\n' + readLog(motorPath, 8192).trimEnd();
         if (canVibrate && vibration.checked && !skipMotorPlayback && !document.hidden && navigator.userActivation?.hasBeenActive !== false) {
-          const latest = events.at(-1)[0];
           for (const [ms, level] of events) {
-            if (level && !motorPulse) {
-              motorPulse = {start: ms, due: now + Math.max(0, motorBufferMs - (latest - ms))};
-              motorPulses.push(motorPulse);
-            } else if (!level && motorPulse) {
-              if (ms > motorPulse.start) motorPulse.end = ms;
-              else {
-                const index = motorPulses.indexOf(motorPulse);
-                if (index >= 0) motorPulses.splice(index, 1);
-                else motorPulse.end = motorPulse.start;
-              }
-              motorPulse = undefined;
+            if (level) {
+              motorStart ??= ms;
+            } else if (motorStart !== undefined) {
+              if (ms > motorStart) motorPulses.push({start: motorStart, end: ms});
+              motorStart = undefined;
             }
           }
         }
