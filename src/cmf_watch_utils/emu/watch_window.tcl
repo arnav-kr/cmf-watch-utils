@@ -2,6 +2,9 @@ set run [lindex $argv 0]
 set stock [expr {[lindex $argv 1] ne "custom"}]
 set version [lindex $argv 2]
 set frame [file join $run frame.ppm]
+set motorLog [file join $run motor.log]
+set motorText {Motor: off}
+set motorSize 0
 set events [open [file join $run input.txt] a]
 fconfigure $events -buffering line -translation lf -encoding ascii
 set last {}
@@ -24,7 +27,7 @@ image create photo watch_frame
 .panel create oval 5 5 493 493 -outline #303030 -width 8 -tags case
 .panel create oval 3 3 495 495 -outline #5e5e5e -width 1 -tags case
 .panel create oval 12 12 486 486 -outline #050505 -width 8 -tags case
-label .status -text $version -background #181818 -foreground white
+label .status -text "$version    Motor: off" -background #181818 -foreground #bdbdbd
 frame .controls -background #1a1a1a -padx 16 -pady 20
 frame .controls.stack -background #1a1a1a
 label .controls.label -text "CROWN" -background #1a1a1a -foreground #c4c4c4
@@ -44,21 +47,121 @@ for {set y 29} {$y <= 83} {incr y 6} {
 }
 .controls.wheel create line 31 19 36 14 41 19 -fill #d6d6d6 -width 2
 .controls.wheel create line 31 93 36 98 41 93 -fill #d6d6d6 -width 2
-foreach {name caption action} {frame {Hide frame} toggle_frame capture {Save PNG} save_snapshot advanced {Advanced...} open_sensors} {
-    button .controls.$name -text $caption -command $action -width 13 -pady 5 -bd 0 \
-        -background #2b2b2b -foreground #eeeeee -activebackground #3c3c3c \
-        -activeforeground white -highlightbackground #1a1a1a -highlightcolor #b0b0b0
+proc round_rect {canvas x1 y1 x2 y2 radius args} {
+    $canvas create polygon \
+        [expr {$x1 + $radius}] $y1 [expr {$x2 - $radius}] $y1 $x2 $y1 $x2 [expr {$y1 + $radius}] \
+        $x2 [expr {$y2 - $radius}] $x2 $y2 [expr {$x2 - $radius}] $y2 [expr {$x1 + $radius}] $y2 \
+        $x1 $y2 $x1 [expr {$y2 - $radius}] $x1 [expr {$y1 + $radius}] $x1 $y1 -smooth 1 {*}$args
 }
+
+proc pill {w caption action} {
+    canvas $w -width 168 -height 36 -background #1a1a1a -highlightthickness 0 -cursor hand2
+    round_rect $w 2 2 166 34 12 -fill #2a2a2a -outline #3a3a3a -width 1 -tags body
+    $w create text 84 18 -text $caption -fill #e8e8e8 -font {TkDefaultFont 12} -tags label
+    bind $w <Enter> {%W itemconfigure body -fill #343434 -outline #5a5a5a}
+    bind $w <Leave> {%W itemconfigure body -fill #2a2a2a -outline #3a3a3a}
+    bind $w <ButtonPress-1> {%W itemconfigure body -fill #404040}
+    bind $w <ButtonRelease-1> [list pill_release %W %x %y $action]
+}
+
+proc pill_release {w x y action} {
+    $w itemconfigure body -fill #343434
+    if {$x >= 0 && $y >= 0 && $x < [winfo width $w] && $y < [winfo height $w]} {
+        uplevel #0 $action
+    }
+}
+
+proc check {w caption var} {
+    canvas $w -width 280 -height 26 -background #1a1a1a -highlightthickness 0 -cursor hand2
+    round_rect $w 4 5 20 21 4 -width 1 -tags box
+    $w create line 8 13 11 17 17 9 -fill white -width 2 -tags tick
+    $w create text 30 13 -text $caption -anchor w -fill #d8d8d8 -font {TkDefaultFont 12}
+    bind $w <ButtonRelease-1> [list check_toggle $w $var]
+    check_draw $w $var
+}
+
+proc check_toggle {w var} {
+    upvar #0 $var value
+    set value [expr {!$value}]
+    check_draw $w $var
+}
+
+proc check_draw {w var} {
+    upvar #0 $var value
+    $w itemconfigure box -fill [expr {$value ? "#ff6a2b" : "#2a2a2a"}] \
+        -outline [expr {$value ? "#ff6a2b" : "#5a5a5a"}]
+    $w itemconfigure tick -state [expr {$value ? "normal" : "hidden"}]
+}
+
+ttk::style theme use clam
+ttk::style configure Dark.Horizontal.TScale -background #6a6a6a -troughcolor #2a2a2a \
+    -bordercolor #1a1a1a -lightcolor #6a6a6a -darkcolor #6a6a6a -gripcount 0
+ttk::style map Dark.Horizontal.TScale -background {active #ff6a2b pressed #ff6a2b} \
+    -lightcolor {active #ff6a2b pressed #ff6a2b} -darkcolor {active #ff6a2b pressed #ff6a2b}
+
+proc slider {w caption var from to resolution {command {}}} {
+    upvar #0 $var value
+    frame $w -background #1a1a1a
+    label $w.caption -text $caption -anchor w -background #1a1a1a -foreground #d8d8d8 \
+        -font {TkDefaultFont 12}
+    label $w.value -textvariable $var -anchor e -background #1a1a1a -foreground #ff6a2b \
+        -font {TkDefaultFont 12}
+    ttk::scale $w.scale -style Dark.Horizontal.TScale -orient horizontal -length 300 \
+        -from $from -to $to -value $value \
+        -command [list slider_moved $var $resolution $command]
+    grid $w.caption $w.value -sticky ew -pady {0 2}
+    grid $w.scale -columnspan 2 -sticky ew
+    grid columnconfigure $w 0 -weight 1
+}
+
+proc slider_moved {var resolution command position} {
+    upvar #0 $var value
+    set rounded [expr {int(round($position / double($resolution)) * $resolution)}]
+    if {$rounded == $value} {return}
+    set value $rounded
+    if {$command ne {}} {uplevel #0 [list {*}$command $rounded]}
+}
+
+proc group {w caption} {
+    labelframe $w -text $caption -background #1a1a1a -foreground #a8a8a8 \
+        -font {TkDefaultFont 11} -borderwidth 1 -relief solid -padx 8 -pady 6 \
+        -highlightthickness 0
+}
+
+foreach {name caption action} {frame {Hide frame} toggle_frame capture {Save PNG} save_snapshot advanced {Advanced...} open_sensors} {
+    pill .controls.$name $caption $action
+}
+check .controls.captureFrame {Include frame} captureFrame
+.controls.captureFrame configure -width 168
 pack .controls.label .controls.crown .controls.wheel -in .controls.stack -pady 5
-pack .controls.frame -in .controls.stack -fill x -pady {15 4}
-checkbutton .controls.captureFrame -text {Include frame} -variable captureFrame \
-    -background #1a1a1a -foreground #eeeeee -activebackground #1a1a1a \
-    -activeforeground white -selectcolor #2b2b2b
-pack .controls.capture .controls.captureFrame -in .controls.stack -fill x -pady 2
-pack .controls.advanced -in .controls.stack -fill x -pady 4
+pack .controls.frame -in .controls.stack -pady {15 4}
+pack .controls.capture .controls.captureFrame -in .controls.stack -pady 2
+pack .controls.advanced -in .controls.stack -pady 4
 pack .controls.stack -expand 1
+
+set logSections {uart {Watch log (UART)} uart0.log motor {Motor} motor.log qemu {QEMU} qemu.log}
+set openLog {}
+set tick 0
+frame .logs -background #141414
+foreach {key caption file} $logSections {
+    set offset($key) 0
+    set logFile($key) $file
+    label .logs.head$key -text "\u25b8  $caption" -anchor w -padx 14 -pady 7 -cursor hand2 \
+        -background #202020 -foreground #d8d8d8 -font {TkDefaultFont 12}
+    bind .logs.head$key <Enter> {%W configure -background #2a2a2a}
+    bind .logs.head$key <Leave> {%W configure -background #202020}
+    bind .logs.head$key <ButtonRelease-1> [list toggle_log $key]
+    frame .logs.body$key -background #101010
+    text .logs.body$key.text -height 14 -wrap none -borderwidth 0 -highlightthickness 0 \
+        -background #101010 -foreground #c8c8c8 -insertbackground #c8c8c8 \
+        -selectbackground #3a3a3a -font {TkFixedFont 11} -padx 12 -pady 6
+    bindtags .logs.body$key.text [list .logs.body$key.text Text all]
+    pack .logs.body$key.text -fill both -expand 1
+    pack .logs.head$key -fill x -pady {1 0}
+}
 grid .panel .controls -sticky nsew
 grid configure .panel -padx 12 -pady 12
+grid .logs -columnspan 2 -sticky ew
 grid .status -columnspan 2 -sticky ew -ipady 5
 raise .
 after 1500 {wm attributes . -topmost 0}
@@ -72,7 +175,7 @@ proc toggle_frame {} {
     global showFrame
     set showFrame [expr {!$showFrame}]
     .panel itemconfigure case -state [expr {$showFrame ? "normal" : "hidden"}]
-    .controls.frame configure -text [expr {$showFrame ? "Hide frame" : "Show frame"}]
+    .controls.frame itemconfigure label -text [expr {$showFrame ? "Hide frame" : "Show frame"}]
 }
 
 proc save_snapshot {} {
@@ -214,46 +317,44 @@ proc open_sensors {} {
         raise .advanced
         return
     }
-    toplevel .advanced
+    toplevel .advanced -background #1a1a1a -padx 16 -pady 12
     wm title .advanced "Advanced - Virtual sensors"
     wm transient .advanced .
     wm resizable .advanced 0 0
-    scale .advanced.brightness -orient horizontal -length 280 -from 0 -to 100 \
-        -label "Brightness (%)" -variable brightness -command {send_brightness}
-    pack .advanced.brightness -fill x -padx 12 -pady 4
+    slider .advanced.brightness "Brightness (%)" brightness 0 100 1 send_brightness
     foreach axis {X Y Z} {
-        scale .advanced.accel$axis -orient horizontal -length 280 -from -2000 -to 2000 \
-            -resolution 10 -label "$axis acceleration (mg)" -variable accel$axis
-        pack .advanced.accel$axis -fill x -padx 12 -pady 4
+        slider .advanced.accel$axis "$axis acceleration (mg)" accel$axis -2000 2000 10
     }
-    scale .advanced.battery -orient horizontal -length 280 -from 3300 -to 4400 \
-        -resolution 10 -label "Battery voltage (mV)" -variable battery
-    checkbutton .advanced.charger -text "Charger connected" -variable charging
-    pack .advanced.battery .advanced.charger -padx 12 -pady 5
+    slider .advanced.battery "Battery voltage (mV)" battery 3300 4400 10
+    check .advanced.charger "Charger connected" charging
+    pack .advanced.brightness .advanced.accelX .advanced.accelY .advanced.accelZ .advanced.battery \
+        -fill x -pady 5
+    pack .advanced.charger -fill x -pady {4 8}
     if {$stock} {
-        labelframe .advanced.health -text "Simulated optical results"
-        checkbutton .advanced.health.enabled -text "Enable simulated readings" -variable virtualHealth
-        scale .advanced.health.hr -orient horizontal -length 280 -from 30 -to 220 \
-            -label "Heart rate (bpm)" -variable heartRate
-        scale .advanced.health.spo2 -orient horizontal -length 280 -from 70 -to 100 \
-            -label "Blood oxygen (%)" -variable spo2
-        pack .advanced.health.enabled .advanced.health.hr .advanced.health.spo2 -fill x -padx 4
-        pack .advanced.health -padx 12 -pady 5
+        group .advanced.health "Simulated optical results"
+        check .advanced.health.enabled "Enable simulated readings" virtualHealth
+        slider .advanced.health.hr "Heart rate (bpm)" heartRate 30 220 1
+        slider .advanced.health.spo2 "Blood oxygen (%)" spo2 70 100 1
+        pack .advanced.health.enabled .advanced.health.hr .advanced.health.spo2 -fill x -pady 3
+        pack .advanced.health -fill x -pady 6
     }
-    labelframe .advanced.gps -text "GPS"
-    checkbutton .advanced.gps.enabled -text "Simulate a GPS fix" -variable virtualGps
+    group .advanced.gps "GPS"
+    check .advanced.gps.enabled "Simulate a GPS fix" virtualGps
     grid .advanced.gps.enabled -columnspan 2 -sticky w
     foreach {axis variable} {Latitude gpsLatitude Longitude gpsLongitude} {
-        label .advanced.gps.label$axis -text $axis
-        entry .advanced.gps.value$axis -textvariable $variable -width 15
-        grid .advanced.gps.label$axis .advanced.gps.value$axis -sticky w -padx 4 -pady 2
+        label .advanced.gps.label$axis -text $axis -background #1a1a1a -foreground #d8d8d8 \
+            -font {TkDefaultFont 12}
+        entry .advanced.gps.value$axis -textvariable $variable -width 15 -relief flat \
+            -background #2a2a2a -foreground #e8e8e8 -insertbackground white \
+            -highlightthickness 1 -highlightbackground #3a3a3a -highlightcolor #ff6a2b
+        grid .advanced.gps.label$axis .advanced.gps.value$axis -sticky w -padx 4 -pady 3
     }
-    pack .advanced.gps -fill x -padx 12 -pady 5
-    frame .advanced.buttons
-    button .advanced.buttons.apply -text Apply -command apply_sensors
-    button .advanced.buttons.close -text Close -command {destroy .advanced}
+    pack .advanced.gps -fill x -pady 6
+    frame .advanced.buttons -background #1a1a1a
+    pill .advanced.buttons.apply Apply apply_sensors
+    pill .advanced.buttons.close Close {destroy .advanced}
     pack .advanced.buttons.apply .advanced.buttons.close -side left -padx 4
-    pack .advanced.buttons -padx 12 -pady 5
+    pack .advanced.buttons -pady {10 2}
 }
 
 proc send_brightness {value} {
@@ -290,6 +391,70 @@ bind . <Button-5> {send_event "r 80"; break}
 bind . <FocusOut> {crown 0}
 focus .panel
 
+proc motor_status {} {
+    global motorLog motorText motorSize version
+    if {[catch {set size [file size $motorLog]}] || $size == $motorSize} {return}
+    set motorSize $size
+    if {[catch {
+        set stream [open $motorLog r]
+        try {
+            if {$size > 64} {seek $stream -64 end}
+            set lines [split [string trim [read $stream]] "\n"]
+        } finally {close $stream}
+        lassign [lindex $lines end] ms duty freq
+        if {$duty eq {} || $duty == 0} {
+            set text {Motor: off}
+        } else {
+            set text [format {Motor: %d%% %d Hz} [expr {$duty / 10}] $freq]
+        }
+    }]} {return}
+    if {$text ne $motorText} {
+        set motorText $text
+        .status configure -text "$version    $text"
+    }
+}
+
+proc toggle_log {key} {
+    global openLog offset
+    if {$openLog ne {}} {
+        pack forget .logs.body$openLog
+        .logs.head$openLog configure -text "\u25b8[string range [.logs.head$openLog cget -text] 1 end]"
+    }
+    if {$openLog eq $key} {
+        set openLog {}
+        return
+    }
+    set openLog $key
+    .logs.head$key configure -text "\u25be[string range [.logs.head$key cget -text] 1 end]"
+    pack .logs.body$key -after .logs.head$key -fill both -expand 1
+    .logs.body$key.text delete 1.0 end
+    set offset($key) 0
+    poll_log
+}
+
+proc poll_log {} {
+    global logFile openLog offset run
+    if {$openLog eq {}} {return}
+    set file [file join $run $logFile($openLog)]
+    if {[catch {set size [file size $file]}] || $size == $offset($openLog)} {return}
+    if {$size < $offset($openLog)} {set offset($openLog) 0}
+    set start [expr {max($offset($openLog), $size - 65536)}]
+    if {[catch {
+        set stream [open $file rb]
+        try {
+            seek $stream $start
+            set chunk [read $stream]
+        } finally {close $stream}
+    }]} {return}
+    set offset($openLog) $size
+    set view .logs.body$openLog.text
+    set follow [expr {[lindex [$view yview] 1] >= 0.999}]
+    $view insert end [string map {"\r" ""} [encoding convertfrom utf-8 $chunk]]
+    set excess [expr {int([$view index end]) - 3000}]
+    if {$excess > 0} {$view delete 1.0 $excess.0}
+    if {$follow} {$view see end}
+}
+
 proc refresh {} {
     global frame run last
     if {![catch {
@@ -305,6 +470,9 @@ proc refresh {} {
         .panel create text 249 249 -text "QEMU stopped\n[file tail $run]/qemu.log" -fill white
         return
     }
+    motor_status
+    global tick
+    if {[incr tick] % 15 == 0} {poll_log}
     after 16 refresh
 }
 refresh

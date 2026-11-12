@@ -60,6 +60,11 @@ Windowed runs select an available speaker backend automatically. Use
 `--audio none` for a silent window. To record the speaker output to
 `audio.wav` without opening a window, run with `--headless --wav`.
 
+The vibration motor is not felt, but its drive is logged. Each change is a line in
+`motor.log` in the output folder: virtual milliseconds, duty in tenths of a percent and
+PWM frequency in hertz, with `0 0` meaning off. The window shows the current state
+next to the firmware version.
+
 ## Custom firmware
 
 Use `--app local/app.bin` to start an app you built. Add `--sdfs local/sdfs.bin`

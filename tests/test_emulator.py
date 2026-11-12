@@ -1,11 +1,12 @@
 import hashlib
+from pathlib import Path
 import struct
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
 from cmf_watch_utils import actions, cmf_watch
-from cmf_watch_utils.emu import image, prepare, stock_ota
+from cmf_watch_utils.emu import image, prepare, stock_ota, vm
 from cmf_watch_utils.emu.profiles import PROFILES, WP2
 from cmf_watch_utils.ota_client import OTA_SVC
 from fwkit import aota
@@ -123,6 +124,13 @@ class StockOtaTests(unittest.IsolatedAsyncioTestCase):
 
 
 class ProfileTests(unittest.TestCase):
+    def test_run_env_exports_motor_log_path(self):
+        output = Path("/tmp/wp2-run")
+        args = SimpleNamespace(runtime_dir=None, charger_connected=False)
+        env = vm.run_env(args, WP2, output, output / "nor.bin", output / "nand.bin")
+        self.assertEqual(env["QEMU_WP2_MOTOR"], str(output / "motor.log"))
+        self.assertEqual(env["QEMU_WP2_FRAME"], str(output / "frame.ppm"))
+
     def test_reconstructed_partition_table_matches_the_wp2_layout(self):
         table = prepare.partition_table()
         self.assertEqual(hashlib.sha256(table).hexdigest(),

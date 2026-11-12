@@ -45,6 +45,12 @@ def runtime_env(args, model, **values):
     return env
 
 
+def run_env(args, model, output, nor, nand):
+    return runtime_env(args, model, NOR=nor, NAND=nand, FRAME=output / "frame.ppm",
+                       INPUT=output / "input.txt", MOTOR=output / "motor.log",
+                       UNPLUGGED=int(not args.charger_connected), HOST_RTC=1, EXPLORATORY=0)
+
+
 def command(args, model, output, env, audio):
     require(args.rom.is_file(), f"Compatibility ROM not found: {args.rom}")
     argv = [executable(args.qemu, env), "-M", model.machine, "-bios", str(args.rom),
@@ -213,9 +219,7 @@ def run(args, profile):
         existing = texture_index.read_bytes() if texture_index.is_file() else b""
         texture_index = output / "wfc-index.txt"
         texture_index.write_bytes(existing + b"\n" + index)
-    env = runtime_env(args, model, NOR=nor, NAND=nand, FRAME=output / "frame.ppm",
-                      INPUT=output / "input.txt", UNPLUGGED=int(not args.charger_connected),
-                      HOST_RTC=1, EXPLORATORY=0)
+    env = run_env(args, model, output, nor, nand)
     if texture_index.is_file():
         env[model.env_prefix + "WFC_INDEX"] = str(texture_index)
     audio = args.audio
