@@ -2220,6 +2220,7 @@ static void acts_reset(void *opaque)
     uint32_t rtc_remain[6];
     memcpy(rtc_remain, &s->regs[0xc030 / 4], sizeof(rtc_remain));
     memset(s->regs, 0, sizeof(s->regs));
+    acts_motor_update(s);
     memcpy(&s->regs[0xc030 / 4], rtc_remain, sizeof(rtc_remain));
     timer_del(s->dac_timer);
     s->dac_queued = s->dac_fraction = 0;

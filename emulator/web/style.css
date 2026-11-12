@@ -179,7 +179,7 @@ canvas { display: block; width: 94%; height: auto; border-radius: 50%; touch-act
   cursor: pointer;
   font-size: 12px;
 }
-#firmware-label { margin-left: 8px; font-size: 10px; }
+#firmware-label, #motor-status { margin-left: 8px; font-size: 10px; color: var(--muted); }
 #save-log {
   position: absolute;
   top: 0;

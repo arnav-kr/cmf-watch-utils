@@ -12,7 +12,10 @@ without a physical watch.
 [Open the Watch Pro 2 browser emulator](/emulator/watch-pro-2/) in a recent
 desktop version of Chrome or Edge. Stock firmware starts automatically.
 The first boot downloads the virtual storage and can take a moment. **Watch log**
-shows the guest's progress. Use the touchscreen and crown, change brightness,
+shows the guest's progress. **Motor log** shows when the virtual watch vibrates,
+including its duty cycle and frequency. On browsers that support vibration,
+**Watch vibration** replays pulses after you interact with the page.
+Use the touchscreen and crown, change brightness,
 or simulate battery, motion, GPS and optical sensor readings.
 Stock starts at the highest manual brightness in the watch's own settings.
 The browser brightness slider adjusts the rendered display separately.

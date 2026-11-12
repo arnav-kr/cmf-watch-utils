@@ -72,6 +72,7 @@
           <input id="brightness" type="range" min="0" max="100" value="100">
         </div>
         <label class="switch-label"><input id="watch-sound" type="checkbox" checked> Watch sound</label>
+        <label class="switch-label" id="vibration-control" hidden><input id="watch-vibration" type="checkbox" checked> Watch vibration</label>
         <label class="switch-label"><input id="show-frame" type="checkbox" checked> Show watch frame</label>
         <label class="switch-label"><input id="capture-frame" type="checkbox"> Include frame in screenshots</label>
         <label class="frame-color">Watch color
@@ -252,6 +253,10 @@
       <pre id="log" tabindex="0">No output yet.</pre>
     </details>
     <button id="save-log" title="Save full watch log">Save log</button>
+    <details>
+      <summary>Motor log <span id="motor-status">Waiting for motor data</span></summary>
+      <pre id="motor-log" tabindex="0">No motor events yet.</pre>
+    </details>
   </section>
   </div>
 </main>

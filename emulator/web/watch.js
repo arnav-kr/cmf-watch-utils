@@ -71,6 +71,7 @@ function status(text,error=false,state) {
 function guestStopped(message) {
   if (halted) return;
   halted = true;
+  stopVibration();
   if (speakerOutput) speakerOutput.gain.value = 0;
   status(message, true);
   for (const button of document.querySelectorAll('#crown, #up, #down')) {
@@ -301,18 +302,89 @@ function renderAudio() {
   }
 }
 setInterval(renderAudio, 20);
-function readLog(path,limit) {
+function readLog(path,limit,start) {
   const length=runtime.FS.stat(path).size;
+  const offset = start ?? Math.max(0,length-limit);
   const stream=runtime.FS.open(path,'r');
   try {
-    const bytes=new Uint8Array(Math.min(length,limit));
-    runtime.FS.read(stream,bytes,0,bytes.length,Math.max(0,length-limit));
-    return new TextDecoder().decode(bytes);
+    const bytes=new Uint8Array(Math.min(length-offset,limit));
+    const count = runtime.FS.read(stream,bytes,0,bytes.length,offset);
+    return new TextDecoder().decode(bytes.subarray(0,count));
   } finally {runtime.FS.close(stream);}
+}
+const motorPath = '/watch/motor.log';
+const vibration = $('watch-vibration');
+const canVibrate = typeof navigator.vibrate === 'function';
+$('vibration-control').hidden = !canVibrate;
+let motorOffset = 0, motorRemainder = '', nextMotorPoll = 0;
+let motorActive = false, renewVibration = 0, motorPlaybackEnd = 0;
+const motorTimers = new Set();
+
+function stopVibration() {
+  for (const pending of motorTimers) clearTimeout(pending);
+  motorTimers.clear();
+  if (motorActive) navigator.vibrate(0);
+  motorActive = false;
+  motorPlaybackEnd = 0;
+}
+
+vibration.addEventListener('change', () => { if (!vibration.checked) stopVibration(); });
+document.addEventListener('visibilitychange', () => { if (document.hidden) stopVibration(); });
+window.addEventListener('pagehide', stopVibration);
+
+function pollMotor(now) {
+  if (halted || now < nextMotorPoll) return;
+  nextMotorPoll = now + 25;
+  try {
+    const size = runtime.FS.stat(motorPath).size;
+    if (size < motorOffset) {
+      stopVibration();
+      motorOffset = 0;
+      motorRemainder = '';
+    }
+    if (size !== motorOffset) {
+      const start = Math.max(motorOffset, size - 4096);
+      const chunk = readLog(motorPath, 4096, start);
+      const lines = (start > motorOffset ? chunk.slice(chunk.indexOf('\n') + 1) : motorRemainder + chunk).split('\n');
+      motorOffset = start + chunk.length;
+      motorRemainder = lines.pop();
+      const events = lines.map(line => /^(\d+) (\d+) (\d+)\s*$/.exec(line)?.slice(1).map(Number)).filter(Boolean);
+      if (events.length) {
+        const [, duty, hz] = events.at(-1);
+        $('motor-status').textContent = duty ? `${duty / 10}% · ${hz} Hz` : 'Off';
+        const log = $('motor-log');
+        log.textContent = 'Virtual ms | Duty ‰ | Hz\n' + readLog(motorPath, 8192).trimEnd();
+        if (canVibrate && vibration.checked && !document.hidden && navigator.userActivation?.hasBeenActive !== false) {
+          let when = Math.max(now, motorPlaybackEnd);
+          const latest = events.at(-1)[0];
+          const recent = events.filter(([ms]) => ms >= latest - 500 && ms <= latest);
+          for (const [index, [ms, level]] of recent.entries()) {
+            if (index) when += Math.max(0, ms - recent[index - 1][0]);
+            const pending = setTimeout(() => {
+              motorTimers.delete(pending);
+              if (halted || !vibration.checked || document.hidden) return;
+              motorActive = level > 0;
+              navigator.vibrate(motorActive ? 500 : 0);
+              renewVibration = performance.now() + 400;
+            }, when - now);
+            motorTimers.add(pending);
+          }
+          motorPlaybackEnd = when;
+        }
+      }
+    } else if (!size) {
+      $('motor-status').textContent = 'Off';
+    }
+  } catch {}
+  if (motorActive && now >= renewVibration) {
+    navigator.vibrate(500);
+    renewVibration = now + 400;
+  }
 }
 function render() {
   timer = requestAnimationFrame(render);
   const now = performance.now();
+  pollMotor(now);
   if (now >= nextFrame) {
     nextFrame = now + (economyDisplay ? 30 : 0);
     renderFrame();
@@ -433,8 +505,12 @@ document.addEventListener('keydown', event => {
 $('save-log').onclick=()=>{
   const parts = [runtimeLog, '\n'];
   if (runtime) {
-    for (const path of debug ? ['/watch/qemu.log', '/watch/uart.log'] : ['/watch/uart.log']) {
-      try { parts.push(runtime.FS.readFile(path), '\n'); } catch {}
+    for (const path of [...(debug ? ['/watch/qemu.log'] : []), '/watch/uart.log', motorPath]) {
+      try {
+        const contents = runtime.FS.readFile(path);
+        if (path === motorPath) parts.push('Motor log (virtual ms, duty per mille, Hz)\n');
+        parts.push(contents, '\n');
+      } catch {}
     }
   }
   const url = URL.createObjectURL(new Blob(parts, {type:'text/plain'}));
@@ -969,6 +1045,7 @@ $('start').onclick=async()=>{
         Object.assign(module.ENV,{QEMU_WP2_NOR:'/watch/nor.bin',QEMU_WP2_NAND:'/watch/nand-defaults.bin',
           QEMU_WP2_FRAME:'/watch/frame.ppm',QEMU_WP2_INPUT:'/watch/input.txt',QEMU_WP2_LIVE_FRAME:'1',
           QEMU_WP2_PCM_STREAM:'/watch/speaker.pcm',
+          QEMU_WP2_MOTOR:motorPath,
           QEMU_WP2_LIVE_SENSORS:'1',QEMU_WP2_HOST_RTC:'1',QEMU_WP2_UNPLUGGED:'1'});
         if (!customApp) {
           module.ENV.QEMU_WP2_LIVE_HEALTH = '1';
