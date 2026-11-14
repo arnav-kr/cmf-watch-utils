@@ -99,6 +99,7 @@ def provision_nand(args, profile, work, env, qemu, debugger, elf, pending):
         command = [qemu, "-M", profile.model.machine, "-bios", str(args.rom),
                    "-kernel", str(work / "app.bin"), "-display", "none", "-monitor", "none",
                    "-serial", f"file:{work / f'uart-{attempt}.log'}",
+                   "-icount", "shift=3,align=off",
                    "-S", "-gdb", f"tcp:{address}", "-no-reboot"]
         gdb_log = work / f"gdb-{attempt}.log"
         with child(command, env, work / f"qemu-{attempt}.log") as process, gdb_log.open("wb") as log:
